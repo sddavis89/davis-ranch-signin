@@ -70,6 +70,12 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .report-stat-value{font-size:1.6rem;font-weight:700;color:var(--gold-light);font-family:var(--font-display);}
 .report-section-title{font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-soft);font-weight:700;margin-top:4px;}
 .report-hint{color:var(--fg-soft);font-size:0.9rem;text-align:center;padding:20px 0;}
+.report-group{background:#2a1f10;border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+.report-group-name{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--gold-light);margin-bottom:6px;}
+.report-group-stats{display:flex;gap:14px;font-size:0.82rem;color:var(--fg-soft);margin-bottom:8px;flex-wrap:wrap;}
+.report-limit-bar-wrap{background:#3a2a15;border-radius:4px;height:8px;overflow:hidden;margin-bottom:4px;}
+.report-limit-bar{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
+.report-limit-label{font-size:0.75rem;color:var(--fg-soft);}
 .worker-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px;}
 .worker-row .field{margin-bottom:0;}
 .worker-row .field:first-child{flex:2;}
@@ -370,30 +376,70 @@ window.addEventListener('DOMContentLoaded',()=>{
   buildInventoryUI();
 });
 
+var SIGNIN_URL='https://script.google.com/macros/s/AKfycbykbCf8ZwLFso7ObUhu6q3mf-7zToHQGmfpJAJeScws2xDc3_U64kkJc-SUR5E0-Ymu/exec';
+var LIMIT_PER_HUNTER=3;
+
 function loadReports(){
   var s=document.getElementById('reports-status');
   var body=document.getElementById('reports-body');
   s.className='submit-status show';s.textContent='Loading...';
   body.innerHTML='';
-  fetch(SCRIPT_URL+'?action=report')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      s.className='submit-status';
-      var onHand=(d.purchased||0)-(d.harvested||0);
-      body.innerHTML=
-        '<div class="report-section-title">Bird Totals</div>'+
-        stat('Birds Purchased',d.purchased||0)+
-        stat('Birds Released',d.released||0)+
-        stat('Birds Harvested',d.harvested||0)+
-        stat('Est. Birds On Hand',Math.max(0,onHand))+
-        '<div class="report-section-title" style="margin-top:8px">Cleaning</div>'+
-        stat('Birds Cleaned',d.cleaningBirds||0)+
-        stat('Total Cleaning Pay','$'+((d.cleaningPay||0).toFixed(2)));
-    })
-    .catch(function(){
-      s.className='submit-status show error';
-      s.textContent='Could not load data. Check your connection.';
+  Promise.all([
+    fetch(SCRIPT_URL).then(function(r){return r.json();}),
+    fetch(SIGNIN_URL).then(function(r){return r.json();})
+  ]).then(function(results){
+    var ops=results[0];
+    var signin=results[1];
+    s.className='submit-status';
+    var onHand=(ops.purchased||0)-(ops.harvested||0);
+
+    // Combine signin counts by group across all dates
+    var huntersByGroup={};
+    Object.keys(signin).forEach(function(date){
+      Object.keys(signin[date]).forEach(function(group){
+        huntersByGroup[group]=(huntersByGroup[group]||0)+signin[date][group];
+      });
     });
+
+    // Harvest by group from ops
+    var harvestByGroup=ops.harvestByGroup||{};
+
+    // Build group rows
+    var allGroups=Array.from(new Set(Object.keys(huntersByGroup).concat(Object.keys(harvestByGroup))));
+    var groupRows='';
+    allGroups.forEach(function(group){
+      var hunters=huntersByGroup[group]||0;
+      var birds=harvestByGroup[group]||0;
+      var limit=hunters*LIMIT_PER_HUNTER;
+      var pct=limit>0?Math.round((birds/limit)*100):0;
+      var avg=hunters>0?(birds/hunters).toFixed(1):0;
+      groupRows+='<div class="report-group">'+
+        '<div class="report-group-name">'+group+'</div>'+
+        '<div class="report-group-stats">'+
+        '<span>&#128101; '+hunters+' hunters</span>'+
+        '<span>&#127819; '+birds+' birds</span>'+
+        '<span>&#127919; '+avg+'/hunter</span>'+
+        '</div>'+
+        '<div class="report-limit-bar-wrap"><div class="report-limit-bar" style="width:'+Math.min(100,pct)+'%"></div></div>'+
+        '<div class="report-limit-label">'+pct+'% of limit ('+birds+' / '+limit+' birds)</div>'+
+        '</div>';
+    });
+
+    body.innerHTML=
+      '<div class="report-section-title">Season Bird Totals</div>'+
+      stat('Purchased',ops.purchased||0)+
+      stat('Released',ops.released||0)+
+      stat('Harvested',ops.harvested||0)+
+      stat('Est. On Hand',Math.max(0,onHand))+
+      '<div class="report-section-title" style="margin-top:12px">Cleaning</div>'+
+      stat('Birds Cleaned',ops.cleaningBirds||0)+
+      stat('Total Pay','$'+((ops.cleaningPay||0).toFixed(2)))+
+      '<div class="report-section-title" style="margin-top:12px">By Group</div>'+
+      (groupRows||'<div class="report-hint">No group data yet.</div>');
+  }).catch(function(err){
+    s.className='submit-status show error';
+    s.textContent='Could not load data. Check your connection.';
+  });
 }
 function stat(label,value){
   return '<div class="report-stat"><span class="report-stat-label">'+label+'</span><span class="report-stat-value">'+value+'</span></div>';
