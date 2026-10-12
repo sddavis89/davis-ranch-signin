@@ -63,6 +63,13 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,150,62,.15);}
 .field textarea{resize:vertical;min-height:80px;}
 .field-row{display:flex;gap:12px;margin-bottom:14px;}
+.btn-refresh{width:100%;padding:12px;background:var(--earth);border:1.5px solid var(--gold);border-radius:8px;color:var(--gold);font-family:var(--font-body);font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:14px;}
+.reports-body{display:flex;flex-direction:column;gap:12px;}
+.report-stat{background:#2a1f10;border-radius:10px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;}
+.report-stat-label{font-size:0.85rem;color:var(--fg-soft);text-transform:uppercase;letter-spacing:0.06em;}
+.report-stat-value{font-size:1.6rem;font-weight:700;color:var(--gold-light);font-family:var(--font-display);}
+.report-section-title{font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-soft);font-weight:700;margin-top:4px;}
+.report-hint{color:var(--fg-soft);font-size:0.9rem;text-align:center;padding:20px 0;}
 .worker-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px;}
 .worker-row .field{margin-bottom:0;}
 .worker-row .field:first-child{flex:2;}
@@ -127,6 +134,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
         <option value="harvest">&#127919; Bird Harvest</option>
         <option value="cleaning">&#9986; Bird Cleaning</option>
         <option value="inventory">&#127968; Lodge Inventory</option>
+        <option value="reports">&#128202; Season Reports</option>
       </select>
     </div>
 
@@ -215,6 +223,16 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
         <div class="field"><label>Notes <span class="opt">(optional)</span></label><input type="text" id="inv-notes" placeholder="e.g. Walmart run, used by Texas group"></div>
         <button class="btn-submit" data-label="Log Transaction" onclick="submitInventory()">Log Transaction</button>
         <div class="submit-status" id="inv-status"></div>
+      </div>
+    </div>
+
+    <div class="form-card" id="card-reports">
+      <div class="card-title">&#128202; Season Reports</div>
+      <div class="card-desc">Live totals pulled from your Google Sheet</div>
+      <button class="btn-refresh" onclick="loadReports()">&#8635; Refresh</button>
+      <div id="reports-status" class="submit-status"></div>
+      <div id="reports-body" class="reports-body">
+        <div class="report-hint">Tap Refresh to load current season totals.</div>
       </div>
     </div>
 
@@ -352,8 +370,36 @@ window.addEventListener('DOMContentLoaded',()=>{
   buildInventoryUI();
 });
 
+function loadReports(){
+  var s=document.getElementById('reports-status');
+  var body=document.getElementById('reports-body');
+  s.className='submit-status show';s.textContent='Loading...';
+  body.innerHTML='';
+  fetch(SCRIPT_URL+'?action=report')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      s.className='submit-status';
+      var onHand=(d.purchased||0)-(d.harvested||0);
+      body.innerHTML=
+        '<div class="report-section-title">Bird Totals</div>'+
+        stat('Birds Purchased',d.purchased||0)+
+        stat('Birds Released',d.released||0)+
+        stat('Birds Harvested',d.harvested||0)+
+        stat('Est. Birds On Hand',Math.max(0,onHand))+
+        '<div class="report-section-title" style="margin-top:8px">Cleaning</div>'+
+        stat('Birds Cleaned',d.cleaningBirds||0)+
+        stat('Total Cleaning Pay','$'+((d.cleaningPay||0).toFixed(2)));
+    })
+    .catch(function(){
+      s.className='submit-status show error';
+      s.textContent='Could not load data. Check your connection.';
+    });
+}
+function stat(label,value){
+  return '<div class="report-stat"><span class="report-stat-label">'+label+'</span><span class="report-stat-value">'+value+'</span></div>';
+}
 function showTask(val){
-  ['purchase','release','harvest','cleaning','inventory'].forEach(function(t){
+  ['purchase','release','harvest','cleaning','inventory','reports'].forEach(function(t){
     var el=document.getElementById('card-'+t);
     if(t===val){
       el.style.display='block';
@@ -418,13 +464,14 @@ function calcPay(){
   calcPayFromRate();
 }
 
-async function postData(data,statusId,btnEl,successMsg){
+async function postData(data,statusId,btnEl,successMsg,clearFn){
   btnEl.disabled=true;btnEl.textContent='Saving...';
   const s=document.getElementById(statusId);s.className='submit-status';
   try{
     await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
     s.className='submit-status show success';s.textContent='&#10003; '+successMsg;
     btnEl.textContent=btnEl.getAttribute('data-label');btnEl.disabled=false;
+    if(clearFn) setTimeout(function(){clearFn();s.className='submit-status';},2000);
   }catch(err){
     s.className='submit-status show error';s.textContent='Could not connect. Check your signal and try again.';
     btnEl.textContent=btnEl.getAttribute('data-label');btnEl.disabled=false;
@@ -434,19 +481,34 @@ function submitPurchase(){
   const date=document.getElementById('p-date').value,supplier=document.getElementById('p-supplier').value.trim(),qty=document.getElementById('p-qty').value,cost=document.getElementById('p-cost').value;
   if(!date||!supplier||!qty||!cost){alert('Please fill in all required fields.');return;}
   const btn=document.querySelector('#card-purchase .btn-submit');
-  postData({task:'purchase',date,supplier,qty:parseInt(qty),costPerBird:parseFloat(cost),totalCost:parseFloat((parseFloat(qty)*parseFloat(cost)).toFixed(2)),notes:document.getElementById('p-notes').value},'p-status',btn,'Purchase logged!');
+  postData({task:'purchase',date,supplier,qty:parseInt(qty),costPerBird:parseFloat(cost),totalCost:parseFloat((parseFloat(qty)*parseFloat(cost)).toFixed(2)),notes:document.getElementById('p-notes').value},'p-status',btn,'Purchase logged!',function(){
+    document.getElementById('p-supplier').value='';
+    document.getElementById('p-qty').value='';
+    document.getElementById('p-cost').value='';
+    document.getElementById('p-total').textContent='$0.00';
+    document.getElementById('p-notes').value='';
+  });
 }
 function submitRelease(){
   const date=document.getElementById('r-date').value,field=document.getElementById('r-field').value.trim(),group=document.getElementById('r-group').value,qty=document.getElementById('r-qty').value;
   if(!date||!field||!group||!qty){alert('Please fill in all required fields.');return;}
   const btn=document.querySelector('#card-release .btn-submit');
-  postData({task:'release',date,field,group,qty:parseInt(qty),notes:document.getElementById('r-notes').value},'r-status',btn,'Release logged!');
+  postData({task:'release',date,field,group,qty:parseInt(qty),notes:document.getElementById('r-notes').value},'r-status',btn,'Release logged!',function(){
+    document.getElementById('r-field').value='';
+    document.getElementById('r-group').value='';
+    document.getElementById('r-qty').value='';
+    document.getElementById('r-notes').value='';
+  });
 }
 function submitHarvest(){
   const date=document.getElementById('h-date').value,group=document.getElementById('h-group').value,qty=document.getElementById('h-qty').value;
   if(!date||!group||!qty){alert('Please fill in all required fields.');return;}
   const btn=document.querySelector('#card-harvest .btn-submit');
-  postData({task:'harvest',date,group,qty:parseInt(qty),notes:document.getElementById('h-notes').value},'h-status',btn,'Harvest logged!');
+  postData({task:'harvest',date,group,qty:parseInt(qty),notes:document.getElementById('h-notes').value},'h-status',btn,'Harvest logged!',function(){
+    document.getElementById('h-group').value='';
+    document.getElementById('h-qty').value='';
+    document.getElementById('h-notes').value='';
+  });
 }
 function submitCleaning(){
   var date=document.getElementById('c-date').value;
@@ -456,7 +518,16 @@ function submitCleaning(){
   var totalPay=parseFloat(document.getElementById('c-total-pay').value)||0;
   var workers=getWorkerNames();
   var btn=document.querySelector('#card-cleaning .btn-submit');
-  postData({task:'cleaning',date,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:document.getElementById('c-notes').value},'c-status',btn,'Cleaning logged!');
+  postData({task:'cleaning',date,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:document.getElementById('c-notes').value},'c-status',btn,'Cleaning logged!',function(){
+    document.getElementById('c-qty').value='';
+    document.getElementById('c-rate').value='';
+    document.getElementById('c-total-pay').value='';
+    document.getElementById('c-total').textContent='$0.00';
+    document.getElementById('c-notes').value='';
+    document.getElementById('c-workers-list').innerHTML='';
+    workerCount=0;
+    addWorkerRow();
+  });
 }
 function submitInventory(){
   const date=document.getElementById('inv-date').value,itemId=document.getElementById('inv-item-select').value,type=document.getElementById('inv-type').value,qty=parseInt(document.getElementById('inv-qty-input').value)||0;
@@ -469,7 +540,12 @@ function submitInventory(){
   const qel=document.getElementById('inv-qty-'+itemId);
   if(qel){qel.value=n;refreshItemStyle(itemId,n,item.low);refreshLowBanner();}
   const btn=document.querySelector('#card-inventory .btn-submit');
-  postData({task:'inventory',date,itemId,itemName:item.name,category:item.cat,transactionType:type,qty,qtyBefore:old,qtyAfter:n,notes:document.getElementById('inv-notes').value},'inv-status',btn,item.name+' updated (now '+n+')');
+  postData({task:'inventory',date,itemId,itemName:item.name,category:item.cat,transactionType:type,qty,qtyBefore:old,qtyAfter:n,notes:document.getElementById('inv-notes').value},'inv-status',btn,item.name+' updated (now '+n+')',function(){
+    document.getElementById('inv-item-select').value='';
+    document.getElementById('inv-type').value='';
+    document.getElementById('inv-qty-input').value='';
+    document.getElementById('inv-notes').value='';
+  });
 }
 
 </script>
