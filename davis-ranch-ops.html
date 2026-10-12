@@ -377,7 +377,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 
 var SIGNIN_URL='https://script.google.com/macros/s/AKfycbykbCf8ZwLFso7ObUhu6q3mf-7zToHQGmfpJAJeScws2xDc3_U64kkJc-SUR5E0-Ymu/exec';
-var LIMIT_PER_HUNTER=3;
+var GROUP_LIMITS={'FarmHouse':6,'Jared Hendrickson':6};
 
 function loadReports(){
   var s=document.getElementById('reports-status');
@@ -410,7 +410,8 @@ function loadReports(){
     allGroups.forEach(function(group){
       var hunters=huntersByGroup[group]||0;
       var birds=harvestByGroup[group]||0;
-      var limit=hunters*LIMIT_PER_HUNTER;
+      var perHunter=GROUP_LIMITS[group]||9;
+      var limit=hunters*perHunter;
       var pct=limit>0?Math.round((birds/limit)*100):0;
       var avg=hunters>0?(birds/hunters).toFixed(1):0;
       groupRows+='<div class="report-group">'+
@@ -421,7 +422,7 @@ function loadReports(){
         '<span>&#127919; '+avg+'/hunter</span>'+
         '</div>'+
         '<div class="report-limit-bar-wrap"><div class="report-limit-bar" style="width:'+Math.min(100,pct)+'%"></div></div>'+
-        '<div class="report-limit-label">'+pct+'% of limit ('+birds+' / '+limit+' birds)</div>'+
+        '<div class="report-limit-label">'+pct+'% of limit ('+birds+' / '+limit+' birds &mdash; '+perHunter+' per hunter)</div>'+
         '</div>';
     });
 
