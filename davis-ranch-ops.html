@@ -118,13 +118,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .inv-item-name{flex:1;font-size:.9rem;color:var(--fg);line-height:1.3;padding-right:10px;}
 .inv-item-name.low{color:var(--warn);font-weight:600;}
 .inv-low-badge{display:inline-block;font-size:.6rem;background:var(--warn-bg);color:var(--warn);border:1px solid #FFCC80;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:middle;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
-.inv-controls{display:flex;align-items:center;flex-shrink:0;}
-.inv-btn{width:34px;height:34px;border:1.5px solid var(--border);background:var(--input-bg);font-size:1.2rem;font-weight:700;color:var(--fg-mid);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-user-select:none;user-select:none;}
-.inv-btn:active{background:var(--cream-dark);}
-.inv-btn.minus{border-radius:6px 0 0 6px;border-right:none;}
-.inv-btn.plus{border-radius:0 6px 6px 0;border-left:none;}
-.inv-qty{width:44px;text-align:center;font-size:1rem;font-weight:700;color:var(--fg);border:1.5px solid var(--border);border-left:none;border-right:none;padding:0;height:34px;background:white;-webkit-appearance:none;appearance:none;}
-.inv-qty:focus{outline:none;}
+.inv-qty-display{font-size:1rem;font-weight:700;color:var(--gold);min-width:36px;text-align:right;flex-shrink:0;}
 .low-stock-banner{background:var(--warn-bg);border:1px solid #FFCC80;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.82rem;color:var(--warn);font-weight:600;display:none;}
 .low-stock-banner.show{display:block;}
 </style>
@@ -214,30 +208,34 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 
     <div class="form-card" id="card-inventory">
       <div class="card-title">Lodge Inventory</div>
-      <div class="card-desc">Track consumable supplies &#8212; quantities saved on this device</div>
-      <div class="inv-tabs">
-        <button class="inv-tab active" onclick="showInvPanel('stock',this)">&#128230; Stock Levels</button>
-        <button class="inv-tab" onclick="showInvPanel('log',this)">&#128221; Log Transaction</button>
+      <div class="card-desc">Select an item, enter quantity used or restocked, and submit</div>
+      <div class="low-stock-banner" id="low-stock-banner"></div>
+      <div class="field"><label>Item <span class="req">*</span></label>
+        <select id="inv-item-select"><option value="">&#8212; Select item &#8212;</option></select>
       </div>
-      <div class="inv-panel active" id="inv-panel-stock">
-        <div class="low-stock-banner" id="low-stock-banner"></div>
+      <div class="field" id="inv-current-wrap" style="display:none">
+        <label>Current Stock</label>
+        <div id="inv-current-display" style="font-size:1.1rem;font-weight:700;color:var(--gold);padding:8px 0;"></div>
+      </div>
+      <div class="field"><label>Transaction Type <span class="req">*</span></label>
+        <select id="inv-type">
+          <option value="">&#8212; Used or Restocked? &#8212;</option>
+          <option value="use">Used / Consumed</option>
+          <option value="restock">Restocked (added more)</option>
+          <option value="set">Set Exact Count</option>
+        </select>
+      </div>
+      <div class="field"><label>Quantity <span class="req">*</span></label>
+        <input type="number" id="inv-qty-input" placeholder="0" min="0">
+      </div>
+      <div class="field"><label>Notes <span class="opt">(optional)</span></label>
+        <input type="text" id="inv-notes" placeholder="e.g. used by Texas group, Walmart restock">
+      </div>
+      <button class="btn-submit" data-label="Submit" onclick="submitInventory()">Submit</button>
+      <div class="submit-status" id="inv-status"></div>
+      <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+        <div class="inv-cat-label" style="margin-bottom:10px;">Current Stock Levels</div>
         <div id="inv-list"></div>
-      </div>
-      <div class="inv-panel" id="inv-panel-log">
-        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="inv-date"></div>
-        <div class="field"><label>Item <span class="req">*</span></label><select id="inv-item-select"><option value="">&#8212; Select item &#8212;</option></select></div>
-        <div class="field"><label>Transaction Type <span class="req">*</span></label>
-          <select id="inv-type">
-            <option value="">&#8212; Select type &#8212;</option>
-            <option value="restock">Restock (add qty)</option>
-            <option value="use">Used / Consumed (reduce qty)</option>
-            <option value="set">Set Exact Qty</option>
-          </select>
-        </div>
-        <div class="field"><label>Quantity <span class="req">*</span></label><input type="number" id="inv-qty-input" placeholder="0" min="0"></div>
-        <div class="field"><label>Notes <span class="opt">(optional)</span></label><input type="text" id="inv-notes" placeholder="e.g. Walmart run, used by Texas group"></div>
-        <button class="btn-submit" data-label="Log Transaction" onclick="submitInventory()">Log Transaction</button>
-        <div class="submit-status" id="inv-status"></div>
       </div>
     </div>
 
@@ -258,93 +256,166 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDTMNKmmiIlzaZBTDPKah3ykT6cWJ6lX5gz5KQSuGrMTnKyHFEWLqqLTHg1TqNhMSe/exec';
 
-const INVENTORY = [
-  {id:'ki01',cat:'Kitchen',name:'Paper Plates (lg)',low:20},
-  {id:'ki02',cat:'Kitchen',name:'Paper Plates (sm)',low:20},
-  {id:'ki03',cat:'Kitchen',name:'Paper Bowls',low:12},
-  {id:'ki04',cat:'Kitchen',name:'Plastic Forks',low:30},
-  {id:'ki05',cat:'Kitchen',name:'Plastic Knives',low:30},
-  {id:'ki06',cat:'Kitchen',name:'Plastic Spoons',low:30},
-  {id:'ki07',cat:'Kitchen',name:'Plastic Cups',low:20},
-  {id:'ki08',cat:'Kitchen',name:'Paper Towels (rolls)',low:4},
-  {id:'ki09',cat:'Kitchen',name:'Napkins (pkg)',low:2},
-  {id:'ki10',cat:'Kitchen',name:'Aluminum Foil (rolls)',low:1},
-  {id:'ki11',cat:'Kitchen',name:'Plastic Wrap',low:1},
-  {id:'ki12',cat:'Kitchen',name:'Zip-Lock Bags (qt)',low:1},
-  {id:'ki13',cat:'Kitchen',name:'Zip-Lock Bags (gal)',low:1},
-  {id:'ki14',cat:'Kitchen',name:'Dish Soap',low:1},
-  {id:'ki15',cat:'Kitchen',name:'Dish Sponges',low:2},
-  {id:'ba01',cat:'Bathroom',name:'Toilet Paper (rolls)',low:12},
-  {id:'ba02',cat:'Bathroom',name:'Hand Soap',low:4},
-  {id:'ba03',cat:'Bathroom',name:'Shampoo',low:2},
-  {id:'ba04',cat:'Bathroom',name:'Conditioner',low:2},
-  {id:'ba05',cat:'Bathroom',name:'Body Wash',low:2},
-  {id:'cl01',cat:'Cleaning',name:'Garbage Bags (lg)',low:10},
-  {id:'cl02',cat:'Cleaning',name:'Garbage Bags (sm)',low:10},
-  {id:'cl03',cat:'Cleaning',name:'All-Purpose Cleaner',low:1},
-  {id:'cl04',cat:'Cleaning',name:'Bathroom Cleaner',low:1},
-  {id:'cl05',cat:'Cleaning',name:'Glass Cleaner',low:1},
-  {id:'cl06',cat:'Cleaning',name:'Disinfectant Wipes',low:1},
-  {id:'cl07',cat:'Cleaning',name:'Mop Heads',low:1},
-  {id:'cl08',cat:'Cleaning',name:'Sponges / Scrubbers',low:3},
-  {id:'cl09',cat:'Cleaning',name:'Broom & Dustpan',low:1},
-  {id:'cl10',cat:'Cleaning',name:'Vacuum Bags / Filters',low:2},
-  {id:'cl11',cat:'Cleaning',name:'Air Freshener',low:2},
-  {id:'ll01',cat:'Laundry & Linens',name:'Laundry Detergent',low:1},
-  {id:'ll02',cat:'Laundry & Linens',name:'Fabric Softener',low:1},
-  {id:'ll03',cat:'Laundry & Linens',name:'Dryer Sheets',low:12},
-  {id:'ll04',cat:'Laundry & Linens',name:'Stain Remover',low:1},
-  {id:'ll05',cat:'Laundry & Linens',name:'Extra Bath Towels',low:4},
-  {id:'ot01',cat:'Other',name:'Batteries AA (pkg)',low:1},
-  {id:'ot02',cat:'Other',name:'Batteries AAA (pkg)',low:1},
-  {id:'ot03',cat:'Other',name:'Light Bulbs',low:4},
-  {id:'ot04',cat:'Other',name:'Matches / Lighters',low:2},
-  {id:'ot05',cat:'Other',name:'First Aid Supplies',low:1},
-  {id:'ot06',cat:'Other',name:'Bug Spray (cans)',low:2},
-  {id:'ot07',cat:'Other',name:'Sunscreen',low:2},
-  {id:'ot08',cat:'Other',name:'Hand Sanitizer',low:2},
-  {id:'ot09',cat:'Other',name:'Coffee / Filters',low:2},
-  {id:'ot10',cat:'Other',name:'Bottled Water (cases)',low:2},
+var INVENTORY = [
+  /* Paper Products */
+  {id:'pp01',cat:'Paper Products',name:'Paper Towels',start:60,low:10},
+  {id:'pp02',cat:'Paper Products',name:'Toilet Paper',start:38,low:8},
+  {id:'pp03',cat:'Paper Products',name:'Paper Plates',start:328,low:30},
+  {id:'pp04',cat:'Paper Products',name:'Plastic Plates',start:12,low:5},
+  {id:'pp05',cat:'Paper Products',name:'Paper Bowls',start:125,low:15},
+  {id:'pp06',cat:'Paper Products',name:'Napkins',start:300,low:30},
+  {id:'pp07',cat:'Paper Products',name:'Kleenex',start:3,low:1},
+  {id:'pp08',cat:'Paper Products',name:'Plastic Cups (3 oz)',start:200,low:20},
+  {id:'pp09',cat:'Paper Products',name:'Red Solo Cups',start:158,low:20},
+  {id:'pp10',cat:'Paper Products',name:'Coffee Cups',start:59,low:10},
+  {id:'pp11',cat:'Paper Products',name:'Coffee Filters',start:200,low:20},
+  /* Cleaning Supplies */
+  {id:'cl01',cat:'Cleaning Supplies',name:'Trash Bags',start:300,low:20},
+  {id:'cl02',cat:'Cleaning Supplies',name:'Clorox Disinfecting Spray',start:1,low:1},
+  {id:'cl03',cat:'Cleaning Supplies',name:'Clorox Wipes',start:3,low:1},
+  {id:'cl04',cat:'Cleaning Supplies',name:'Dawn Dish Soap',start:2,low:1},
+  {id:'cl05',cat:'Cleaning Supplies',name:'Hand/Dish Soap',start:1,low:1},
+  {id:'cl06',cat:'Cleaning Supplies',name:'Mr Clean Floor Cleaner',start:1,low:1},
+  {id:'cl07',cat:'Cleaning Supplies',name:'Windex',start:1,low:1},
+  {id:'cl08',cat:'Cleaning Supplies',name:'Disinfectant Aerosol Spray',start:1,low:1},
+  {id:'cl09',cat:'Cleaning Supplies',name:'Toilet Bowl Cleaner',start:3,low:1},
+  {id:'cl10',cat:'Cleaning Supplies',name:'Arm & Hammer Carpet Deodorizer',start:2,low:1},
+  {id:'cl11',cat:'Cleaning Supplies',name:'O Cedar Mop Heads',start:2,low:1},
+  {id:'cl12',cat:'Cleaning Supplies',name:'Cleaning Sponge',start:1,low:1},
+  {id:'cl13',cat:'Cleaning Supplies',name:'Scrub Brush',start:1,low:1},
+  {id:'cl14',cat:'Cleaning Supplies',name:'Household Cleaning Gloves',start:1,low:1},
+  {id:'cl15',cat:'Cleaning Supplies',name:'Clean Shower Spray',start:2,low:1},
+  /* Personal Care */
+  {id:'pc01',cat:'Personal Care',name:'Foaming Hand Soap',start:1,low:1},
+  {id:'pc02',cat:'Personal Care',name:'Hand Soap (Method Sweet Water)',start:3,low:1},
+  {id:'pc03',cat:'Personal Care',name:'3-in-1 Wash / Body Wash',start:4,low:1},
+  {id:'pc04',cat:'Personal Care',name:'Dove Bar Soap',start:3,low:1},
+  {id:'pc05',cat:'Personal Care',name:'Degree Advanced Deodorant',start:3,low:1},
+  {id:'pc06',cat:'Personal Care',name:'Toothbrushes',start:1,low:1},
+  {id:'pc07',cat:'Personal Care',name:'Toothpaste',start:2,low:1},
+  {id:'pc08',cat:'Personal Care',name:'Q-tips',start:750,low:50},
+  {id:'pc09',cat:'Personal Care',name:'Cotton Balls',start:100,low:20},
+  {id:'pc10',cat:'Personal Care',name:'Dental Floss',start:150,low:20},
+  /* First Aid */
+  {id:'fa01',cat:'First Aid',name:'Band-Aid Bandages',start:1,low:1},
+  {id:'fa02',cat:'First Aid',name:'Gauze Pads',start:25,low:5},
+  {id:'fa03',cat:'First Aid',name:'Butterfly Closures',start:1,low:1},
+  {id:'fa04',cat:'First Aid',name:'Vaseline Petroleum Jelly',start:1,low:1},
+  {id:'fa05',cat:'First Aid',name:'Medical Supplies (misc)',start:1,low:1},
+  /* Honey */
+  {id:'hn01',cat:'Honey',name:'Honey (8 oz)',start:83,low:10},
 ];
 
 function loadQtys(){try{return JSON.parse(localStorage.getItem('dr_inv_qtys')||'{}');}catch(e){return {};}}
 function saveQtys(q){try{localStorage.setItem('dr_inv_qtys',JSON.stringify(q));}catch(e){}}
-function getQty(id){const q=loadQtys();return(id in q)?q[id]:0;}
-function setQty(id,val){const q=loadQtys();q[id]=Math.max(0,val);saveQtys(q);}
+function getQty(id){
+  var q=loadQtys();
+  if(id in q) return q[id];
+  var item=INVENTORY.find(function(i){return i.id===id;});
+  return item?item.start:0;
+}
+function setQty(id,val){var q=loadQtys();q[id]=Math.max(0,val);saveQtys(q);}
+
+function loadInventoryFromSheet(){
+  var listEl=document.getElementById('inv-list');
+  if(listEl) listEl.innerHTML='<div style="color:#aaa;font-size:.85rem;padding:8px 0;">Loading inventory...</div>';
+  fetch(SCRIPT_URL)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.inventory && data.inventory.length){
+        // Merge sheet data into INVENTORY array — update currentQty
+        data.inventory.forEach(function(sheetItem){
+          var local=INVENTORY.find(function(i){return i.id===sheetItem.id;});
+          if(local){
+            local.currentQty=sheetItem.currentQty;
+          } else {
+            // New item added directly in sheet
+            INVENTORY.push({id:sheetItem.id,cat:sheetItem.category,name:sheetItem.name,start:sheetItem.startQty,currentQty:sheetItem.currentQty,low:1});
+          }
+        });
+      }
+      buildInventoryUI();
+    })
+    .catch(function(){
+      // Fall back to starting quantities if sheet unreachable
+      buildInventoryUI();
+    });
+}
+
+function getQtyDisplay(item){
+  return (item.currentQty !== undefined) ? item.currentQty : item.start;
+}
 
 function buildInventoryUI(){
   const listEl=document.getElementById('inv-list');
   const sel=document.getElementById('inv-item-select');
+  // Clear old options except placeholder
+  while(sel.options.length>1) sel.remove(1);
   const cats={};
-  INVENTORY.forEach(item=>{
+  INVENTORY.forEach(function(item){
     if(!cats[item.cat])cats[item.cat]=[];
     cats[item.cat].push(item);
-    const o=document.createElement('option');
-    o.value=item.id;o.textContent=item.name+' ('+item.cat+')';
+    var o=document.createElement('option');
+    o.value=item.id;o.textContent=item.name;
     sel.appendChild(o);
   });
-  Object.keys(cats).forEach(cat=>{
-    const div=document.createElement('div');
+  // Add new item option
+  var oNew=document.createElement('option');
+  oNew.value='__new__';oNew.textContent='+ Add New Item...';
+  sel.appendChild(oNew);
+
+  listEl.innerHTML='';
+  Object.keys(cats).forEach(function(cat){
+    var div=document.createElement('div');
     div.className='inv-category';
     div.innerHTML='<div class="inv-cat-label">'+cat+'</div>';
-    cats[cat].forEach(item=>{
-      const qty=getQty(item.id);
-      const isLow=qty<=item.low;
-      const row=document.createElement('div');
+    cats[cat].forEach(function(item){
+      var qty=getQtyDisplay(item);
+      var isLow=qty<=item.low;
+      var row=document.createElement('div');
       row.className='inv-item';
       var id=item.id;
       row.innerHTML='<div class="inv-item-name'+(isLow?' low':'')+'" id="inv-name-'+id+'">'+item.name+(isLow?'<span class="inv-low-badge">Low</span>':'')+'</div>'
-        +'<div class="inv-controls">'
-        +'<button class="inv-btn minus" onclick="changeQty(&#39;'+id+'&#39;,-1)">&#8722;</button>'
-        +'<input class="inv-qty" type="number" id="inv-qty-'+id+'" value="'+qty+'" min="0" onchange="manualQty(&#39;'+id+'&#39;,this.value)" onblur="manualQty(&#39;'+id+'&#39;,this.value)">'
-        +'<button class="inv-btn plus" onclick="changeQty(&#39;'+id+'&#39;,1)">+</button>'
-        +'</div>';
+        +'<div class="inv-qty-display" id="inv-qty-'+id+'">'+qty+'</div>';
       div.appendChild(row);
     });
     listEl.appendChild(div);
   });
   refreshLowBanner();
 }
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('inv-item-select').addEventListener('change',function(){
+    if(this.value==='__new__'){
+      var name=prompt('Enter new item name:');
+      if(name&&name.trim()){
+        var cat=prompt('Category (Paper Products, Cleaning Supplies, Personal Care, First Aid, Honey, Other):','Other');
+        if(!cat||!cat.trim()) cat='Other';
+        var startQty=parseInt(prompt('Starting quantity:','0'))||0;
+        var newId='cu'+(Date.now());
+        INVENTORY.push({id:newId,cat:cat.trim(),name:name.trim(),start:startQty,low:1});
+        setQty(newId,startQty);
+        buildInventoryUI();
+        this.value=newId;
+      } else {
+        this.value='';
+        document.getElementById('inv-current-wrap').style.display='none';
+        return;
+      }
+    }
+    var itemId=this.value;
+    if(itemId&&itemId!=='__new__'){
+      var item=INVENTORY.find(function(i){return i.id===itemId;});
+      if(item){
+        var qty=getQtyDisplay(item);
+        document.getElementById('inv-current-display').textContent=qty+' on hand';
+        document.getElementById('inv-current-wrap').style.display='block';
+      }
+    } else {
+      document.getElementById('inv-current-wrap').style.display='none';
+    }
+  });
+});
 
 function changeQty(id,delta){
   const item=INVENTORY.find(i=>i.id===id);
@@ -366,23 +437,17 @@ function refreshItemStyle(id,qty,low){
   el.innerHTML=item.name+(isLow?'<span class="inv-low-badge">Low</span>':'');
 }
 function refreshLowBanner(){
-  const low=INVENTORY.filter(i=>getQty(i.id)<=i.low);
+  const low=INVENTORY.filter(i=>getQtyDisplay(i)<=i.low);
   const b=document.getElementById('low-stock-banner');
   if(low.length){b.className='low-stock-banner show';b.innerHTML='&#9888; '+low.length+' item'+(low.length>1?'s':'')+' running low: '+low.map(i=>i.name).join(', ');}
   else{b.className='low-stock-banner';}
 }
-function showInvPanel(name,btn){
-  document.querySelectorAll('.inv-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.inv-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('inv-panel-'+name).classList.add('active');
-  btn.classList.add('active');
-}
 
 window.addEventListener('DOMContentLoaded',()=>{
   const today=new Date().toISOString().split('T')[0];
-  ['p-date','r-date','h-date','c-date','inv-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+  ['p-date','r-date','h-date','c-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
   buildWorkerChecks();
-  buildInventoryUI();
+  loadInventoryFromSheet();
 });
 
 var SIGNIN_URL='https://script.google.com/macros/s/AKfycbykbCf8ZwLFso7ObUhu6q3mf-7zToHQGmfpJAJeScws2xDc3_U64kkJc-SUR5E0-Ymu/exec';
@@ -618,21 +683,28 @@ function submitCleaning(){
   });
 }
 function submitInventory(){
-  const date=document.getElementById('inv-date').value,itemId=document.getElementById('inv-item-select').value,type=document.getElementById('inv-type').value,qty=parseInt(document.getElementById('inv-qty-input').value)||0;
-  if(!date||!itemId||!type||!qty){alert('Please fill in all required fields.');return;}
-  const item=INVENTORY.find(i=>i.id===itemId);
-  const old=getQty(itemId);
-  let n=old;
-  if(type==='restock')n=old+qty;else if(type==='use')n=Math.max(0,old-qty);else n=qty;
-  setQty(itemId,n);
-  const qel=document.getElementById('inv-qty-'+itemId);
-  if(qel){qel.value=n;refreshItemStyle(itemId,n,item.low);refreshLowBanner();}
-  const btn=document.querySelector('#card-inventory .btn-submit');
-  postData({task:'inventory',date,itemId,itemName:item.name,category:item.cat,transactionType:type,qty,qtyBefore:old,qtyAfter:n,notes:document.getElementById('inv-notes').value},'inv-status',btn,item.name+' updated (now '+n+')',function(){
+  var itemId=document.getElementById('inv-item-select').value;
+  var type=document.getElementById('inv-type').value;
+  var qty=parseInt(document.getElementById('inv-qty-input').value)||0;
+  if(!itemId||itemId==='__new__'||!type||!qty){alert('Please select an item, transaction type, and quantity.');return;}
+  var item=INVENTORY.find(function(i){return i.id===itemId;});
+  var old=getQtyDisplay(item);
+  var n=old;
+  if(type==='restock') n=old+qty;
+  else if(type==='use') n=Math.max(0,old-qty);
+  else n=qty;
+  item.currentQty=n;
+  var qel=document.getElementById('inv-qty-'+itemId);
+  if(qel){qel.textContent=n;refreshItemStyle(itemId,n,item.low);refreshLowBanner();}
+  document.getElementById('inv-current-display').textContent=n+' on hand';
+  var date=new Date().toISOString().split('T')[0];
+  var btn=document.querySelector('#card-inventory .btn-submit');
+  postData({task:'inventory',date:date,itemId:itemId,itemName:item.name,category:item.cat,transactionType:type,qty:qty,qtyBefore:old,qtyAfter:n,notes:document.getElementById('inv-notes').value},'inv-status',btn,item.name+' updated — now '+n,function(){
     document.getElementById('inv-item-select').value='';
     document.getElementById('inv-type').value='';
     document.getElementById('inv-qty-input').value='';
     document.getElementById('inv-notes').value='';
+    document.getElementById('inv-current-wrap').style.display='none';
   });
 }
 
