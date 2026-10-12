@@ -77,9 +77,14 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .report-limit-bar{height:100%;background:var(--gold);border-radius:4px;transition:width .4s;}
 .report-limit-label{font-size:0.75rem;color:var(--fg-soft);}
 .worker-checks{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
-.worker-check-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#2a1f10;border-radius:8px;cursor:pointer;}
-.worker-check-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
-.worker-check-label{font-size:0.95rem;color:var(--fg);cursor:pointer;}
+.worker-check-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#2a1f10;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s,background .2s;position:relative;}
+.worker-check-row:has(input:checked){background:#1a2e1a;border-color:#4caf50;}
+.worker-check-row input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;}
+.worker-check-box{width:26px;height:26px;border:2px solid #888;border-radius:5px;background:#1a1008;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;}
+.worker-check-row:has(input:checked) .worker-check-box{background:#4caf50;border-color:#4caf50;}
+.worker-check-box::after{content:'✓';color:#fff;font-size:16px;font-weight:900;display:none;line-height:1;}
+.worker-check-row:has(input:checked) .worker-check-box::after{display:block;}
+.worker-check-label{font-size:1rem;color:#fff;font-weight:500;cursor:pointer;}
 .worker-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px;}
 .worker-row .field{margin-bottom:0;flex:1;}
 .btn-remove-worker{background:none;border:1px solid #8B4513;color:#8B4513;border-radius:6px;padding:10px 12px;cursor:pointer;font-size:1rem;line-height:1;align-self:flex-end;flex-shrink:0;}
@@ -488,7 +493,7 @@ function buildWorkerChecks(){
   PRESET_WORKERS.forEach(function(name,i){
     var row=document.createElement('label');
     row.className='worker-check-row';
-    row.innerHTML='<input type="checkbox" id="cwcheck-'+i+'" value="'+name+'"><span class="worker-check-label">'+name+'</span>';
+    row.innerHTML='<input type="checkbox" id="cwcheck-'+i+'" value="'+name+'"><div class="worker-check-box"></div><span class="worker-check-label">'+name+'</span>';
     container.appendChild(row);
   });
 }
