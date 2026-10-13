@@ -251,52 +251,49 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDTMNKmmiIlzaZBTDPK
 
 var INVENTORY = [
   /* Paper Products */
-  {id:'pp01',cat:'Paper Products',name:'Paper Towels',start:60,low:10},
-  {id:'pp02',cat:'Paper Products',name:'Toilet Paper',start:38,low:8},
-  {id:'pp03',cat:'Paper Products',name:'Paper Plates',start:328,low:30},
-  {id:'pp04',cat:'Paper Products',name:'Plastic Plates',start:12,low:5},
-  {id:'pp05',cat:'Paper Products',name:'Paper Bowls',start:125,low:15},
-  {id:'pp06',cat:'Paper Products',name:'Napkins',start:300,low:30},
-  {id:'pp07',cat:'Paper Products',name:'Kleenex',start:3,low:1},
-  {id:'pp08',cat:'Paper Products',name:'Plastic Cups (3 oz)',start:200,low:20},
-  {id:'pp09',cat:'Paper Products',name:'Red Solo Cups',start:158,low:20},
-  {id:'pp10',cat:'Paper Products',name:'Coffee Cups',start:59,low:10},
-  {id:'pp11',cat:'Paper Products',name:'Coffee Filters',start:200,low:20},
+  {id:'pp01',cat:'Paper Products',name:'Paper Towels',start:60,currentQty:60,low:10},
+  {id:'pp02',cat:'Paper Products',name:'Toilet Paper',start:38,currentQty:38,low:8},
+  {id:'pp03',cat:'Paper Products',name:'Paper Plates',start:328,currentQty:328,low:30},
+  {id:'pp04',cat:'Paper Products',name:'Plastic Plates',start:12,currentQty:12,low:5},
+  {id:'pp05',cat:'Paper Products',name:'Paper Bowls',start:125,currentQty:125,low:15},
+  {id:'pp06',cat:'Paper Products',name:'Napkins',start:300,currentQty:300,low:30},
+  {id:'pp07',cat:'Paper Products',name:'Kleenex',start:3,currentQty:3,low:1},
+  {id:'pp08',cat:'Paper Products',name:'Plastic Cups (3 oz)',start:200,currentQty:200,low:20},
+  {id:'pp09',cat:'Paper Products',name:'Red Solo Cups',start:158,currentQty:158,low:20},
+  {id:'pp10',cat:'Paper Products',name:'Coffee Cups',start:59,currentQty:59,low:10},
+  {id:'pp11',cat:'Paper Products',name:'Coffee Filters',start:200,currentQty:200,low:20},
   /* Cleaning Supplies */
-  {id:'cl01',cat:'Cleaning Supplies',name:'Trash Bags',start:300,low:20},
-  {id:'cl02',cat:'Cleaning Supplies',name:'Clorox Disinfecting Spray',start:1,low:1},
-  {id:'cl03',cat:'Cleaning Supplies',name:'Clorox Wipes',start:3,low:1},
-  {id:'cl04',cat:'Cleaning Supplies',name:'Dawn Dish Soap',start:2,low:1},
-  {id:'cl05',cat:'Cleaning Supplies',name:'Hand/Dish Soap',start:1,low:1},
-  {id:'cl06',cat:'Cleaning Supplies',name:'Mr Clean Floor Cleaner',start:1,low:1},
-  {id:'cl07',cat:'Cleaning Supplies',name:'Windex',start:1,low:1},
-  {id:'cl08',cat:'Cleaning Supplies',name:'Disinfectant Aerosol Spray',start:1,low:1},
-  {id:'cl09',cat:'Cleaning Supplies',name:'Toilet Bowl Cleaner',start:3,low:1},
-  {id:'cl10',cat:'Cleaning Supplies',name:'Arm & Hammer Carpet Deodorizer',start:2,low:1},
-  {id:'cl11',cat:'Cleaning Supplies',name:'O Cedar Mop Heads',start:2,low:1},
-  {id:'cl12',cat:'Cleaning Supplies',name:'Cleaning Sponge',start:1,low:1},
-  {id:'cl13',cat:'Cleaning Supplies',name:'Scrub Brush',start:1,low:1},
-  {id:'cl14',cat:'Cleaning Supplies',name:'Household Cleaning Gloves',start:1,low:1},
-  {id:'cl15',cat:'Cleaning Supplies',name:'Clean Shower Spray',start:2,low:1},
+  {id:'cl01',cat:'Cleaning Supplies',name:'Trash Bags',start:300,currentQty:300,low:20},
+  {id:'cl02',cat:'Cleaning Supplies',name:'Clorox Disinfecting Spray',start:1,currentQty:1,low:1},
+  {id:'cl03',cat:'Cleaning Supplies',name:'Clorox Wipes',start:3,currentQty:3,low:1},
+  {id:'cl05',cat:'Cleaning Supplies',name:'Mr Clean Floor Cleaner',start:1,currentQty:1,low:1},
+  {id:'cl06',cat:'Cleaning Supplies',name:'Windex',start:1,currentQty:1,low:1},
+  {id:'cl07',cat:'Cleaning Supplies',name:'Disinfectant Aerosol Spray',start:1,currentQty:1,low:1},
+  {id:'cl08',cat:'Cleaning Supplies',name:'Toilet Bowl Cleaner',start:3,currentQty:3,low:1},
+  {id:'cl09',cat:'Cleaning Supplies',name:'Arm & Hammer Carpet Deodorizer',start:2,currentQty:2,low:1},
+  {id:'cl10',cat:'Cleaning Supplies',name:'O Cedar Mop Heads',start:2,currentQty:2,low:1},
+  {id:'cl11',cat:'Cleaning Supplies',name:'Cleaning Sponge',start:1,currentQty:1,low:1},
+  {id:'cl12',cat:'Cleaning Supplies',name:'Scrub Brush',start:1,currentQty:1,low:1},
+  {id:'cl13',cat:'Cleaning Supplies',name:'Household Cleaning Gloves',start:1,currentQty:1,low:1},
+  {id:'cl14',cat:'Cleaning Supplies',name:'Clean Shower Spray',start:2,currentQty:2,low:1},
   /* Personal Care */
-  {id:'pc01',cat:'Personal Care',name:'Foaming Hand Soap',start:1,low:1},
-  {id:'pc02',cat:'Personal Care',name:'Hand Soap (Method Sweet Water)',start:3,low:1},
-  {id:'pc03',cat:'Personal Care',name:'3-in-1 Wash / Body Wash',start:4,low:1},
-  {id:'pc04',cat:'Personal Care',name:'Dove Bar Soap',start:3,low:1},
-  {id:'pc05',cat:'Personal Care',name:'Degree Advanced Deodorant',start:3,low:1},
-  {id:'pc06',cat:'Personal Care',name:'Toothbrushes',start:1,low:1},
-  {id:'pc07',cat:'Personal Care',name:'Toothpaste',start:2,low:1},
-  {id:'pc08',cat:'Personal Care',name:'Q-tips',start:750,low:50},
-  {id:'pc09',cat:'Personal Care',name:'Cotton Balls',start:100,low:20},
-  {id:'pc10',cat:'Personal Care',name:'Dental Floss',start:150,low:20},
+  {id:'pc01',cat:'Personal Care',name:'Hand Soap (Method Sweet Water)',start:5,currentQty:5,low:1},
+  {id:'pc02',cat:'Personal Care',name:'3-in-1 Wash / Body Wash',start:4,currentQty:4,low:1},
+  {id:'pc03',cat:'Personal Care',name:'Dove Bar Soap',start:3,currentQty:3,low:1},
+  {id:'pc04',cat:'Personal Care',name:'Degree Advanced Deodorant',start:3,currentQty:3,low:1},
+  {id:'pc05',cat:'Personal Care',name:'Toothbrushes',start:1,currentQty:1,low:1},
+  {id:'pc06',cat:'Personal Care',name:'Toothpaste',start:2,currentQty:2,low:1},
+  {id:'pc07',cat:'Personal Care',name:'Q-tips',start:750,currentQty:750,low:50},
+  {id:'pc08',cat:'Personal Care',name:'Cotton Balls',start:100,currentQty:100,low:20},
+  {id:'pc09',cat:'Personal Care',name:'Dental Floss',start:150,currentQty:150,low:20},
   /* First Aid */
-  {id:'fa01',cat:'First Aid',name:'Band-Aid Bandages',start:1,low:1},
-  {id:'fa02',cat:'First Aid',name:'Gauze Pads',start:25,low:5},
-  {id:'fa03',cat:'First Aid',name:'Butterfly Closures',start:1,low:1},
-  {id:'fa04',cat:'First Aid',name:'Vaseline Petroleum Jelly',start:1,low:1},
-  {id:'fa05',cat:'First Aid',name:'Medical Supplies (misc)',start:1,low:1},
+  {id:'fa01',cat:'First Aid',name:'Band-Aid Bandages',start:1,currentQty:1,low:1},
+  {id:'fa02',cat:'First Aid',name:'Gauze Pads',start:25,currentQty:25,low:5},
+  {id:'fa03',cat:'First Aid',name:'Butterfly Closures',start:1,currentQty:1,low:1},
+  {id:'fa04',cat:'First Aid',name:'Vaseline Petroleum Jelly',start:1,currentQty:1,low:1},
+  {id:'fa05',cat:'First Aid',name:'Medical Supplies (misc)',start:1,currentQty:1,low:1},
   /* Honey */
-  {id:'hn01',cat:'Honey',name:'Honey (8 oz)',start:83,low:10},
+  {id:'hn01',cat:'Honey',name:'Honey (8 oz)',start:83,currentQty:83,low:10},
 ];
 
 function loadQtys(){try{return JSON.parse(localStorage.getItem('dr_inv_qtys')||'{}');}catch(e){return {};}}
@@ -321,6 +318,8 @@ function loadInventoryFromSheet(){
           var local=INVENTORY.find(function(i){return i.id===sheetItem.id;});
           if(local){
             local.currentQty=sheetItem.currentQty;
+            if(sheetItem.name) local.name=sheetItem.name;
+            if(sheetItem.category) local.cat=sheetItem.category;
           } else {
             // New item added directly in sheet
             INVENTORY.push({id:sheetItem.id,cat:sheetItem.category,name:sheetItem.name,start:sheetItem.startQty,currentQty:sheetItem.currentQty,low:1});
@@ -612,7 +611,7 @@ async function postData(data,statusId,btnEl,successMsg,clearFn){
   const s=document.getElementById(statusId);s.className='submit-status';
   try{
     await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-    s.className='submit-status show success';s.textContent='&#10003; '+successMsg;
+    s.className='submit-status show success';s.textContent='\u2713 '+successMsg;
     btnEl.textContent=btnEl.getAttribute('data-label');btnEl.disabled=false;
     if(clearFn) setTimeout(function(){clearFn();s.className='submit-status';},2000);
   }catch(err){
@@ -679,7 +678,8 @@ function submitInventory(){
   var itemId=document.getElementById('inv-item-select').value;
   var type=document.getElementById('inv-type').value;
   var qty=parseInt(document.getElementById('inv-qty-input').value)||0;
-  if(!itemId||itemId==='__new__'||!type||!qty){alert('Please select an item, transaction type, and quantity.');return;}
+  var qtyRaw=document.getElementById('inv-qty-input').value;
+  if(!itemId||itemId==='__new__'||!type||qtyRaw===''||(type!=='set'&&!qty)){alert('Please select an item, transaction type, and quantity.');return;}
   var item=INVENTORY.find(function(i){return i.id===itemId;});
   var old=getQtyDisplay(item);
   var n=old;
