@@ -180,6 +180,16 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .fl-tot{font-size:.82rem;color:var(--fg-mid);margin:0 0 8px 30px;line-height:1.4;}
 .fl-del{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);font-size:16px;font-family:var(--font-body);}
 .btn-gold{background:var(--gold) !important;color:var(--earth) !important;}
+.pool{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin:0 0 14px;}
+.pool div{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 6px;text-align:center;}
+.pool b{display:block;font-family:var(--font-display);font-size:1.5rem;line-height:1.1;color:var(--fg);}
+.pool span{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);font-weight:700;}
+.pool .pool-left{background:var(--success);border-color:var(--success);}
+.pool .pool-left b,.pool .pool-left span{color:#fff;}
+.pool .pool-left.zero{background:var(--cream-dark);border-color:var(--border);}
+.pool .pool-left.zero b,.pool .pool-left.zero span{color:var(--fg-mid);}
+.pool-after{font-size:.85rem;font-weight:700;margin:-6px 0 6px;color:var(--success);text-align:right;}
+.pool-after.over{color:#B3261E;}
 #print-area{display:none;}
 @media print{
   html,body{background:#fff !important;}
@@ -269,6 +279,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="card-title">Bird Cleaning</div>
       <div class="card-desc">Track cleaning crew and birds processed</div>
       <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="c-date"></div>
+      <div class="field"><label>Group <span class="req">*</span></label><select id="c-group-clean"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select></div>
       <div class="field"><label>Total Birds Cleaned <span class="req">*</span></label><input type="number" id="c-qty" placeholder="0" min="0" oninput="calcPay()"></div>
       <div class="field-row">
         <div class="field"><label>Pay Per Bird <span class="opt">(optional)</span></label><input type="number" id="c-rate" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromRate()"></div>
@@ -295,18 +306,23 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="proc-msg" id="proc-msg"></div>
 
       <div class="proc-box" id="proc-box">
-        <div class="proc-head"><div class="proc-title">1 &middot; Log Birds by Hunter</div></div>
-        <div class="proc-sub">Pick the date and group. Enter birds for each hunter you cleaned for &mdash; blanks are skipped. Each hunter&rsquo;s total keeps adding up until their final receipt.</div>
-        <div class="field"><label>Date Received</label><input type="date" id="b-date"></div>
+        <div class="proc-head"><div class="proc-title">1 &middot; Give Pheasants to Hunters</div></div>
+        <div class="proc-sub">Every pheasant cleaned for the group goes into its pool. Give each hunter their share &mdash; a little each day or all at the end. Blanks are skipped.</div>
         <div class="field" id="c-group-wrap" style="display:none"><label>Group</label>
           <select id="c-group" onchange="onGroupChange()"></select>
+        </div>
+        <div class="pool" id="pool-box" style="display:none">
+          <div><b id="pool-cleaned">0</b><span>Cleaned</span></div>
+          <div><b id="pool-assigned">0</b><span>Given out</span></div>
+          <div class="pool-left"><b id="pool-left">0</b><span>Left to give</span></div>
         </div>
         <div id="c-owners"></div>
         <div class="proc-actions" id="proc-actions" style="display:none">
           <button type="button" class="btn-add-worker" onclick="addManualOwner()">+ Someone Not on the List</button>
         </div>
-        <div class="total-display" id="b-total-wrap" style="display:none"><span class="total-label">Birds This Entry</span><span class="total-value" id="b-total">0</span></div>
-        <button class="btn-submit" id="b-submit" data-label="Log Birds" onclick="submitBirds()" style="display:none">Log Birds</button>
+        <div class="total-display" id="b-total-wrap" style="display:none"><span class="total-label">Giving Now</span><span class="total-value" id="b-total">0</span></div>
+        <div class="pool-after" id="pool-after"></div>
+        <button class="btn-submit" id="b-submit" data-label="Give Pheasants" onclick="submitBirds()" style="display:none">Give Pheasants</button>
         <div class="submit-status" id="b-status"></div>
       </div>
 
@@ -582,7 +598,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   const today=localToday();
   ['p-date','r-date','h-date','c-date','b-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
   buildWorkerChecks();
-  document.getElementById('b-date').addEventListener('change',onCleaningDateChange);
   loadInventoryFromSheet();
 });
 
@@ -801,7 +816,8 @@ function submitHarvest(){
    Daily: pick the group, enter birds per hunter → Bird Log rows (date received = cleaning date).
    Leaving: Final Receipts → one receipt per hunter for all birds held, with release date. */
 var PROCESSING_URL='https://script.google.com/macros/s/AKfycbxO7jxD1rlHKQ74UdjwabSaReG906-0Fuzysu1amrQEkWQJdgrUz3-XZ9tN9TOnfBFihw/exec';
-var PROC_SPECIES=['Pheasant','Sharp-tailed Grouse','Prairie Chicken','Partridge','Other'];
+var PROC_SPECIES=['Pheasant'];
+var procPool=null;
 var RECEIPT_RULE='These birds were cleaned at a wildlife processing facility. Under ARSD 41:06:03:02(2), a head, wing or foot is not required when birds are accompanied by this receipt. Keep this receipt with the birds while transporting.';
 var procHunters=null, procFacility={name:'Davis Ranch Hunting LLC',address:'',phone:''};
 var procOpen={}, procOpenGroup=null, procLoading=false;
@@ -850,6 +866,7 @@ function procInit(){
   }
   document.getElementById('proc-pin').style.display='none';
   if(!procHunters) loadHunters();
+  else{var g=document.getElementById('c-group').value;if(g)loadOpen(g);}   // fresh counter after cleaning more birds
 }
 function savePin(){
   var v=document.getElementById('proc-pin-input').value.trim();
@@ -889,16 +906,10 @@ function buildGroupOptions(pickForDate){
   var sel=document.getElementById('c-group'),cur=sel.value;
   var groups=groupsList();
   sel.innerHTML='<option value="">&#8212; Select group &#8212;</option>'+groups.map(function(g){return '<option>'+esc(g)+'</option>';}).join('');
-  var want=pickForDate?groupForDate(document.getElementById('b-date').value):'';
+  var want=pickForDate?groupForDate(localToday()):'';
   sel.value=want||cur||'';
   if(!groups.length)procMsg('No waivers found in the sign-in sheet yet.');
   onGroupChange();
-}
-function onCleaningDateChange(){
-  if(!procHunters)return;
-  var g=groupForDate(document.getElementById('b-date').value);
-  var sel=document.getElementById('c-group');
-  if(g&&g!==sel.value&&!anyCountsEntered()){sel.value=g;onGroupChange();}
 }
 function anyCountsEntered(){return ownerIds().some(function(id){return ownerData(id).total>0;});}
 function onGroupChange(){
@@ -906,6 +917,7 @@ function onGroupChange(){
   document.getElementById('c-owners').innerHTML='';ownerSeq=0;
   closeFinal();
   updateBirdTotal();
+  setPool(null);
   if(!g){procOpen={};procOpenGroup=null;return;}
   renderGroupHunters();
   loadOpen(g);
@@ -934,7 +946,7 @@ function loadOpen(g){
   procGet({action:'open',group:g}).then(function(res){
     if(document.getElementById('c-group').value!==g)return;
     if(!res.ok){procMsg(handleProcError(res),true);return;}
-    setOpen(g,res.open);
+    setOpen(g,res.open);setPool(res.pool);
   }).catch(function(){procMsg('Could not load running totals. Check your signal.',true);});
 }
 function setOpen(g,list){
@@ -947,7 +959,7 @@ function refreshTallies(){
   ownerIds().forEach(function(id){
     var el=document.getElementById('owner-'+id),t=document.getElementById('o-tally-'+id);
     var o=procOpen[el.dataset.key];
-    t.textContent=o?'Holding '+o.total+' — '+speciesText(o)+' ('+o.datesReceived.map(function(d){return usDate(d).slice(0,5);}).join(', ')+')':'Holding 0';
+    t.textContent=o?'Has '+o.total+' pheasant'+(o.total===1?'':'s'):'Has 0';
     t.className='tally'+(o?' has':'');
   });
 }
@@ -959,10 +971,10 @@ function speciesInputs(id){
     return '<label for="o-sp-'+id+'-'+(i+1)+'">'+esc(s)+'</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="o-sp-'+id+'-'+(i+1)+'" oninput="updateBirdTotal()">';
   }).join('');
   return '<div class="species-grid">'+
-      '<label for="o-sp-'+id+'-0">Pheasant today</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="o-sp-'+id+'-0" oninput="updateBirdTotal()">'+
+      '<label for="o-sp-'+id+'-0">Pheasants to give</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="o-sp-'+id+'-0" oninput="updateBirdTotal()">'+
       '<span class="species-more" id="o-more-'+id+'">'+more+'</span>'+
     '</div>'+
-    '<div class="row-links"><button type="button" class="proc-link" id="o-moreb-'+id+'" onclick="toggleSpecies('+id+')">+ Other species</button>'+
+    '<div class="row-links">'+
     '<button type="button" class="proc-link" onclick="toggleHaul('+id+')">Brought in by another hunter?</button></div>'+
     '<div class="tag-box" id="o-tag-'+id+'">'+
       '<div class="tag-note">GFP: the birds must carry a hunter tag with the owner’s name, address, number &amp; species, date killed and signature.</div>'+
@@ -974,7 +986,7 @@ function addOwner(h){
   ownerSeq++;var id=ownerSeq;
   var div=document.createElement('div');
   div.className='owner';div.id='owner-'+id;div.dataset.id=id;div.dataset.key=hunterKey(h.name,h.address);
-  div.dataset.name=h.name;div.dataset.address=h.address||'';div.dataset.csz=h.cityStateZip||'';div.dataset.phone=h.phone||'';
+  div.dataset.name=h.name;div.dataset.address=h.address||'';div.dataset.csz=h.cityStateZip||'';div.dataset.phone=h.phone||'';div.dataset.license=h.license||'';
   var missing=!h.address||!h.cityStateZip;
   div.innerHTML=
     '<div class="owner-top"><span class="owner-name">'+esc(h.name)+'</span><span class="tally" id="o-tally-'+id+'"></span></div>'+
@@ -995,6 +1007,7 @@ function addManualOwner(){
     '<div class="field"><label>Street Address <span class="req">*</span></label><input type="text" id="o-maddr-'+id+'" placeholder="123 Main St"></div>'+
     '<div class="field"><label>City, State ZIP <span class="req">*</span></label><input type="text" id="o-mcsz-'+id+'" placeholder="Omaha, NE 68102"></div>'+
     '<div class="field"><label>Cell Phone <span class="opt">(for texting the receipt)</span></label><input type="tel" id="o-mphone-'+id+'" placeholder="(605) 555-0100"></div>'+
+    '<div class="field"><label>License / Authorization #</label><input type="text" id="o-mlic-'+id+'"></div>'+
     speciesInputs(id);
   document.getElementById('c-owners').appendChild(div);
   document.getElementById('o-mname-'+id).focus();
@@ -1009,9 +1022,9 @@ function val(id){var el=document.getElementById(id);return el?el.value.trim():''
 function ownerData(id){
   var el=document.getElementById('owner-'+id),d;
   if(el.classList.contains('manual')){
-    d={owner:val('o-mname-'+id),ownerAddress:val('o-maddr-'+id),ownerCityStateZip:val('o-mcsz-'+id),phone:val('o-mphone-'+id)};
+    d={owner:val('o-mname-'+id),ownerAddress:val('o-maddr-'+id),ownerCityStateZip:val('o-mcsz-'+id),phone:val('o-mphone-'+id),license:val('o-mlic-'+id)};
   }else{
-    d={owner:el.dataset.name,ownerAddress:val('o-maddr-'+id)||el.dataset.address,ownerCityStateZip:val('o-mcsz-'+id)||el.dataset.csz,phone:el.dataset.phone};
+    d={owner:el.dataset.name,ownerAddress:val('o-maddr-'+id)||el.dataset.address,ownerCityStateZip:val('o-mcsz-'+id)||el.dataset.csz,phone:el.dataset.phone,license:el.dataset.license};
   }
   var species=[],total=0;
   PROC_SPECIES.forEach(function(s,i){
@@ -1026,9 +1039,28 @@ function ownerData(id){
   return d;
 }
 function updateBirdTotal(){
-  var ids=ownerIds();if(!ids.length){document.getElementById('b-total').textContent='0';return;}
+  var ids=ownerIds();if(!ids.length){document.getElementById('b-total').textContent='0';showPoolAfter(0);return;}
   var sum=ids.reduce(function(s,id){return s+ownerData(id).total;},0);
   document.getElementById('b-total').textContent=sum;
+  showPoolAfter(sum);
+}
+function showPoolAfter(sum){
+  var el=document.getElementById('pool-after');
+  if(!procPool||!sum){el.textContent='';el.className='pool-after';return;}
+  var after=procPool.left-sum;
+  el.textContent=after<0?'Only '+procPool.left+' left — that’s '+(-after)+' too many':'After saving: '+after+' left to give';
+  el.className='pool-after'+(after<0?' over':'');
+}
+function setPool(p){
+  procPool=p||null;
+  var box=document.getElementById('pool-box');
+  if(!p){box.style.display='none';return;}
+  box.style.display='grid';
+  document.getElementById('pool-cleaned').textContent=p.cleaned;
+  document.getElementById('pool-assigned').textContent=p.assigned;
+  document.getElementById('pool-left').textContent=p.left;
+  document.querySelector('#pool-box .pool-left').classList.toggle('zero',!p.left);
+  updateBirdTotal();
 }
 function clearOwners(){
   ownerIds().forEach(function(id){
@@ -1081,7 +1113,7 @@ async function makeFinalReceipts(){
   if(!res||!res.ok){alert('Receipts not created: '+handleProcError(res));return;}
   if(res.facility)procFacility=res.facility;
   closeFinal();
-  setOpen(g,res.open);refreshTallies();
+  setOpen(g,res.open);refreshTallies();if(res.pool)setPool(res.pool);
   showReceipts(res.receipts,'new');
 }
 
@@ -1093,6 +1125,7 @@ function receiptText(r){
     (f.address?f.address+'\n':'')+(f.phone?f.phone+'\n':'')+
     'Owner: '+r.owner+'\n'+
     (r.ownerAddress?r.ownerAddress+', '+r.ownerCityStateZip+'\n':'')+
+    (r.license?'License / Authorization #: '+r.license+'\n':'')+
     'Birds: '+speciesText(r)+'\n'+
     'Received '+datesText(r)+'\nReleased '+usDate(r.dateReleased)+'\n\n'+RECEIPT_RULE;
 }
@@ -1112,6 +1145,7 @@ function receiptHtml(r){
       row('Owner Name',r.owner)+
       row('Owner Address',r.ownerAddress)+
       row('City, State ZIP',r.ownerCityStateZip)+
+      row('License / Authorization #',r.license||'')+
       '<tr><td>Number &amp; Species</td><td>'+sp+'<br><b>Total: '+esc(r.total)+'</b></td></tr>'+
       row('Date(s) Received',datesText(r))+
       row('Date Released',usDate(r.dateReleased))+
@@ -1119,6 +1153,7 @@ function receiptHtml(r){
     '</table>'+
     '<div class="rule">'+esc(RECEIPT_RULE)+'</div>'+
     '<div class="sig"><div>Facility signature</div><div class="date">Date</div></div>'+
+    '<div class="sig" style="margin-top:28pt"><div>Hunter (owner) signature</div><div class="date">Date</div></div>'+
   '</div>';
 }
 function printReceipts(list){
@@ -1182,13 +1217,12 @@ function openReprint(){
   });
 }
 
-/* ── LOG BIRDS (one Bird Log row per hunter per species, date received = Date Received) ── */
+/* ── GIVE PHEASANTS (from the group's pool, oldest cleaning date first) ── */
 async function submitBirds(){
-  var date=document.getElementById('b-date').value,group=document.getElementById('c-group').value;
+  var group=document.getElementById('c-group').value;
   var ids=ownerIds();
-  if(!date){alert('Enter the date received.');return;}
   if(!group){alert('Pick the group.');return;}
-  var records=[],problems=[];
+  var records=[],problems=[],want=0;
   ids.forEach(function(id){
     var d=ownerData(id);
     if(!d.total)return;
@@ -1196,11 +1230,11 @@ async function submitBirds(){
     if(!d.owner)problems.push(label+': enter the name.');
     if(!d.ownerAddress||!d.ownerCityStateZip)problems.push(label+': address is missing.');
     if(d.hauled&&(!d.receivedFrom||!d.hunterTag))problems.push(label+': fill in who dropped them off and whether the hunter tag was on the birds.');
-    d.dateReceived=date;d.group=group;
-    records.push(d);
+    want+=d.total;records.push(d);
   });
   if(problems.length){alert(problems.join('\n'));return;}
-  if(!records.length){alert('Enter the birds for each hunter you cleaned for.\nHunters left blank are skipped.');return;}
+  if(!records.length){alert('Enter how many pheasants each hunter gets.\nHunters left blank are skipped.');return;}
+  if(procPool&&want>procPool.left){alert('Only '+procPool.left+' pheasant'+(procPool.left===1?'':'s')+' left to give for '+group+'. You entered '+want+'.');return;}
   if(!getPin()){procInit();alert('Enter the records PIN first.');return;}
 
   var btn=document.getElementById('b-submit'),s=document.getElementById('b-status');
@@ -1208,9 +1242,9 @@ async function submitBirds(){
   btn.disabled=true;btn.textContent='Saving...';s.className='submit-status';
   var res;
   try{
-    res=await procPost({action:'log',submissionId:procSubmissionId,group:group,records:records.map(function(d){
-      return {owner:d.owner,ownerAddress:d.ownerAddress,ownerCityStateZip:d.ownerCityStateZip,phone:d.phone,group:d.group,
-        receivedFrom:d.receivedFrom,hunterTag:d.hunterTag,dateReceived:d.dateReceived,species:d.species,notes:d.notes};
+    res=await procPost({action:'assign',submissionId:procSubmissionId,group:group,records:records.map(function(d){
+      return {owner:d.owner,ownerAddress:d.ownerAddress,ownerCityStateZip:d.ownerCityStateZip,phone:d.phone,license:d.license,
+        receivedFrom:d.receivedFrom,hunterTag:d.hunterTag,count:d.total};
     })});
   }catch(err){
     btn.disabled=false;btn.textContent=btn.getAttribute('data-label');
@@ -1219,25 +1253,42 @@ async function submitBirds(){
   }
   btn.disabled=false;btn.textContent=btn.getAttribute('data-label');
   if(!res||!res.ok){s.className='submit-status show error';s.textContent='Not saved: '+handleProcError(res);return;}
-  var n=records.reduce(function(a,d){return a+d.total;},0);
   ids.forEach(function(id){var el=document.getElementById('owner-'+id);if(el&&el.classList.contains('manual'))el.remove();});
   clearOwners();
   setOpen(group,res.open);
-  updateBirdTotal();
+  setPool(res.pool);
   s.className='submit-status show success';
-  s.textContent='✓ Saved '+n+' bird'+(n===1?'':'s')+' for '+records.length+' hunter'+(records.length===1?'':'s')+' — totals updated';
+  s.textContent='✓ Gave out '+want+' pheasant'+(want===1?'':'s')+' — '+res.pool.left+' left to give';
   setTimeout(function(){s.className='submit-status';},4000);
 }
 
-function submitCleaning(){
+var cleanSubmissionId=null;
+async function submitCleaning(){
   var date=document.getElementById('c-date').value;
   var qty=parseInt(document.getElementById('c-qty').value)||0;
+  var group=document.getElementById('c-group-clean').value;
   if(!date||!qty){alert('Please enter a date and total birds cleaned.');return;}
+  if(!group){alert('Pick the group these birds were cleaned for.');return;}
   var rate=parseFloat(document.getElementById('c-rate').value)||0;
   var totalPay=parseFloat(document.getElementById('c-total-pay').value)||0;
   var workers=getWorkerNames();
+  var notes=document.getElementById('c-notes').value;
   var btn=document.querySelector('#card-cleaning .btn-submit');
-  postData({task:'cleaning',date,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:document.getElementById('c-notes').value},'c-status',btn,'Cleaning logged!',function(){
+  var s=document.getElementById('c-status');
+  var poolNote='';
+  if(procConfigured()){
+    // add the cleaned pheasants to the group's pool in the processing records
+    if(!getPin()){var pin=prompt('Enter the records PIN (only needed once on this device):');if(!pin||!pin.trim())return;setPin(pin.trim());}
+    if(!cleanSubmissionId)cleanSubmissionId=newId();
+    btn.disabled=true;btn.textContent='Saving...';s.className='submit-status';
+    var res;
+    try{res=await procPost({action:'clean',submissionId:cleanSubmissionId,group:group,date:date,count:qty,workers:workers.join(', '),notes:notes});}
+    catch(err){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');s.className='submit-status show error';s.textContent='Could not connect. Nothing was saved. Check your signal and try again.';return;}
+    if(!res||!res.ok){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');s.className='submit-status show error';s.textContent='Not saved: '+handleProcError(res);return;}
+    if(res.pool)poolNote=' — '+group+' has '+res.pool.left+' pheasant'+(res.pool.left===1?'':'s')+' to give out';
+  }
+  postData({task:'cleaning',date,group:group,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:notes},'c-status',btn,'Cleaning logged!'+poolNote,function(){
+    cleanSubmissionId=null;
     document.getElementById('c-qty').value='';
     document.getElementById('c-rate').value='';
     document.getElementById('c-total-pay').value='';
