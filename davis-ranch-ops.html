@@ -958,7 +958,7 @@ function addOwner(h){
   var missing=!h.address||!h.cityStateZip;
   div.innerHTML=
     '<div class="owner-top"><span class="owner-name">'+esc(h.name)+'</span><span class="tally" id="o-tally-'+id+'"></span></div>'+
-    '<div class="owner-addr'+(missing?' missing':'')+'" id="o-addr-'+id+'">'+(missing?'No full address on this waiver — add it below.':esc(h.address+', '+h.cityStateZip+(h.phone?'  ·  '+h.phone:'')))+'</div>'+
+    (missing?'<div class="owner-addr missing" id="o-addr-'+id+'">No full address on this waiver — add it below.</div>':'')+
     (missing?'<div class="field"><label>Street Address <span class="req">*</span></label><input type="text" id="o-maddr-'+id+'" value="'+esc(h.address||'')+'"></div>'+
       '<div class="field"><label>City, State ZIP <span class="req">*</span></label><input type="text" id="o-mcsz-'+id+'" value="'+esc(h.cityStateZip||'')+'"></div>':'')+
     speciesInputs(id);
