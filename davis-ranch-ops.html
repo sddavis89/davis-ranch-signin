@@ -114,6 +114,73 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .inv-qty-display{font-size:1rem;font-weight:700;color:var(--gold);min-width:36px;text-align:right;flex-shrink:0;}
 .low-stock-banner{background:var(--warn-bg);border:1px solid #FFCC80;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.82rem;color:var(--warn);font-weight:600;display:none;}
 .low-stock-banner.show{display:block;}
+
+/* PROCESSING RECORDS (GFP) */
+.proc-box{border:1.5px solid var(--gold);border-radius:12px;padding:14px 12px 4px;margin-bottom:16px;background:#FBF6EA;}
+.proc-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px;}
+.proc-title{font-family:var(--font-display);font-weight:700;font-size:.98rem;color:var(--fg);}
+.proc-sub{font-size:.78rem;color:var(--fg-soft);margin-bottom:12px;line-height:1.45;}
+.proc-link{background:none;border:none;color:var(--warn);font-family:var(--font-body);font-size:.78rem;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;white-space:nowrap;}
+.proc-pin{display:flex;gap:8px;margin-bottom:12px;}
+.proc-pin input{flex:1;min-width:0;padding:11px 12px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);font-size:16px;font-family:var(--font-body);}
+.proc-pin button,.btn-small{padding:10px 14px;border-radius:8px;border:1.5px solid var(--gold);background:var(--earth);color:var(--gold-light);font-family:var(--font-body);font-weight:700;font-size:.88rem;cursor:pointer;white-space:nowrap;}
+.proc-msg{font-size:.82rem;margin-bottom:12px;color:var(--fg-mid);}
+.proc-msg.err{color:#B3261E;font-weight:600;}
+.owner{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 12px 2px;margin-bottom:12px;}
+.owner-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.owner-num{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.owner-remove{background:none;border:none;color:#8B4513;font-size:.8rem;font-weight:600;cursor:pointer;padding:4px 0;}
+.owner-addr{font-size:.82rem;color:var(--fg-mid);margin:-6px 0 12px;line-height:1.4;}
+.owner-addr.missing{color:#B3261E;font-weight:600;}
+.owner .field{margin-bottom:12px;}
+.owner .field-row{margin-bottom:12px;gap:10px;}
+.owner .field-row .field{min-width:0;}
+.owner input[type=date]{min-width:0;width:100%;padding:11px 8px;font-size:15px;}
+.species-grid{display:grid;grid-template-columns:1fr 92px;gap:8px 10px;align-items:center;margin-bottom:6px;}
+.species-grid label{font-size:.9rem;color:var(--fg);text-transform:none;letter-spacing:0;font-weight:600;}
+.species-grid input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);font-size:16px;width:100%;font-family:var(--font-body);}
+.species-more{display:none;}
+.species-more.show{display:contents;}
+.check-line{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--fg);margin:2px 0 12px;cursor:pointer;}
+.check-line input{width:20px;height:20px;accent-color:var(--gold);flex-shrink:0;}
+.tag-box{display:none;background:var(--warn-bg);border:1px solid #FFCC80;border-radius:8px;padding:10px 10px 0;margin-bottom:12px;}
+.tag-box.show{display:block;}
+.tag-note{font-size:.76rem;color:var(--warn);margin-bottom:10px;line-height:1.4;}
+.proc-actions{display:flex;gap:8px;margin-bottom:12px;}
+.proc-actions .btn-add-worker{margin-bottom:0;}
+.receipts{display:none;border:1.5px solid var(--success);background:#F1F8F1;border-radius:12px;padding:14px 12px;margin-top:16px;}
+.receipts.show{display:block;}
+.receipts-title{font-family:var(--font-display);font-weight:700;color:var(--success);margin-bottom:10px;}
+.rc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
+.rc-line1{display:flex;justify-content:space-between;gap:8px;font-weight:700;color:var(--fg);}
+.rc-no{color:var(--gold);white-space:nowrap;}
+.rc-line2{font-size:.82rem;color:var(--fg-soft);margin:2px 0 10px;}
+.rc-btns{display:flex;gap:8px;}
+.rc-btns button,.rc-btns a{flex:1;text-align:center;padding:10px 8px;border-radius:8px;font-family:var(--font-body);font-weight:700;font-size:.88rem;cursor:pointer;text-decoration:none;border:1.5px solid var(--gold);}
+.rc-print{background:var(--gold);color:var(--earth);}
+.rc-text{background:#fff;color:var(--fg);}
+.receipts-foot{display:flex;gap:8px;margin-top:4px;}
+.receipts-foot button{flex:1;}
+.reprint-search{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:8px;background:var(--input-bg);font-size:16px;margin-bottom:10px;font-family:var(--font-body);}
+#print-area{display:none;}
+@media print{
+  html,body{background:#fff !important;}
+  body > *:not(#print-area){display:none !important;}
+  #print-area{display:block !important;}
+  @page{margin:0.5in;}
+}
+.receipt-doc{font-family:Georgia,'Times New Roman',serif;color:#000;max-width:6.5in;margin:0 auto;padding:0.1in 0;page-break-after:always;break-after:page;}
+.receipt-doc:last-child{page-break-after:auto;break-after:auto;}
+.receipt-doc h1{font-size:15pt;text-align:center;letter-spacing:.06em;margin-bottom:2pt;}
+.receipt-doc .fac{text-align:center;font-size:11pt;margin-bottom:12pt;line-height:1.35;}
+.receipt-doc .fac b{font-size:13pt;}
+.receipt-doc table{width:100%;border-collapse:collapse;font-size:11pt;margin-bottom:12pt;}
+.receipt-doc td{border:1px solid #000;padding:5pt 7pt;vertical-align:top;}
+.receipt-doc td:first-child{width:38%;font-weight:bold;background:#f2f2f2;}
+.receipt-doc .rule{font-size:10pt;border:1px solid #000;padding:7pt 9pt;margin-bottom:22pt;line-height:1.4;}
+.receipt-doc .sig{display:flex;gap:24pt;font-size:11pt;}
+.receipt-doc .sig div{flex:1;border-top:1px solid #000;padding-top:3pt;}
+.receipt-doc .sig div.date{flex:0 0 1.8in;}
 </style>
 </head>
 <body>
@@ -183,7 +250,24 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="card-title">Bird Cleaning</div>
       <div class="card-desc">Track cleaning crew and birds processed</div>
       <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="c-date"></div>
-      <div class="field"><label>Total Birds Cleaned <span class="req">*</span></label><input type="number" id="c-qty" placeholder="0" min="0" oninput="calcPay()"></div>
+      <div class="proc-box" id="proc-box">
+        <div class="proc-head">
+          <div class="proc-title">Birds by Owner <span style="font-weight:400;font-size:.75rem;color:var(--fg-soft)">(GFP record)</span></div>
+          <button type="button" class="proc-link" onclick="openReprint()">Reprint a receipt</button>
+        </div>
+        <div class="proc-sub">One entry per hunter. Name and address come from the sign-in waiver. Saving writes the GFP Bird Log and makes a receipt for each hunter.</div>
+        <div class="proc-pin" id="proc-pin" style="display:none">
+          <input type="password" id="proc-pin-input" inputmode="numeric" autocomplete="off" placeholder="Records PIN">
+          <button type="button" onclick="savePin()">Unlock</button>
+        </div>
+        <div class="proc-msg" id="proc-msg"></div>
+        <div id="c-owners"></div>
+        <div class="proc-actions">
+          <button type="button" class="btn-add-worker" onclick="addOwner()">+ Add Hunter</button>
+          <button type="button" class="btn-add-worker" onclick="addTodaysHunters()">+ All Hunters This Date</button>
+        </div>
+      </div>
+      <div class="field"><label>Total Birds Cleaned <span class="req">*</span> <span class="opt">(adds up from hunters above)</span></label><input type="number" id="c-qty" placeholder="0" min="0" oninput="calcPay()"></div>
       <div class="field-row">
         <div class="field"><label>Pay Per Bird <span class="opt">(optional)</span></label><input type="number" id="c-rate" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromRate()"></div>
         <div class="field"><label>Total Pay <span class="opt">(optional)</span></label><input type="number" id="c-total-pay" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromTotal()"></div>
@@ -197,6 +281,15 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="c-notes" placeholder="Any additional notes..."></textarea></div>
       <button class="btn-submit" data-label="Log Cleaning" onclick="submitCleaning()">Log Cleaning</button>
       <div class="submit-status" id="c-status"></div>
+      <div class="receipts" id="c-receipts">
+        <div class="receipts-title" id="c-receipts-title">Receipts</div>
+        <input type="search" class="reprint-search" id="reprint-search" placeholder="Search name or receipt #" oninput="renderReceiptList()" style="display:none">
+        <div id="c-receipts-list"></div>
+        <div class="receipts-foot">
+          <button type="button" class="btn-small" id="btn-print-all" onclick="printReceipts(shownReceipts())">Print All</button>
+          <button type="button" class="btn-small" onclick="closeReceipts()">Done</button>
+        </div>
+      </div>
     </div>
 
     <div class="form-card" id="card-inventory">
@@ -439,6 +532,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   const today=new Date().toISOString().split('T')[0];
   ['p-date','r-date','h-date','c-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
   buildWorkerChecks();
+  document.getElementById('c-date').addEventListener('change',onCleaningDateChange);
   loadInventoryFromSheet();
 });
 
@@ -529,6 +623,7 @@ function showTask(val){
       el.classList.remove('active');
     }
   });
+  if(val==='cleaning') procInit();
   if(val){
     setTimeout(function(){
       var card=document.getElementById('card-'+val);
@@ -652,15 +747,378 @@ function submitHarvest(){
     document.getElementById('h-notes').value='';
   });
 }
-function submitCleaning(){
+/* ═══ PROCESSING RECORDS (GFP Wildlife Processing Facility, ARSD 41:06:03:10–12) ═══ */
+var PROCESSING_URL='PASTE_PROCESSING_URL_HERE';
+var PROC_SPECIES=['Pheasant','Sharp-tailed Grouse','Prairie Chicken','Partridge','Other'];
+var RECEIPT_RULE='These birds were cleaned at a wildlife processing facility. Under ARSD 41:06:03:02(2), a head, wing or foot is not required when birds are accompanied by this receipt. Keep this receipt with the birds while transporting.';
+var procHunters=null, procHunterMap={}, procFacility={name:'Davis Ranch Hunting LLC',address:'',phone:''};
+var ownerSeq=0, procSubmissionId=null, procSavedForThisForm=false, procLoading=false;
+var receiptMode='new', receiptData=[];
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function procConfigured(){return PROCESSING_URL.indexOf('script.google.com')!==-1;}
+function getPin(){try{return localStorage.getItem('dr_proc_pin')||'';}catch(e){return '';}}
+function setPin(v){try{if(v)localStorage.setItem('dr_proc_pin',v);else localStorage.removeItem('dr_proc_pin');}catch(e){}}
+function procMsg(text,isErr){var m=document.getElementById('proc-msg');m.textContent=text||'';m.className='proc-msg'+(isErr?' err':'');}
+function usDate(iso){var m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[2]+'/'+m[3]+'/'+m[1]:String(iso||'');}
+function procGet(params){
+  params.pin=getPin();
+  var qs=Object.keys(params).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}).join('&');
+  return fetch(PROCESSING_URL+'?'+qs).then(function(r){return r.json();});
+}
+function procPost(body){
+  body.pin=getPin();
+  // text/plain body = no preflight; lets us read the reply (receipt numbers, errors)
+  return fetch(PROCESSING_URL,{method:'POST',body:JSON.stringify(body)}).then(function(r){return r.json();});
+}
+function handleProcError(res){
+  var err=(res&&res.error)||'Unknown error.';
+  if(err==='Wrong PIN.'){setPin('');document.getElementById('proc-pin').style.display='flex';procHunters=null;}
+  return err;
+}
+
+function procInit(){
+  if(!procConfigured()){
+    document.getElementById('proc-pin').style.display='none';
+    procMsg('Not connected yet: the processing records link still needs to be added to this app.',true);
+    return;
+  }
+  if(!getPin()){
+    document.getElementById('proc-pin').style.display='flex';
+    procMsg('Enter the records PIN to load hunters from the sign-in waivers.');
+    return;
+  }
+  document.getElementById('proc-pin').style.display='none';
+  if(!procHunters) loadHunters();
+}
+function savePin(){
+  var v=document.getElementById('proc-pin-input').value.trim();
+  if(!v){alert('Enter the PIN.');return;}
+  setPin(v);document.getElementById('proc-pin-input').value='';
+  procHunters=null;procInit();
+}
+function loadHunters(){
+  if(procLoading) return;
+  procLoading=true;
+  procMsg('Loading hunters from the sign-in waivers…');
+  procGet({action:'hunters'}).then(function(res){
+    procLoading=false;
+    if(!res.ok){procMsg(handleProcError(res),true);return;}
+    procHunters=res.hunters||[];
+    procHunterMap={};
+    procHunters.forEach(function(h){var k=hunterKey(h);if(!procHunterMap[k])procHunterMap[k]=h;});
+    var n=Object.keys(procHunterMap).length;
+    procMsg(n+' hunter'+(n===1?'':'s')+' loaded from the sign-in waivers.');
+    refreshOwnerSelects();
+  }).catch(function(){
+    procLoading=false;
+    procMsg('Could not load hunters. Check your signal, then reopen Bird Cleaning.',true);
+  });
+}
+function hunterKey(h){return (String(h.name||'')+'|'+String(h.address||'')).toLowerCase().trim();}
+function huntersFor(date){
+  var today=[],seen={};
+  (procHunters||[]).forEach(function(h){
+    var k=hunterKey(h);
+    if(h.huntDate===date&&!seen[k]){seen[k]=1;today.push(h);}
+  });
+  var others=[];
+  Object.keys(procHunterMap).forEach(function(k){if(!seen[k])others.push(procHunterMap[k]);});
+  var byName=function(a,b){return a.name.localeCompare(b.name);};
+  return {today:today.sort(byName),others:others.sort(byName)};
+}
+function hunterOptionsHtml(date){
+  var html='<option value="">&#8212; Select hunter &#8212;</option>';
+  if(procHunters){
+    var g=huntersFor(date);
+    var opt=function(h){return '<option value="'+esc(hunterKey(h))+'">'+esc(h.name)+(h.group?' &#8212; '+esc(h.group):'')+'</option>';};
+    if(g.today.length) html+='<optgroup label="Signed in for '+esc(usDate(date))+'">'+g.today.map(opt).join('')+'</optgroup>';
+    if(g.others.length) html+='<optgroup label="Earlier this season">'+g.others.map(opt).join('')+'</optgroup>';
+  }
+  html+='<option value="__manual__">Not on the list &#8212; type it in</option>';
+  return html;
+}
+function ownerIds(){return Array.from(document.querySelectorAll('#c-owners .owner')).map(function(el){return el.dataset.id;});}
+function refreshOwnerSelects(){
   var date=document.getElementById('c-date').value;
+  ownerIds().forEach(function(id){
+    var sel=document.getElementById('o-sel-'+id),v=sel.value;
+    sel.innerHTML=hunterOptionsHtml(date);
+    sel.value=v;if(sel.value!==v)sel.value='';
+    ownerPick(id,true);
+  });
+}
+function addOwner(prefKey){
+  ownerSeq++;var id=ownerSeq;
+  var date=document.getElementById('c-date').value;
+  var more=PROC_SPECIES.slice(1).map(function(s,i){
+    return '<label for="o-sp-'+id+'-'+(i+1)+'">'+esc(s)+'</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="o-sp-'+id+'-'+(i+1)+'" oninput="updateBirdTotal()">';
+  }).join('');
+  var div=document.createElement('div');
+  div.className='owner';div.id='owner-'+id;div.dataset.id=id;
+  div.innerHTML=
+    '<div class="owner-top"><span class="owner-num"></span><button type="button" class="owner-remove" onclick="removeOwner('+id+')">Remove</button></div>'+
+    '<div class="field"><label>Owner (hunter who shot the birds) <span class="req">*</span></label><select id="o-sel-'+id+'" onchange="ownerPick('+id+')">'+hunterOptionsHtml(date)+'</select></div>'+
+    '<div class="owner-addr" id="o-addr-'+id+'"></div>'+
+    '<div id="o-man-'+id+'" style="display:none">'+
+      '<div class="field"><label>Owner Name <span class="req">*</span></label><input type="text" id="o-mname-'+id+'" placeholder="First and last name"></div>'+
+      '<div class="field"><label>Street Address <span class="req">*</span></label><input type="text" id="o-maddr-'+id+'" placeholder="123 Main St"></div>'+
+      '<div class="field"><label>City, State ZIP <span class="req">*</span></label><input type="text" id="o-mcsz-'+id+'" placeholder="Omaha, NE 68102"></div>'+
+      '<div class="field"><label>Cell Phone <span class="opt">(for texting the receipt)</span></label><input type="tel" id="o-mphone-'+id+'" placeholder="(605) 555-0100"></div>'+
+    '</div>'+
+    '<div class="species-grid">'+
+      '<label for="o-sp-'+id+'-0">Pheasant</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="o-sp-'+id+'-0" oninput="updateBirdTotal()">'+
+      '<span class="species-more" id="o-more-'+id+'">'+more+'</span>'+
+    '</div>'+
+    '<button type="button" class="proc-link" style="margin:0 0 12px" id="o-moreb-'+id+'" onclick="toggleSpecies('+id+')">+ Other species</button>'+
+    '<div class="field-row">'+
+      '<div class="field"><label>Date Received</label><input type="date" id="o-rec-'+id+'" value="'+esc(date)+'" data-auto="1" oninput="this.dataset.auto=0"></div>'+
+      '<div class="field"><label>Date Released</label><input type="date" id="o-rel-'+id+'" value="'+esc(date)+'" data-auto="1" oninput="this.dataset.auto=0"></div>'+
+    '</div>'+
+    '<div class="field"><label>Delivered To <span class="opt">(blank = the owner)</span></label><input type="text" id="o-del-'+id+'" placeholder="Who picked up the birds"></div>'+
+    '<label class="check-line"><input type="checkbox" id="o-haul-'+id+'" onchange="toggleHaul('+id+')"> Birds brought in by a different hunter</label>'+
+    '<div class="tag-box" id="o-tag-'+id+'">'+
+      '<div class="tag-note">GFP: the birds must carry a hunter tag with the owner’s name, address, number &amp; species, date killed and signature.</div>'+
+      '<div class="field"><label>Received From <span class="req">*</span></label><input type="text" id="o-from-'+id+'" placeholder="Hunter who dropped them off"></div>'+
+      '<div class="field"><label>Hunter Tag on Birds? <span class="req">*</span></label><select id="o-tagq-'+id+'"><option value="">&#8212; Select &#8212;</option><option>Yes</option><option>No</option></select></div>'+
+    '</div>';
+  document.getElementById('c-owners').appendChild(div);
+  if(prefKey){document.getElementById('o-sel-'+id).value=prefKey;ownerPick(id,true);}
+  renumberOwners();
+  return id;
+}
+function removeOwner(id){var el=document.getElementById('owner-'+id);if(el)el.remove();renumberOwners();updateBirdTotal();}
+function renumberOwners(){
+  Array.from(document.querySelectorAll('#c-owners .owner')).forEach(function(el,i){el.querySelector('.owner-num').textContent='Hunter '+(i+1);});
+}
+function toggleSpecies(id){
+  var m=document.getElementById('o-more-'+id),b=document.getElementById('o-moreb-'+id);
+  var show=!m.classList.contains('show');m.classList.toggle('show',show);b.textContent=show?'− Fewer species':'+ Other species';
+}
+function toggleHaul(id){document.getElementById('o-tag-'+id).classList.toggle('show',document.getElementById('o-haul-'+id).checked);}
+function ownerPick(id,quiet){
+  var sel=document.getElementById('o-sel-'+id),addr=document.getElementById('o-addr-'+id),man=document.getElementById('o-man-'+id);
+  var v=sel.value;
+  if(v==='__manual__'){
+    man.style.display='block';addr.textContent='';addr.className='owner-addr';
+    var last=procHunterMap[sel.dataset.last||''];
+    if(last&&!document.getElementById('o-mname-'+id).value){
+      document.getElementById('o-mname-'+id).value=last.name||'';
+      document.getElementById('o-maddr-'+id).value=last.address||'';
+      document.getElementById('o-mcsz-'+id).value=last.cityStateZip||'';
+      document.getElementById('o-mphone-'+id).value=last.phone||'';
+    }
+    return;
+  }
+  man.style.display='none';
+  var h=procHunterMap[v];
+  if(!h){addr.textContent='';addr.className='owner-addr';return;}
+  sel.dataset.last=v;
+  if(!h.address||!h.cityStateZip){
+    addr.className='owner-addr missing';
+    addr.textContent='No full address on this waiver. Choose “Not on the list” to type it in.';
+  }else{
+    addr.className='owner-addr';
+    addr.textContent=h.address+', '+h.cityStateZip+(h.phone?'  ·  '+h.phone:'');
+  }
+}
+function ownerData(id){
+  var v=document.getElementById('o-sel-'+id).value,d;
+  if(v==='__manual__'){
+    d={owner:document.getElementById('o-mname-'+id).value.trim(),ownerAddress:document.getElementById('o-maddr-'+id).value.trim(),
+       ownerCityStateZip:document.getElementById('o-mcsz-'+id).value.trim(),phone:document.getElementById('o-mphone-'+id).value.trim()};
+  }else{
+    var h=procHunterMap[v]||{};
+    d={owner:h.name||'',ownerAddress:h.address||'',ownerCityStateZip:h.cityStateZip||'',phone:h.phone||''};
+  }
+  var species=[],total=0;
+  PROC_SPECIES.forEach(function(s,i){
+    var n=parseInt(document.getElementById('o-sp-'+id+'-'+i).value,10)||0;
+    if(n>0){species.push({species:s,count:n});total+=n;}
+  });
+  var hauled=document.getElementById('o-haul-'+id).checked;
+  d.species=species;d.total=total;d.hauled=hauled;
+  d.dateReceived=document.getElementById('o-rec-'+id).value;
+  d.dateReleased=document.getElementById('o-rel-'+id).value;
+  d.deliveredTo=document.getElementById('o-del-'+id).value.trim()||d.owner;
+  d.receivedFrom=hauled?document.getElementById('o-from-'+id).value.trim():d.owner;
+  d.hunterTag=hauled?document.getElementById('o-tagq-'+id).value:'N/A';
+  d.notes='';
+  return d;
+}
+function updateBirdTotal(){
+  var ids=ownerIds();if(!ids.length)return;
+  var sum=ids.reduce(function(s,id){return s+ownerData(id).total;},0);
+  document.getElementById('c-qty').value=sum||'';
+  calcPay();
+}
+function addTodaysHunters(){
+  if(!procConfigured()||!getPin()){procInit();alert('Connect the processing records first (PIN).');return;}
+  if(!procHunters){loadHunters();alert('Hunters are still loading. Try again in a moment.');return;}
+  var date=document.getElementById('c-date').value;
+  var chosen={};ownerIds().forEach(function(id){chosen[document.getElementById('o-sel-'+id).value]=1;});
+  var list=huntersFor(date).today.filter(function(h){return !chosen[hunterKey(h)];});
+  if(!list.length){alert('No new sign-ins found for '+usDate(date)+'.');return;}
+  list.forEach(function(h){addOwner(hunterKey(h));});
+}
+function onCleaningDateChange(){
+  var date=document.getElementById('c-date').value;
+  ownerIds().forEach(function(id){
+    ['o-rec-','o-rel-'].forEach(function(p){var el=document.getElementById(p+id);if(el.dataset.auto==='1')el.value=date;});
+  });
+  refreshOwnerSelects();
+}
+function clearOwners(){
+  document.getElementById('c-owners').innerHTML='';
+  ownerSeq=0;procSavedForThisForm=false;procSubmissionId=null;
+}
+
+/* ── RECEIPTS ── */
+function speciesText(r){return (r.species||[]).map(function(s){return s.count+' '+s.species;}).join(', ');}
+function receiptText(r){
+  var f=procFacility;
+  return f.name+' – Wildlife Processing Facility Receipt #'+r.receiptNo+'\n'+
+    (f.address?f.address+'\n':'')+(f.phone?f.phone+'\n':'')+
+    'Owner: '+r.owner+'\n'+
+    (r.ownerAddress?r.ownerAddress+', '+r.ownerCityStateZip+'\n':'')+
+    'Birds: '+speciesText(r)+'\n'+
+    'Received '+usDate(r.dateReceived)+' · Released '+usDate(r.dateReleased)+'\n\n'+RECEIPT_RULE;
+}
+function smsHref(r){
+  var num=String(r.phone||'').replace(/[^\d+]/g,'');
+  return 'sms:'+num+'?body='+encodeURIComponent(receiptText(r));
+}
+function receiptHtml(r){
+  var f=procFacility;
+  var row=function(k,v){return '<tr><td>'+k+'</td><td>'+esc(v)+'</td></tr>';};
+  var sp=(r.species||[]).map(function(s){return esc(s.count)+' '+esc(s.species);}).join('<br>');
+  return '<div class="receipt-doc">'+
+    '<h1>WILDLIFE PROCESSING FACILITY RECEIPT</h1>'+
+    '<div class="fac"><b>'+esc(f.name)+'</b>'+(f.address?'<br>'+esc(f.address):'')+(f.phone?'<br>'+esc(f.phone):'')+'</div>'+
+    '<table>'+
+      row('Receipt #',r.receiptNo)+
+      row('Owner Name',r.owner)+
+      row('Owner Address',r.ownerAddress)+
+      row('City, State ZIP',r.ownerCityStateZip)+
+      '<tr><td>Number &amp; Species</td><td>'+sp+'</td></tr>'+
+      row('Date Received',usDate(r.dateReceived))+
+      row('Date Released',usDate(r.dateReleased))+
+      row('Delivered To',r.deliveredTo||r.owner)+
+    '</table>'+
+    '<div class="rule">'+esc(RECEIPT_RULE)+'</div>'+
+    '<div class="sig"><div>Facility signature</div><div class="date">Date</div></div>'+
+  '</div>';
+}
+function printReceipts(list){
+  if(!list||!list.length)return;
+  var area=document.getElementById('print-area');
+  if(!area){area=document.createElement('div');area.id='print-area';document.body.appendChild(area);}
+  area.innerHTML=list.map(receiptHtml).join('');
+  setTimeout(function(){window.print();},50);
+}
+function shownReceipts(){
+  if(receiptMode!=='reprint')return receiptData;
+  var q=(document.getElementById('reprint-search').value||'').toLowerCase().trim();
+  if(!q)return receiptData;
+  return receiptData.filter(function(r){return String(r.receiptNo).indexOf(q)!==-1||String(r.owner).toLowerCase().indexOf(q)!==-1;});
+}
+function renderReceiptList(){
+  var list=shownReceipts();
+  var box=document.getElementById('c-receipts-list');
+  if(!list.length){box.innerHTML='<div class="report-hint" style="padding:8px 0">No receipts found.</div>';return;}
+  box.innerHTML=list.map(function(r,i){
+    return '<div class="rc"><div class="rc-line1"><span>'+esc(r.owner)+'</span><span class="rc-no">#'+esc(r.receiptNo)+'</span></div>'+
+      '<div class="rc-line2">'+esc(speciesText(r))+' · released '+esc(usDate(r.dateReleased))+'</div>'+
+      '<div class="rc-btns"><button type="button" class="rc-print" data-i="'+i+'" onclick="printOne(this)">Print</button>'+
+      '<a class="rc-text" href="'+esc(smsHref(r))+'">Text'+(r.phone?'':' (add number)')+'</a></div></div>';
+  }).join('');
+}
+function printOne(btn){var r=shownReceipts()[+btn.dataset.i];if(r)printReceipts([r]);}
+function showReceipts(list,mode){
+  receiptMode=mode;receiptData=list||[];
+  document.getElementById('c-receipts-title').textContent=mode==='reprint'?'Reprint a Receipt':'✓ Saved — Receipts ('+receiptData.length+')';
+  var s=document.getElementById('reprint-search');s.style.display=mode==='reprint'?'block':'none';if(mode!=='reprint')s.value='';
+  document.getElementById('btn-print-all').style.display=receiptData.length>1&&mode!=='reprint'?'block':'none';
+  renderReceiptList();
+  var box=document.getElementById('c-receipts');box.classList.add('show');
+  setTimeout(function(){box.scrollIntoView({behavior:'smooth',block:'start'});},50);
+}
+function closeReceipts(){document.getElementById('c-receipts').classList.remove('show');}
+function openReprint(){
+  if(!procConfigured()){alert('The processing records link has not been added to this app yet.');return;}
+  if(!getPin()){procInit();alert('Enter the records PIN first.');return;}
+  showReceipts([],'reprint');
+  document.getElementById('c-receipts-list').innerHTML='<div class="report-hint" style="padding:8px 0">Loading receipts…</div>';
+  procGet({action:'receipts',limit:150}).then(function(res){
+    if(!res.ok){document.getElementById('c-receipts-list').innerHTML='<div class="proc-msg err">'+esc(handleProcError(res))+'</div>';return;}
+    if(res.facility)procFacility=res.facility;
+    receiptData=res.receipts||[];renderReceiptList();
+  }).catch(function(){
+    document.getElementById('c-receipts-list').innerHTML='<div class="proc-msg err">Could not load receipts. Check your signal.</div>';
+  });
+}
+
+/* ── CLEANING SUBMIT (records first, then the crew/pay log) ── */
+async function submitCleaning(){
+  var date=document.getElementById('c-date').value;
+  var ids=ownerIds();
+  if(ids.length)updateBirdTotal();
   var qty=parseInt(document.getElementById('c-qty').value)||0;
   if(!date||!qty){alert('Please enter a date and total birds cleaned.');return;}
+
+  var records=[];
+  if(ids.length&&!procSavedForThisForm){
+    var empty=[],problems=[];
+    ids.forEach(function(id,i){
+      var d=ownerData(id),label='Hunter '+(i+1)+(d.owner?' ('+d.owner+')':'');
+      if(!d.total){empty.push(d.owner||('Hunter '+(i+1)));return;}
+      if(!d.owner)problems.push(label+': pick the owner.');
+      else if(!d.ownerAddress||!d.ownerCityStateZip)problems.push(label+': address is missing.');
+      if(!d.dateReceived||!d.dateReleased)problems.push(label+': enter both dates.');
+      if(d.hauled&&(!d.receivedFrom||!d.hunterTag))problems.push(label+': fill in who dropped them off and whether the hunter tag was on the birds.');
+      records.push(d);
+    });
+    if(problems.length){alert(problems.join('\n'));return;}
+    if(empty.length&&!confirm('No birds entered for: '+empty.join(', ')+'.\nThey will be skipped. Continue?'))return;
+    if(records.length){
+      if(!procConfigured()){alert('The processing records link has not been added to this app yet, so GFP records and receipts cannot be saved.');return;}
+      if(!getPin()){procInit();alert('Enter the records PIN first.');return;}
+    }
+  }else if(!ids.length){
+    if(!confirm('No hunters entered.\nGFP requires a record and a receipt for every bird you clean.\n\nLog this cleaning without them?'))return;
+  }
+
+  var btn=document.querySelector('#card-cleaning .btn-submit');
+  var s=document.getElementById('c-status');
+  if(records.length){
+    if(!procSubmissionId)procSubmissionId=Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+    btn.disabled=true;btn.textContent='Saving records...';s.className='submit-status';
+    var res;
+    try{
+      res=await procPost({action:'log',submissionId:procSubmissionId,records:records.map(function(d){
+        return {owner:d.owner,ownerAddress:d.ownerAddress,ownerCityStateZip:d.ownerCityStateZip,phone:d.phone,
+          receivedFrom:d.receivedFrom,dateReceived:d.dateReceived,dateReleased:d.dateReleased,
+          deliveredTo:d.deliveredTo,hunterTag:d.hunterTag,species:d.species,notes:d.notes};
+      })});
+    }catch(err){
+      btn.disabled=false;btn.textContent=btn.getAttribute('data-label');
+      s.className='submit-status show error';s.textContent='Could not reach the records sheet. Nothing was saved. Check your signal and try again.';
+      return;
+    }
+    if(!res||!res.ok){
+      btn.disabled=false;btn.textContent=btn.getAttribute('data-label');
+      s.className='submit-status show error';s.textContent='Records not saved: '+handleProcError(res);
+      return;
+    }
+    procSavedForThisForm=true;
+    if(res.facility)procFacility=res.facility;
+    showReceipts(res.receipts,'new');
+  }
+
   var rate=parseFloat(document.getElementById('c-rate').value)||0;
   var totalPay=parseFloat(document.getElementById('c-total-pay').value)||0;
   var workers=getWorkerNames();
-  var btn=document.querySelector('#card-cleaning .btn-submit');
-  postData({task:'cleaning',date,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:document.getElementById('c-notes').value},'c-status',btn,'Cleaning logged!',function(){
+  postData({task:'cleaning',date,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:document.getElementById('c-notes').value},'c-status',btn,records.length?'Cleaning logged — '+records.length+' receipt'+(records.length===1?'':'s')+' ready below':'Cleaning logged!',function(){
     document.getElementById('c-qty').value='';
     document.getElementById('c-rate').value='';
     document.getElementById('c-total-pay').value='';
@@ -672,8 +1130,10 @@ function submitCleaning(){
       var cb=document.getElementById('cwcheck-'+i);
       if(cb) cb.checked=false;
     });
+    clearOwners();
   });
 }
+
 function submitInventory(){
   var itemId=document.getElementById('inv-item-select').value;
   var type=document.getElementById('inv-type').value;
