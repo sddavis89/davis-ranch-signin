@@ -162,6 +162,8 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .rc-btns{display:flex;gap:8px;}
 .rc-btns button,.rc-btns a{flex:1;text-align:center;padding:10px 8px;border-radius:8px;font-family:var(--font-body);font-weight:700;font-size:.88rem;cursor:pointer;text-decoration:none;border:1.5px solid var(--gold);}
 .rc-print{background:var(--gold);color:var(--earth);}
+.rc-pdf{display:block;margin-top:8px;font-size:.8rem;font-weight:600;color:var(--warn);text-align:center;}
+.rc-pdf-err{margin-top:8px;font-size:.78rem;color:#B3261E;font-weight:600;}
 .rc-text{background:#fff;color:var(--fg);}
 .receipts-foot{display:flex;gap:8px;margin-top:4px;}
 .receipts-foot button{flex:1;}
@@ -1182,7 +1184,10 @@ function renderReceiptList(){
     return '<div class="rc"><div class="rc-line1"><span>'+esc(r.owner)+'</span><span class="rc-no">#'+esc(r.receiptNo)+'</span></div>'+
       '<div class="rc-line2">'+esc(speciesText(r))+' · released '+esc(usDate(r.dateReleased))+(r.group?' · '+esc(r.group):'')+'</div>'+
       '<div class="rc-btns"><button type="button" class="rc-print" data-i="'+i+'" onclick="printOne(this)">Print</button>'+
-      '<a class="rc-text" href="'+esc(smsHref(r))+'">Text'+(r.phone?'':' (add number)')+'</a></div></div>';
+      '<a class="rc-text" href="'+esc(smsHref(r))+'">Text'+(r.phone?'':' (add number)')+'</a></div>'+
+      (r.pdfUrl?'<a class="rc-pdf" href="'+esc(r.pdfUrl)+'" target="_blank" rel="noopener">Open PDF copy in Google Drive</a>':'')+
+      (r.pdfError?'<div class="rc-pdf-err">PDF copy not saved: '+esc(r.pdfError)+'</div>':'')+
+      '</div>';
   }).join('');
 }
 function printOne(btn){var r=shownReceipts()[+btn.dataset.i];if(r)printReceipts([r]);}
