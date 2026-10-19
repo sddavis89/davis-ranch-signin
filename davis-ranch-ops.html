@@ -196,6 +196,12 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .inv-already{font-size:.8rem;color:var(--warn);font-weight:600;margin:0 0 8px 30px;}
 .inv-preview{background:var(--earth);color:var(--gold-light);border-radius:8px;padding:10px 12px;margin:0 0 12px;font-size:.88rem;line-height:1.45;}
 .inv-preview b{font-family:var(--font-display);font-size:1.05rem;}
+.inv-type{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 14px;}
+.inv-type label{position:relative;cursor:pointer;}
+.inv-type input{position:absolute;opacity:0;}
+.inv-type span{display:block;border:1.5px solid var(--border);border-radius:8px;padding:9px 10px;font-weight:700;font-size:.88rem;color:var(--fg);background:var(--input-bg);line-height:1.25;}
+.inv-type small{display:block;font-weight:400;font-size:.74rem;color:var(--fg-soft);margin-top:2px;}
+.inv-type input:checked + span{border-color:var(--gold);background:#FFF6E3;box-shadow:0 0 0 2px rgba(200,150,62,.25);}
 .final-sub{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--success);font-weight:700;margin:4px 0 8px;}
 .rc.inv{border-color:var(--gold);background:#FFFBF2;}
 .inv-doc{font-family:Georgia,'Times New Roman',serif;color:#000;max-width:6.5in;margin:0 auto;padding:0.1in 0;page-break-after:always;break-after:page;font-size:11pt;}
@@ -361,10 +367,14 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
           <div class="proc-sub" style="margin-bottom:10px">The group invoice and a bird receipt for each checked hunter are made together and saved as PDFs in the group&rsquo;s Drive folder.</div>
           <div class="field"><label>Date Released</label><input type="date" id="c-final-date"></div>
           <div class="inv-box" id="inv-box">
-            <label class="check-line" style="margin:0 0 4px"><input type="checkbox" id="inv-make" onchange="invToggle()"> <b>Group invoice</b></label>
+            <label class="check-line" style="margin:0 0 4px"><input type="checkbox" id="inv-make" onchange="invToggle()"> <b>Invoice</b></label>
             <div class="inv-already" id="inv-already"></div>
             <div id="inv-fields">
-              <div class="field"><label>Bill To (group leader)</label><select id="inv-bill"></select></div>
+              <div class="inv-type">
+                <label><input type="radio" name="inv-type" value="group" checked onchange="invPreview()"><span>Group invoice<small>One bill to the leader</small></span></label>
+                <label><input type="radio" name="inv-type" value="individual" onchange="invPreview()"><span>Individual invoices<small>One bill per hunter</small></span></label>
+              </div>
+              <div class="field"><label id="inv-bill-label">Bill To (group leader)</label><select id="inv-bill" onchange="invPreview()"></select></div>
               <div class="field-row">
                 <div class="field"><label>Hunters Signed In</label><input type="number" id="inv-count" min="1" inputmode="numeric" oninput="invPreview()"></div>
                 <div class="field"><label>Deposit Paid <span class="opt">(optional)</span></label><input type="number" id="inv-deposit" min="0" step="0.01" inputmode="decimal" placeholder="0.00" oninput="invPreview()"></div>
@@ -1150,12 +1160,25 @@ function invToggle(){
   document.getElementById('inv-fields').style.display=document.getElementById('inv-make').checked?'block':'none';
   invPreview();
 }
+function invType(){var r=document.querySelector('input[name="inv-type"]:checked');return r?r.value:'group';}
 function invPreview(){
   var el=document.getElementById('inv-preview');
+  var ind=invType()==='individual';
+  document.getElementById('inv-bill-label').textContent=ind?'Group leader (pays any unfilled spots and the deposit)':'Bill To (group leader)';
   var p=procPricing||{package:'',price:0,minHunters:8};
   var n=parseInt(document.getElementById('inv-count').value,10)||0;
   var dep=parseFloat(document.getElementById('inv-deposit').value)||0;
   if(!n){el.innerHTML='Enter how many hunters signed in.';return;}
+  if(ind){
+    var extra=Math.max(0,p.minHunters-n),k=invBillList.length;
+    var lead=invBillList[parseInt(document.getElementById('inv-bill').value,10)];
+    var leadTotal=p.price*(1+extra);
+    el.innerHTML=esc(p.package)+' (taxes included)<br><b>'+k+' invoice'+(k===1?'':'s')+' \u00d7 '+money(p.price)+'</b>'+
+      (extra?'<br>Group minimum '+p.minHunters+' ('+n+' signed in): '+esc(lead?lead.name:'the leader')+' also pays '+extra+' unfilled spot'+(extra===1?'':'s')+' ('+money(extra*p.price)+')':'')+
+      (dep?'<br>Deposit '+money(dep)+' comes off the leader\u2019s invoice':'')+
+      '<br>Leader\u2019s balance due: <b>'+money(leadTotal-dep)+'</b>';
+    return;
+  }
   var billed=Math.max(n,p.minHunters),total=billed*p.price;
   el.innerHTML=esc(p.package)+' (taxes included)<br><b>'+billed+' hunters × '+money(p.price)+' = '+money(total)+'</b>'+
     (billed>n?'<br>Group minimum '+p.minHunters+' ('+n+' signed in)':'')+
@@ -1187,7 +1210,8 @@ async function makeFinalReceipts(){
   }
   if(wantInv){
     var ires;
-    try{ires=await procPost({action:'invoice',submissionId:finalSubmissionId,group:g,date:date,huntersSignedIn:count,
+    try{ires=await procPost({action:'invoice',submissionId:finalSubmissionId,group:g,date:date,huntersSignedIn:count,type:invType(),
+      hunters:invBillList.map(function(h){return {name:h.name,address:h.address,cityStateZip:h.cityStateZip,phone:h.phone};}),
       deposit:parseFloat(document.getElementById('inv-deposit').value)||0,
       billTo:{name:leader.name,address:leader.address,cityStateZip:leader.cityStateZip,phone:leader.phone},
       hunterNames:invBillList.map(function(h){return h.name;})});}
@@ -1198,7 +1222,7 @@ async function makeFinalReceipts(){
       if(!receipts.length)return;
     }else{
       if(ires.facility)procFacility=ires.facility;
-      invoices=[ires.invoice];procInvoices=ires.invoices||procInvoices;
+      invoices=ires.created||[ires.invoice];procInvoices=ires.invoices||procInvoices;
     }
   }
   btn.disabled=false;btn.textContent='Create';
@@ -1247,13 +1271,17 @@ function receiptHtml(r){
 }
 function invoiceDocHtml(v){
   var f=procFacility;
-  var minNote=v.huntersBilled>v.huntersSignedIn?'<div class="note">Group minimum is '+v.huntersBilled+' hunters ('+v.huntersSignedIn+' signed in).</div>':'';
+  var note=v.note!==undefined?v.note:(v.huntersBilled>v.huntersSignedIn?'Group minimum is '+v.huntersBilled+' hunters ('+v.huntersSignedIn+' signed in).':'');
+  var minNote=note?'<div class="note">'+esc(note)+'</div>':'';
+  var lines=(v.lines||[{desc:v.package+' (per hunter)',qty:v.huntersBilled,rate:v.price,amount:v.total}]).map(function(l){
+    return '<tr><td>'+esc(l.desc)+'</td><td class="n">'+esc(l.qty)+'</td><td class="n">'+money(l.rate)+'</td><td class="n">'+money(l.amount)+'</td></tr>';
+  }).join('');
   return '<div class="inv-doc">'+
     '<div class="top"><div class="fac"><b>'+esc(f.name)+'</b>'+(f.address?'<br>'+esc(f.address):'')+(f.phone?'<br>'+esc(f.phone):'')+'</div>'+
-    '<div class="meta"><h1>INVOICE</h1>Invoice # <b>'+esc(v.invoiceNo)+'</b><br>Date: '+esc(usDate(v.date))+'<br>Group: '+esc(v.group)+'</div></div>'+
+    '<div class="meta"><h1>INVOICE</h1>Invoice # <b>'+esc(v.invoiceNo)+'</b><br>Date: '+esc(usDate(v.date))+'<br>Group: '+esc(v.group)+(v.type==='Individual'&&v.leader&&v.leader!==v.billTo.name?'<br>Group leader: '+esc(v.leader):'')+'</div></div>'+
     '<div class="bill"><b>Bill To:</b><br>'+esc(v.billTo.name)+(v.billTo.address?'<br>'+esc(v.billTo.address):'')+(v.billTo.cityStateZip?'<br>'+esc(v.billTo.cityStateZip):'')+(v.billTo.phone?'<br>'+esc(v.billTo.phone):'')+'</div>'+
     '<table class="items"><tr><th>Description</th><th class="n">Hunters</th><th class="n">Rate</th><th class="n">Amount</th></tr>'+
-    '<tr><td>'+esc(v.package)+' (per hunter)</td><td class="n">'+esc(v.huntersBilled)+'</td><td class="n">'+money(v.price)+'</td><td class="n">'+money(v.total)+'</td></tr></table>'+
+    lines+'</table>'+
     minNote+
     '<table class="tot"><tr><td>Total</td><td class="n">'+money(v.total)+'</td></tr>'+
       (v.deposit?'<tr><td>Deposit paid</td><td class="n">−'+money(v.deposit)+'</td></tr>':'')+
@@ -1268,7 +1296,16 @@ function printDocs(invs,recs){
   if(!(invs&&invs.length)&&!(recs&&recs.length))return;
   var area=document.getElementById('print-area');
   if(!area){area=document.createElement('div');area.id='print-area';document.body.appendChild(area);}
-  area.innerHTML=(invs||[]).map(invoiceDocHtml).join('')+(recs||[]).map(receiptHtml).join('');
+  var left=(recs||[]).slice(),out=[];
+  (invs||[]).forEach(function(v){
+    out.push(invoiceDocHtml(v));
+    if(v.type==='Individual'){
+      var nm=String(v.billTo.name||'').toLowerCase();
+      left=left.filter(function(r){if(String(r.owner).toLowerCase()===nm){out.push(receiptHtml(r));return false;}return true;});
+    }
+  });
+  left.forEach(function(r){out.push(receiptHtml(r));});
+  area.innerHTML=out.join('');
   setTimeout(function(){window.print();},50);
 }
 function printReceipts(list){
@@ -1308,8 +1345,9 @@ function renderReceiptList(){
   pa.textContent=nAll>1?'Print All ('+nAll+')':'Print All';pa.disabled=!nAll;
   if(!nAll){box.innerHTML='<div class="report-hint" style="padding:8px 0">Nothing found.</div>';return;}
   box.innerHTML=invs.map(function(v,i){
-    return '<div class="rc inv"><div class="rc-line1"><span>Invoice — '+esc(v.group)+'</span><span class="rc-no">#'+esc(v.invoiceNo)+'</span></div>'+
-      '<div class="rc-line2">Bill to '+esc(v.billTo.name)+' · '+v.huntersBilled+' × '+money(v.price)+' · <b>'+money(v.balance)+' due</b> · '+esc(usDate(v.date))+'</div>'+
+    var ind=v.type==='Individual';
+    return '<div class="rc inv"><div class="rc-line1"><span>'+(ind?'Invoice \u2014 '+esc(v.billTo.name):'Group Invoice \u2014 '+esc(v.group))+'</span><span class="rc-no">#'+esc(v.invoiceNo)+'</span></div>'+
+      '<div class="rc-line2">'+(ind?esc(v.group)+(v.leader===v.billTo.name?' (leader)':''):'Bill to '+esc(v.billTo.name)+' \u00b7 '+v.huntersBilled+' \u00d7 '+money(v.price))+' \u00b7 <b>'+money(v.balance)+' due</b> \u00b7 '+esc(usDate(v.date))+'</div>'+
       '<div class="rc-btns"><button type="button" class="rc-print" data-i="'+i+'" onclick="printInvoice(this)">Print Invoice</button></div>'+
       (v.pdfUrl?'<a class="rc-pdf" href="'+esc(v.pdfUrl)+'" target="_blank" rel="noopener">Open PDF copy in Google Drive</a>':'')+
       (v.pdfError?'<div class="rc-pdf-err">PDF copy not saved: '+esc(v.pdfError)+'</div>':'')+
@@ -1327,7 +1365,7 @@ function renderReceiptList(){
 function printOne(btn){var r=shownReceipts()[+btn.dataset.i];if(r)printReceipts([r]);}
 function showReceipts(list,mode,invs){
   receiptMode=mode;receiptData=list||[];invoiceData=invs||[];
-  document.getElementById('c-receipts-title').textContent=mode==='reprint'?'Past Receipts & Invoices':'\u2713 Created \u2014 '+(invoiceData.length?'Invoice + ':'')+receiptData.length+' receipt'+(receiptData.length===1?'':'s');
+  document.getElementById('c-receipts-title').textContent=mode==='reprint'?'Past Receipts & Invoices':'\u2713 Created \u2014 '+(invoiceData.length?(invoiceData.length===1?'Invoice':invoiceData.length+' invoices')+' + ':'')+receiptData.length+' receipt'+(receiptData.length===1?'':'s');
   var s=document.getElementById('reprint-search');s.style.display=mode==='reprint'?'block':'none';if(mode!=='reprint')s.value='';
   document.getElementById('rp-filters').style.display=mode==='reprint'?'flex':'none';
   if(mode!=='reprint'){document.getElementById('rp-group').value='';document.getElementById('rp-date').value='';}
