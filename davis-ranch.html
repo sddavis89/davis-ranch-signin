@@ -527,6 +527,31 @@
     display: block;
   }
 
+  /* Drawn signature pad */
+  .sig-pad-wrap {
+    position: relative;
+    margin-top: 16px;
+    background: #fff;
+    border: 1.5px dashed var(--gold);
+    border-radius: 8px;
+    height: 150px;
+    touch-action: none;
+  }
+  .sig-pad-wrap.error { border-color: #C0392B; border-style: solid; }
+  #sig-pad { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; border-radius: 8px; }
+  .sig-hint {
+    position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+    text-align: center; font-size: 0.85rem; color: var(--fg-soft); pointer-events: none;
+  }
+  .sig-pad-wrap.signed .sig-hint { display: none; }
+  .sig-line { position: absolute; left: 16px; right: 16px; bottom: 34px; border-bottom: 1px solid #c9b98f; pointer-events: none; }
+  .sig-x { position: absolute; left: 16px; bottom: 38px; font-size: 1rem; color: #b8a77e; pointer-events: none; }
+  .sig-clear {
+    position: absolute; right: 8px; top: 8px;
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 10px; font-size: 0.75rem; color: var(--fg-soft); cursor: pointer;
+  }
+
   /* Hunt date notice */
   .date-notice {
     background: var(--surface);
@@ -827,11 +852,19 @@
 
         <div class="form-section-title">Electronic Signature</div>
         <div class="sig-box">
-          <p>By typing your full legal name below, you confirm that you have read and agree to the waiver above. Your typed name constitutes your legally binding electronic signature.</p>
+          <p>By typing your full legal name and signing below, you confirm that you have read and agree to the waiver above. Your typed name and signature constitute your legally binding electronic signature.</p>
           <input type="text" id="signature" name="signature" placeholder="Type your full name" autocomplete="name" required
             aria-label="Electronic signature — type your full name">
           <span class="sig-label">Electronic Signature</span>
           <span class="error-msg" id="err-signature" style="margin-top:8px">Please type your full name as your signature.</span>
+          <div class="sig-pad-wrap" id="sig-pad-wrap">
+            <canvas id="sig-pad" aria-label="Sign here with your finger"></canvas>
+            <span class="sig-hint">Sign here with your finger</span>
+            <span class="sig-x">&#10005;</span><span class="sig-line"></span>
+            <button type="button" class="sig-clear" onclick="clearSig()">Clear</button>
+          </div>
+          <span class="sig-label">Signature</span>
+          <span class="error-msg" id="err-sig-pad" style="margin-top:8px">Please sign in the box above.</span>
         </div>
 
         <button type="submit" class="btn-primary" id="btn-submit">
@@ -887,11 +920,75 @@ function goTo(pageId) {
   }
   const pct = STEPS[pageId] ?? 0;
   document.getElementById('progress').style.width = pct + '%';
+  if (pageId === 'form') setTimeout(initSigPad, 30);
 }
 
 function updateWaiverBtn() {
   const checked = document.getElementById('waiver-agreed').checked;
   document.getElementById('btn-to-form').disabled = !checked;
+}
+
+// ─── Signature pad ────────────────────────────────────────────────
+var sigCanvas = null, sigCtx = null, sigDrawing = false, sigLast = null, sigInk = 0, sigReady = false;
+function initSigPad() {
+  sigCanvas = document.getElementById('sig-pad');
+  if (!sigCanvas) return;
+  var w = sigCanvas.clientWidth, hgt = sigCanvas.clientHeight;
+  if (!w || !hgt) return;                                   // page not visible yet
+  var ratio = Math.max(window.devicePixelRatio || 1, 1);
+  sigCanvas.width = Math.round(w * ratio); sigCanvas.height = Math.round(hgt * ratio);
+  sigCtx = sigCanvas.getContext('2d');
+  sigCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  sigCtx.lineWidth = 2.4; sigCtx.lineCap = 'round'; sigCtx.lineJoin = 'round'; sigCtx.strokeStyle = '#111';
+  sigInk = 0; document.getElementById('sig-pad-wrap').classList.remove('signed');
+  if (sigReady) return;
+  sigReady = true;
+  var pos = function (e) { var r = sigCanvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  sigCanvas.addEventListener('pointerdown', function (e) {
+    e.preventDefault(); sigDrawing = true; sigLast = pos(e);
+    try { sigCanvas.setPointerCapture(e.pointerId); } catch (x) {}
+    sigCtx.beginPath(); sigCtx.arc(sigLast.x, sigLast.y, 1.1, 0, Math.PI * 2); sigCtx.fillStyle = '#111'; sigCtx.fill();
+  });
+  sigCanvas.addEventListener('pointermove', function (e) {
+    if (!sigDrawing) return;
+    e.preventDefault();
+    var p = pos(e);
+    sigCtx.beginPath(); sigCtx.moveTo(sigLast.x, sigLast.y); sigCtx.lineTo(p.x, p.y); sigCtx.stroke();
+    sigInk += Math.hypot(p.x - sigLast.x, p.y - sigLast.y); sigLast = p;
+    if (sigInk > 30) {
+      document.getElementById('sig-pad-wrap').classList.add('signed');
+      document.getElementById('sig-pad-wrap').classList.remove('error');
+      document.getElementById('err-sig-pad').classList.remove('show');
+    }
+  });
+  var end = function () { sigDrawing = false; };
+  sigCanvas.addEventListener('pointerup', end);
+  sigCanvas.addEventListener('pointercancel', end);
+  sigCanvas.addEventListener('pointerleave', end);
+}
+function clearSig() {
+  if (!sigCtx) return;
+  sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  sigInk = 0;
+  document.getElementById('sig-pad-wrap').classList.remove('signed');
+}
+function sigSigned() { return sigInk > 30; }
+// Small PNG of just the signature (trimmed, max 600px wide) for the waiver PDF.
+function sigImage() {
+  var w = sigCanvas.width, hgt = sigCanvas.height;
+  var data = sigCtx.getImageData(0, 0, w, hgt).data, minX = w, minY = hgt, maxX = -1, maxY = -1;
+  for (var y = 0; y < hgt; y += 2) for (var x = 0; x < w; x += 2) {
+    if (data[(y * w + x) * 4 + 3] > 20) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; }
+  }
+  if (maxX < 0) return '';
+  var pad = 12; minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad); maxX = Math.min(w, maxX + pad); maxY = Math.min(hgt, maxY + pad);
+  var cw = maxX - minX, ch = maxY - minY, scale = Math.min(1, 600 / cw);
+  var out = document.createElement('canvas');
+  out.width = Math.max(1, Math.round(cw * scale)); out.height = Math.max(1, Math.round(ch * scale));
+  var o = out.getContext('2d');
+  o.fillStyle = '#fff'; o.fillRect(0, 0, out.width, out.height);
+  o.drawImage(sigCanvas, minX, minY, cw, ch, 0, 0, out.width, out.height);
+  return out.toDataURL('image/png');
 }
 
 // ─── Validation ───────────────────────────────────────────────────
@@ -934,9 +1031,14 @@ async function handleSubmit(e) {
   valid = validateField('license',    'err-license',    license.length > 0)   && valid;
   valid = validateField('hunt-date',  'err-hunt-date',  huntDate.length > 0)  && valid;
   valid = validateField('signature',  'err-signature',  signature.length > 2) && valid;
+  if (!sigSigned()) {
+    valid = false;
+    document.getElementById('sig-pad-wrap').classList.add('error');
+    document.getElementById('err-sig-pad').classList.add('show');
+  }
 
   if (!valid) {
-    const firstErr = document.querySelector('.field input.error');
+    const firstErr = document.querySelector('.field input.error, .sig-pad-wrap.error');
     if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
@@ -973,6 +1075,7 @@ async function handleSubmit(e) {
     license,
     huntDate,
     signature,
+    signatureImage: sigImage(),
   };
 
   try {
