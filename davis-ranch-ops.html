@@ -234,6 +234,88 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .pay-doc td.box{text-align:center;font-size:13pt;}
 .pay-doc tr.tot td{font-weight:bold;border-top:2px solid #000;}
 .pay-doc .foot{margin-top:8pt;font-size:9.5pt;line-height:1.5;}
+/* one line per day: note on Harvest / Cleaning */
+.day-note{display:none;background:#FFF6E3;border:1px solid #F0D49A;border-radius:8px;padding:10px 12px 2px;margin:0 0 14px;font-size:.86rem;color:var(--fg-mid);line-height:1.45;}
+.day-note.show{display:block;}
+.day-note b{color:var(--fg);}
+.day-note .early-note{display:block;color:var(--warn);font-weight:700;margin-top:4px;}
+.day-note .inv-type{margin:10px 0 8px;}
+.day-preview{font-weight:700;color:var(--success);margin:0 0 8px;min-height:1px;}
+.day-preview.bad{color:#B3261E;}
+/* recent entries (fix / delete) */
+.btn-recent{width:100%;margin-top:12px;padding:11px;background:#fff;border:1.5px solid var(--border);border-radius:8px;color:var(--fg-mid);font-family:var(--font-body);font-size:.92rem;font-weight:700;cursor:pointer;}
+.recent-box{display:none;margin-top:12px;}
+.recent-box.show{display:block;}
+.re{border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:8px;background:var(--input-bg);}
+.re-top{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:.9rem;color:var(--fg);}
+.re-sub{font-size:.78rem;color:var(--fg-soft);line-height:1.35;}
+.re-btns{display:flex;gap:8px;margin-top:8px;}
+.re-btns button{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--gold);background:#fff;color:var(--fg);font-weight:700;font-size:.84rem;cursor:pointer;font-family:var(--font-body);}
+.re-btns button.del{border-color:#C0392B;color:#C0392B;}
+.re-btns button.del.sure{background:#C0392B;color:#fff;}
+.re-btns button.save{background:var(--gold);color:var(--earth);}
+.re-edit{display:none;margin-top:10px;}
+.re-edit.show{display:block;}
+.re-edit .field{margin-bottom:8px;}
+.re-msg{font-size:.8rem;font-weight:700;margin-top:6px;}
+.re-msg.err{color:#B3261E;}
+.re-msg.ok{color:var(--success);}
+/* early checkout */
+.btn-early{display:block;width:100%;padding:13px;margin:0 0 12px;border-radius:10px;border:2px solid var(--warn);background:#fff;color:var(--warn);font-family:var(--font-display);font-weight:700;font-size:.95rem;letter-spacing:.03em;cursor:pointer;}
+.early{display:none;border:1.5px solid var(--warn);background:#FFF8EE;border-radius:12px;padding:14px 12px;margin-bottom:12px;}
+.early.show{display:block;}
+.early-title{font-family:var(--font-display);font-weight:700;color:var(--warn);margin-bottom:4px;}
+.eh{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 12px 2px;margin-bottom:10px;}
+.eh-body{display:none;margin:0 0 8px 30px;}
+.eh.on{border-color:var(--warn);}
+.eh.on .eh-body{display:block;}
+.eh-note{font-size:.78rem;color:var(--fg-soft);margin:-4px 0 8px;line-height:1.4;}
+.eh .field{margin-bottom:8px;}
+.early-plan{background:var(--earth);color:var(--gold-light);border-radius:8px;padding:10px 12px;margin:0 0 12px;font-size:.86rem;line-height:1.5;}
+.early-plan b{color:#fff;}
+/* daily summary */
+.ds-group{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 12px 10px;margin-bottom:12px;}
+.ds-name{font-family:var(--font-display);font-weight:700;font-size:1.05rem;margin-bottom:8px;color:var(--fg);}
+.ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.ds-grid div{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:6px 4px;text-align:center;}
+.ds-grid div.bad{background:#FFEBEE;border-color:#E57373;}
+.ds-grid b{display:block;font-family:var(--font-display);font-size:1.3rem;line-height:1.15;color:var(--fg);}
+.ds-grid span{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-soft);font-weight:700;}
+.ds-grid small{display:block;font-size:.66rem;color:var(--warn);font-weight:700;}
+.ds-flag{margin-top:8px;font-size:.82rem;font-weight:700;color:#B3261E;line-height:1.4;}
+.ds-ok{margin-top:8px;font-size:.82rem;font-weight:700;color:var(--success);}
+.ds-top{background:var(--earth);color:var(--gold-light);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:.88rem;}
+.ds-note{font-size:.8rem;color:var(--warn);font-weight:600;margin-bottom:10px;}
+/* individual invoice + receipt on one sheet, dotted cut line */
+.pair{height:9.9in;display:flex;flex-direction:column;page-break-after:always;break-after:page;max-width:7.5in;margin:0 auto;page-break-inside:avoid;break-inside:avoid;}
+.pair:last-child{page-break-after:auto;break-after:auto;}
+.pair .half{flex:0 0 4.8in;overflow:hidden;}
+.pair .cut{flex:0 0 0.3in;position:relative;}
+.pair .cut::before{content:'';position:absolute;left:-0.4in;right:-0.4in;top:50%;border-top:1.5px dashed #000;}
+.pair .cut span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;padding:0 8pt;font:9pt Georgia,serif;color:#000;white-space:nowrap;}
+.pair .inv-doc,.pair .receipt-doc{page-break-after:auto;break-after:auto;padding:0;max-width:none;}
+.pair .inv-doc{font-size:9pt;}
+.pair .inv-doc .top{margin-bottom:4pt;}
+.pair .inv-doc .fac b{font-size:11pt;}
+.pair .inv-doc h1{font-size:15pt;}
+.pair .inv-doc .meta{line-height:1.3;}
+.pair .inv-doc .bill{padding:3pt 8pt;margin-bottom:5pt;line-height:1.2;}
+.pair .inv-doc .items td,.pair .inv-doc .items th{padding:2pt 6pt;}
+.pair .inv-doc .note{font-size:8pt;margin:2pt 0 2pt;}
+.pair .inv-doc .tot{margin-top:2pt;}
+.pair .inv-doc .tot td{padding:1pt 6pt;}
+.pair .inv-doc .tot tr.big td{font-size:10.5pt;}
+.pair .inv-doc .tax{font-size:8pt;margin:1pt 0 4pt;}
+.pair .inv-doc .pay{padding:3pt 8pt;font-size:8pt;line-height:1.3;}
+.pair .inv-doc .thanks{margin-top:3pt;font-size:8.5pt;}
+.pair .receipt-doc h1{font-size:12.5pt;margin-bottom:1pt;}
+.pair .receipt-doc .fac{font-size:9pt;margin-bottom:5pt;line-height:1.25;}
+.pair .receipt-doc .fac b{font-size:11pt;}
+.pair .receipt-doc table{font-size:9pt;margin-bottom:5pt;}
+.pair .receipt-doc td{padding:2.5pt 6pt;}
+.pair .receipt-doc .rule{font-size:8pt;padding:4pt 7pt;margin-bottom:18pt;line-height:1.3;}
+.pair .receipt-doc .sig{font-size:9pt;}
+.pair .receipt-doc .sig[style]{margin-top:20pt !important;}
 #print-area{display:none;}
 @media print{
   html,body{background:#fff !important;}
@@ -272,6 +354,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
         <option value="harvest">&#127919; Bird Harvest</option>
         <option value="cleaning">&#9986; Bird Cleaning</option>
         <option value="receipts">&#129534; Bird Receipts</option>
+        <option value="summary">&#128203; Daily Summary</option>
         <option value="inventory">&#127968; Lodge Inventory</option>
         <option value="reports">&#128202; Season Reports</option>
       </select>
@@ -290,6 +373,8 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="p-notes" placeholder="Any additional notes..."></textarea></div>
       <button class="btn-submit" data-label="Log Purchase" onclick="submitPurchase()">Log Purchase</button>
       <div class="submit-status" id="p-status"></div>
+      <button type="button" class="btn-recent" onclick="toggleRecent('purchase')">&#128337; Recent entries &mdash; fix or delete</button>
+      <div class="recent-box" id="rec-purchase"></div>
     </div>
 
     <div class="form-card" id="card-release">
@@ -298,36 +383,54 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="r-date"></div>
       <div class="field"><label>Field / Location <span class="req">*</span></label><input type="text" id="r-field" placeholder="Field name or location"></div>
       <div class="field"><label>Group Hunting <span class="req">*</span></label>
-        <select id="r-group"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select>
+        <select id="r-group" class="group-pick"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select>
       </div>
       <div class="field"><label>Qty Released <span class="req">*</span></label><input type="number" id="r-qty" placeholder="0" min="0"></div>
       <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="r-notes" placeholder="Any additional notes..."></textarea></div>
       <button class="btn-submit" data-label="Log Release" onclick="submitRelease()">Log Release</button>
       <div class="submit-status" id="r-status"></div>
+      <button type="button" class="btn-recent" onclick="toggleRecent('release')">&#128337; Recent entries &mdash; fix or delete</button>
+      <div class="recent-box" id="rec-release"></div>
     </div>
 
     <div class="form-card" id="card-harvest">
       <div class="card-title">Bird Harvest</div>
       <div class="card-desc">Record birds harvested for the day</div>
-      <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="h-date"></div>
+      <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="h-date" onchange="refreshDayNote('h')"></div>
       <div class="field"><label>Group <span class="req">*</span></label>
-        <select id="h-group"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select>
+        <select id="h-group" class="group-pick" onchange="refreshDayNote('h')"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select>
       </div>
-      <div class="field"><label>Birds Harvested <span class="req">*</span></label><input type="number" id="h-qty" placeholder="0" min="0"></div>
+      <div class="day-note" id="h-day"><div id="h-day-text"></div>
+        <div class="inv-type">
+          <label><input type="radio" name="h-mode" value="set" checked onchange="dayPreview('h')"><span>Day total is now<small>Type the whole day&rsquo;s number</small></span></label>
+          <label><input type="radio" name="h-mode" value="add" onchange="dayPreview('h')"><span>Add to it<small>Type only the new birds</small></span></label>
+        </div>
+        <div class="day-preview" id="h-day-prev"></div>
+      </div>
+      <div class="field"><label id="h-qty-label">Birds Harvested <span class="req">*</span></label><input type="number" id="h-qty" placeholder="0" min="0" inputmode="numeric" oninput="dayPreview('h')"></div>
       <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="h-notes" placeholder="Any additional notes..."></textarea></div>
       <button class="btn-submit" data-label="Log Harvest" onclick="submitHarvest()">Log Harvest</button>
       <div class="submit-status" id="h-status"></div>
+      <button type="button" class="btn-recent" onclick="toggleRecent('harvest')">&#128337; Recent entries &mdash; fix or delete</button>
+      <div class="recent-box" id="rec-harvest"></div>
     </div>
 
     <div class="form-card" id="card-cleaning">
       <div class="card-title">Bird Cleaning</div>
       <div class="card-desc">Track cleaning crew and birds processed</div>
-      <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="c-date"></div>
-      <div class="field"><label>Group <span class="req">*</span></label><select id="c-group-clean"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select></div>
-      <div class="field"><label>Total Birds Cleaned <span class="req">*</span></label><input type="number" id="c-qty" placeholder="0" min="0" oninput="calcPay()"></div>
+      <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="c-date" onchange="refreshDayNote('c')"></div>
+      <div class="field"><label>Group <span class="req">*</span></label><select id="c-group-clean" class="group-pick" onchange="refreshDayNote('c')"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select></div>
+      <div class="day-note" id="c-day"><div id="c-day-text"></div>
+        <div class="inv-type">
+          <label><input type="radio" name="c-mode" value="set" checked onchange="dayPreview('c')"><span>Day total is now<small>Birds and pay for the whole day</small></span></label>
+          <label><input type="radio" name="c-mode" value="add" onchange="dayPreview('c')"><span>Add to it<small>Only the new birds and pay</small></span></label>
+        </div>
+        <div class="day-preview" id="c-day-prev"></div>
+      </div>
+      <div class="field"><label id="c-qty-label">Total Birds Cleaned <span class="req">*</span></label><input type="number" id="c-qty" placeholder="0" min="0" inputmode="numeric" oninput="calcPay();dayPreview('c')"></div>
       <div class="field-row">
         <div class="field"><label>Pay Per Bird <span class="opt">(optional)</span></label><input type="number" id="c-rate" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromRate()"></div>
-        <div class="field"><label>Total Pay <span class="opt">(optional)</span></label><input type="number" id="c-total-pay" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromTotal()"></div>
+        <div class="field"><label id="c-pay-label">Total Pay <span class="opt">(optional)</span></label><input type="number" id="c-total-pay" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromTotal()"></div>
       </div>
       <div class="total-display"><span class="total-label">Calculated Total</span><span class="total-value" id="c-total">$0.00</span></div>
       <div class="field"><label>Workers <span class="req">*</span></label>
@@ -338,6 +441,8 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="c-notes" placeholder="Any additional notes..."></textarea></div>
       <button class="btn-submit" data-label="Log Cleaning" onclick="submitCleaning()">Log Cleaning</button>
       <div class="submit-status" id="c-status"></div>
+      <button type="button" class="btn-recent" onclick="toggleRecent('cleaning')">&#128337; Recent entries &mdash; fix or delete</button>
+      <div class="recent-box" id="rec-cleaning"></div>
     </div>
 
     <div class="form-card" id="card-receipts">
@@ -371,20 +476,44 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       </div>
 
       <div class="proc-box" id="final-box">
-        <div class="proc-head"><div class="proc-title">2 &middot; Final Receipts &amp; Invoice</div></div>
-        <div class="proc-sub">When the group leaves: the group invoice plus one bird receipt per hunter, ready to print together.</div>
-        <button type="button" class="btn-final" id="btn-final" style="display:none" onclick="openFinal()">Final Receipts &amp; Invoice &mdash; Group Leaving</button>
+        <div class="proc-head"><div class="proc-title">2 &middot; Receipts &amp; Invoices</div></div>
+        <div class="proc-sub">Someone leaving before the day is logged? Use Early Checkout. When the group leaves, use Final Receipts. Individual invoices print on the same sheet as the hunter&rsquo;s receipt, with a dotted line to cut.</div>
+        <button type="button" class="btn-early" id="btn-early" style="display:none" onclick="openEarly()">&#128682; Early Checkout &mdash; Hunter Leaving Now</button>
+        <div class="early" id="c-early">
+          <div class="early-title" id="c-early-title">Early Checkout</div>
+          <div class="proc-sub" style="margin-bottom:10px">Check who is leaving and how many pheasants each one takes. Birds already cleaned go first (oldest date first); the rest count as shot and cleaned today. Receipt and invoice are made right now.</div>
+          <div class="field"><label>Date Leaving</label><input type="date" id="e-date" onchange="earlyPlan()"></div>
+          <div id="e-list"></div>
+          <div class="early-plan" id="e-plan"></div>
+          <label class="check-line" id="e-harvest-wrap"><input type="checkbox" id="e-harvest" checked onchange="earlyPlan()"> Also add the birds shot today to today&rsquo;s Bird Harvest line</label>
+          <div class="inv-box">
+            <label class="check-line" style="margin:0 0 4px"><input type="checkbox" id="e-inv" checked onchange="earlyPlan()"> <b>Individual invoice for each hunter leaving</b></label>
+            <div id="e-inv-fields">
+              <div class="field"><label>Group leader (pays unfilled spots and gets the deposit)</label><select id="e-lead" onchange="earlyPlan()"></select></div>
+              <div class="field-row">
+                <div class="field"><label>Hunters Signed In</label><input type="number" id="e-count" min="1" inputmode="numeric" oninput="earlyPlan()"></div>
+                <div class="field"><label>Deposit Paid <span class="opt">(if leader leaves)</span></label><input type="number" id="e-dep" min="0" step="0.01" inputmode="decimal" placeholder="0.00" oninput="earlyPlan()"></div>
+              </div>
+            </div>
+          </div>
+          <div class="receipts-foot">
+            <button type="button" class="btn-small" onclick="closeEarly()">Cancel</button>
+            <button type="button" class="btn-small btn-gold" id="btn-early-go" onclick="submitEarly()">Check Out</button>
+          </div>
+        </div>
+        <div class="submit-status" id="e-status" style="margin:0 0 12px"></div>
+        <button type="button" class="btn-final" id="btn-final" style="display:none" onclick="openFinal()">Final Receipts &amp; Invoices &mdash; Group Leaving</button>
         <div class="final" id="c-final">
           <div class="final-title" id="c-final-title">Final Receipts</div>
-          <div class="proc-sub" style="margin-bottom:10px">The group invoice and a bird receipt for each checked hunter are made together and saved as PDFs in the group&rsquo;s Drive folder.</div>
+          <div class="proc-sub" style="margin-bottom:10px">Invoices and a bird receipt for each checked hunter are made together and saved as PDFs in the group&rsquo;s Drive folder.</div>
           <div class="field"><label>Date Released</label><input type="date" id="c-final-date"></div>
           <div class="inv-box" id="inv-box">
             <label class="check-line" style="margin:0 0 4px"><input type="checkbox" id="inv-make" onchange="invToggle()"> <b>Invoice</b></label>
             <div class="inv-already" id="inv-already"></div>
             <div id="inv-fields">
               <div class="inv-type">
-                <label><input type="radio" name="inv-type" value="group" checked onchange="invPreview()"><span>Group invoice<small>One bill to the leader</small></span></label>
-                <label><input type="radio" name="inv-type" value="individual" onchange="invPreview()"><span>Individual invoices<small>One bill per hunter</small></span></label>
+                <label><input type="radio" name="inv-type" value="individual" checked onchange="invPreview()"><span>Individual invoices<small>One bill per hunter, printed with their receipt</small></span></label>
+                <label><input type="radio" name="inv-type" value="group" onchange="invPreview()"><span>Group invoice<small>One bill to the leader</small></span></label>
               </div>
               <div class="field"><label id="inv-bill-label">Bill To (group leader)</label><select id="inv-bill" onchange="invPreview()"></select></div>
               <div class="field-row">
@@ -418,6 +547,15 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
           <button type="button" class="btn-small" onclick="closeReceipts()">Done</button>
         </div>
       </div>
+    </div>
+
+    <div class="form-card" id="card-summary">
+      <div class="card-title">Daily Summary</div>
+      <div class="card-desc">One day at a glance for each group: released, harvested, cleaned, given out and what&rsquo;s left. Anything that doesn&rsquo;t match shows in red.</div>
+      <div class="field"><label>Date</label><input type="date" id="ds-date" onchange="loadSummary()"></div>
+      <button class="btn-refresh" onclick="loadSummary()">&#8635; Refresh</button>
+      <div id="ds-status" class="submit-status"></div>
+      <div id="ds-body"><div class="report-hint">Tap Refresh to load the day.</div></div>
     </div>
 
     <div class="form-card" id="card-inventory">
@@ -658,9 +796,10 @@ function refreshLowBanner(){
 
 window.addEventListener('DOMContentLoaded',()=>{
   const today=localToday();
-  ['p-date','r-date','h-date','c-date','b-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+  ['p-date','r-date','h-date','c-date','b-date','ds-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
   buildWorkerChecks();
   loadInventoryFromSheet();
+  loadWaiverGroups();
 });
 
 var SIGNIN_URL='https://script.google.com/macros/s/AKfycbykbCf8ZwLFso7ObUhu6q3mf-7zToHQGmfpJAJeScws2xDc3_U64kkJc-SUR5E0-Ymu/exec';
@@ -740,7 +879,7 @@ function stat(label,value){
   return '<div class="report-stat"><span class="report-stat-label">'+label+'</span><span class="report-stat-value">'+value+'</span></div>';
 }
 function showTask(val){
-  ['purchase','release','harvest','cleaning','receipts','inventory','reports'].forEach(function(t){
+  ['purchase','release','harvest','cleaning','receipts','summary','inventory','reports'].forEach(function(t){
     var el=document.getElementById('card-'+t);
     if(t===val){
       el.style.display='block';
@@ -751,6 +890,9 @@ function showTask(val){
     }
   });
   if(val==='receipts') procInit();
+  if(val==='harvest') refreshDayNote('h');
+  if(val==='cleaning') refreshDayNote('c');
+  if(val==='summary') loadSummary();
   if(val){
     setTimeout(function(){
       var card=document.getElementById('card-'+val);
@@ -828,24 +970,55 @@ function calcPay(){
   calcPayFromRate();
 }
 
-async function postData(data,statusId,btnEl,successMsg,clearFn){
-  btnEl.disabled=true;btnEl.textContent='Saving...';
-  const s=document.getElementById(statusId);s.className='submit-status';
-  try{
-    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-    s.className='submit-status show success';s.textContent='\u2713 '+successMsg;
-    btnEl.textContent=btnEl.getAttribute('data-label');btnEl.disabled=false;
-    if(clearFn) setTimeout(function(){clearFn();s.className='submit-status';},2000);
-  }catch(err){
-    s.className='submit-status show error';s.textContent='Could not connect. Check your signal and try again.';
-    btnEl.textContent=btnEl.getAttribute('data-label');btnEl.disabled=false;
-  }
+/* ═══ SAVING TO THE OPERATIONS SHEET ═══
+   Every save waits for the sheet's answer: "Saved" only shows when the row is really there.
+   A retry after a dropped signal re-sends the same submission id, so nothing doubles up. */
+var pendingIds={};
+function opsPost(body){
+  // text/plain body = no preflight, so the sheet's answer can be read
+  return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(body)}).then(function(r){return r.text();}).then(function(t){
+    var s=String(t||'').trim();
+    if(s==='ok')return {ok:true,legacy:true};
+    try{return JSON.parse(s);}catch(e){return {ok:false,error:s.charAt(0)==='<'?'The Operations sheet answered with an error page.':(s||'No answer from the Operations sheet.')};}
+  });
+}
+function opsGet(params){
+  var qs=Object.keys(params||{}).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}).join('&');
+  return fetch(SCRIPT_URL+(qs?'?'+qs:'')).then(function(r){return r.json();});
+}
+function opsError(res,isSave){
+  var e=(res&&res.error)||'Unknown error.';
+  if((isSave&&e==='Wrong PIN.')||/processing script/.test(e))
+    return 'the Operations link is running the Bird Receipts (processing) script instead of the Operations script. Paste the Operations script into the Operations sheet and deploy a new version.';
+  return e;
+}
+function submissionFor(key,data){
+  var sig=JSON.stringify(data),p=pendingIds[key];
+  if(!p||p.sig!==sig)p=pendingIds[key]={sig:sig,id:newId()};
+  return p.id;
+}
+async function saveOps(key,data,statusId,btn,okMsg,clearFn){
+  data.submissionId=data.submissionId||submissionFor(key,data);
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  var s=document.getElementById(statusId);s.className='submit-status';
+  var res=null;
+  try{res=await opsPost(data);}catch(e){res=null;}
+  if(btn){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');}
+  if(!res){s.className='submit-status show error';s.textContent='✗ NOT saved — could not reach the Operations sheet. Check your signal and tap again (it won’t double up).';return null;}
+  if(!res.ok){s.className='submit-status show error';s.textContent='✗ NOT saved: '+opsError(res,true);return null;}
+  delete pendingIds[key];
+  s.className='submit-status show success';
+  s.textContent='✓ '+(typeof okMsg==='function'?okMsg(res):okMsg)+' — saved in the sheet'+(res.legacy?' (old Operations script: update it for one line per day)':'');
+  if(clearFn)clearFn(res);
+  clearTimeout(s._t);s._t=setTimeout(function(){s.className='submit-status';},6000);
+  var rb=document.getElementById('rec-'+data.task);if(rb&&rb.classList.contains('show'))loadRecent(data.task);
+  return res;
 }
 function submitPurchase(){
   const date=document.getElementById('p-date').value,supplier=document.getElementById('p-supplier').value.trim(),qty=document.getElementById('p-qty').value,cost=document.getElementById('p-cost').value;
   if(!date||!supplier||!qty||!cost){alert('Please fill in all required fields.');return;}
   const btn=document.querySelector('#card-purchase .btn-submit');
-  postData({task:'purchase',date,supplier,qty:parseInt(qty),costPerBird:parseFloat(cost),totalCost:parseFloat((parseFloat(qty)*parseFloat(cost)).toFixed(2)),notes:document.getElementById('p-notes').value},'p-status',btn,'Purchase logged!',function(){
+  saveOps('p',{task:'purchase',date,supplier,qty:parseInt(qty),costPerBird:parseFloat(cost),totalCost:parseFloat((parseFloat(qty)*parseFloat(cost)).toFixed(2)),notes:document.getElementById('p-notes').value},'p-status',btn,'Purchase of '+parseInt(qty)+' birds logged',function(){
     document.getElementById('p-supplier').value='';
     document.getElementById('p-qty').value='';
     document.getElementById('p-cost').value='';
@@ -857,21 +1030,238 @@ function submitRelease(){
   const date=document.getElementById('r-date').value,field=document.getElementById('r-field').value.trim(),group=document.getElementById('r-group').value,qty=document.getElementById('r-qty').value;
   if(!date||!field||!group||!qty){alert('Please fill in all required fields.');return;}
   const btn=document.querySelector('#card-release .btn-submit');
-  postData({task:'release',date,field,group,qty:parseInt(qty),notes:document.getElementById('r-notes').value},'r-status',btn,'Release logged!',function(){
+  saveOps('r',{task:'release',date,field,group,qty:parseInt(qty),notes:document.getElementById('r-notes').value},'r-status',btn,parseInt(qty)+' released for '+group,function(){
     document.getElementById('r-field').value='';
-    document.getElementById('r-group').value='';
     document.getElementById('r-qty').value='';
     document.getElementById('r-notes').value='';
   });
 }
 function submitHarvest(){
-  const date=document.getElementById('h-date').value,group=document.getElementById('h-group').value,qty=document.getElementById('h-qty').value;
-  if(!date||!group||!qty){alert('Please fill in all required fields.');return;}
+  const date=document.getElementById('h-date').value,group=document.getElementById('h-group').value,qtyRaw=document.getElementById('h-qty').value;
+  const qty=parseInt(qtyRaw,10)||0,mode=dayMode('h');
+  if(!date||!group||qtyRaw===''||(!qty&&mode!=='set')){alert('Please fill in all required fields.');return;}
+  if(!qty&&!confirm('Set '+group+'’s harvest for '+usDate(date)+' to 0? That removes the day’s line.'))return;
   const btn=document.querySelector('#card-harvest .btn-submit');
-  postData({task:'harvest',date,group,qty:parseInt(qty),notes:document.getElementById('h-notes').value},'h-status',btn,'Harvest logged!',function(){
-    document.getElementById('h-group').value='';
+  saveOps('h',{task:'harvest',date,group,qty:qty,mode:mode,notes:document.getElementById('h-notes').value},'h-status',btn,function(r){
+    if(r.total===undefined)return 'Harvest logged';
+    return 'Harvest for '+group+' on '+usDate(date)+' is now '+r.total+(r.before?' (was '+r.before+')':'')+(r.merged?' — '+(r.merged+1)+' lines combined into one':'');
+  },function(){
     document.getElementById('h-qty').value='';
     document.getElementById('h-notes').value='';
+    refreshDayNote('h');
+  });
+}
+
+/* ═══ ONE LINE PER GROUP PER DAY (Harvest + Cleaning) ═══ */
+var dayState={h:null,c:null};
+function dayGroup(k){return document.getElementById(k==='h'?'h-group':'c-group-clean').value;}
+function refreshDayNote(k){
+  var date=document.getElementById(k+'-date').value,group=dayGroup(k);
+  var box=document.getElementById(k+'-day');
+  dayState[k]=null;box.classList.remove('show');dayLabels(k);
+  if(!date||!group)return;
+  var token=date+'|'+group;box.dataset.token=token;
+  var jobs=[opsGet({action:'day',date:date}).catch(function(){return null;}),
+    (procConfigured()&&getPin())?procGet({action:'day',group:group,date:date}).catch(function(){return null;}):Promise.resolve(null)];
+  Promise.all(jobs).then(function(rs){
+    if(box.dataset.token!==token)return;
+    var ops=rs[0],pr=(rs[1]&&rs[1].ok)?rs[1].day:null;
+    var opsOk=!!(ops&&ops.ok&&ops.version);
+    var cur=0,pay=0;
+    if(opsOk){cur=k==='h'?(ops.harvest[group]||0):(ops.cleaning[group]||0);pay=k==='c'?((ops.cleaningPay||{})[group]||0):0;}
+    if(k==='c'&&pr&&!opsOk)cur=pr.cleaned;
+    var st={cur:cur,pay:pay,early:pr?pr.early:0,given:pr?pr.given:0,pool:pr?pr.cleaned:null,group:group,date:date};
+    dayState[k]=st;
+    if(!st.cur&&!st.early){dayLabels(k);return;}
+    var m=pr&&String(pr.notes||'').match(/Early checkout: ([^;(]+)/);
+    var what=k==='h'?'harvested':'cleaned';
+    var html='<b>'+esc(group)+' already has '+st.cur+' '+what+' for '+esc(usDate(date))+'.</b>'+
+      (k==='c'&&st.pay?' Crew pay so far '+money(st.pay)+'.':'')+
+      (k==='c'&&st.pool!==null&&st.pool!==st.cur?' (Pheasant pool shows '+st.pool+'.)':'')+
+      (st.early?'<span class="early-note">'+st.early+' of these went home early'+(m?' with '+esc(m[1].trim()):'')+'. Count them in the day total.</span>':'');
+    document.getElementById(k+'-day-text').innerHTML=html;
+    box.classList.add('show');
+    dayLabels(k);dayPreview(k);
+  });
+}
+function dayMode(k){
+  var st=dayState[k];if(!st||(!st.cur&&!st.early))return 'add';
+  var r=document.querySelector('input[name="'+k+'-mode"]:checked');return r?r.value:'set';
+}
+function dayLabels(k){
+  var lbl=document.getElementById(k+'-qty-label'),mode=dayMode(k),st=dayState[k],has=st&&(st.cur||st.early);
+  var base=k==='h'?'Birds Harvested':'Total Birds Cleaned';
+  lbl.innerHTML=(has?(mode==='set'?(k==='h'?'Day Total Harvested':'Day Total Cleaned'):'Birds to Add'):base)+' <span class="req">*</span>';
+  if(k==='c'){
+    var pl=document.getElementById('c-pay-label');
+    pl.innerHTML=(has?(mode==='set'?'Total Pay for the Day':'Pay to Add'):'Total Pay')+' <span class="opt">(optional)</span>';
+  }
+  if(!has)document.getElementById(k+'-day-prev').textContent='';
+}
+function dayPreview(k){
+  dayLabels(k);
+  var st=dayState[k],el=document.getElementById(k+'-day-prev');
+  if(!st||(!st.cur&&!st.early)){el.textContent='';return;}
+  var raw=document.getElementById(k+'-qty').value,n=parseInt(raw,10)||0;
+  if(raw===''){el.textContent='';el.className='day-preview';return;}
+  var total=dayMode(k)==='set'?n:st.cur+n;
+  var bad=k==='c'&&total<st.given;
+  el.className='day-preview'+(bad||total<st.cur?' bad':'');
+  el.textContent=bad?'Can’t be less than '+st.given+' — that many from this day already went to hunters.':
+    'Line for '+usDate(st.date)+': '+st.cur+' → '+total+(total<st.cur?' (lower than before)':'');
+}
+
+/* ═══ GROUP LISTS FROM THE SIGN-IN WAIVERS ═══ */
+var DEFAULT_GROUPS=['Texas','Michigan','Edwards','Verbeke','FarmHouse','Hendrik','Jared Hendrickson'];
+function isoOf(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function daysApart(a,b){return Math.round((new Date(a+'T12:00:00')-new Date(b+'T12:00:00'))/864e5);}
+function loadWaiverGroups(){
+  fetch(SIGNIN_URL).then(function(r){return r.json();}).then(function(counts){
+    var latest={},today=localToday();
+    Object.keys(counts||{}).forEach(function(k){
+      var m=k.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m)return;
+      var iso=m[3]+'-'+String(m[1]).padStart(2,'0')+'-'+String(m[2]).padStart(2,'0');
+      Object.keys(counts[k]||{}).forEach(function(g){g=String(g||'').trim();if(g&&(!latest[g]||iso>latest[g]))latest[g]=iso;});
+    });
+    var groups=Object.keys(latest).sort(function(a,b){return latest[b].localeCompare(latest[a])||a.localeCompare(b);});
+    if(!groups.length)return;
+    // the group here now: signed in within the last 5 days (or up to 2 days ahead), most recent first
+    var now=groups.filter(function(g){var d=daysApart(today,latest[g]);return d>=-2&&d<=5;})[0]||'';
+    fillGroupSelects(groups,latest,now);
+  }).catch(function(){});
+}
+function fillGroupSelects(groups,latest,now){
+  var others=DEFAULT_GROUPS.filter(function(g){return groups.indexOf(g)===-1;});
+  document.querySelectorAll('select.group-pick').forEach(function(sel){
+    var cur=sel.value;
+    sel.innerHTML='<option value="">&#8212; Select group &#8212;</option>'+
+      '<optgroup label="Signed in (waivers)">'+groups.map(function(g){return '<option value="'+esc(g)+'">'+esc(g)+' — '+esc(usDate(latest[g]).slice(0,5))+'</option>';}).join('')+'</optgroup>'+
+      (others.length?'<optgroup label="Other groups">'+others.map(function(g){return '<option value="'+esc(g)+'">'+esc(g)+'</option>';}).join('')+'</optgroup>':'');
+    sel.value=cur||now||'';
+    if(cur&&sel.value!==cur){var o=document.createElement('option');o.value=cur;o.textContent=cur;sel.appendChild(o);sel.value=cur;}
+  });
+  refreshDayNote('h');refreshDayNote('c');
+}
+
+/* ═══ RECENT ENTRIES: FIX OR DELETE ═══ */
+var recentData={};
+function toggleRecent(task){
+  var box=document.getElementById('rec-'+task);
+  if(box.classList.contains('show')){box.classList.remove('show');return;}
+  box.classList.add('show');loadRecent(task);
+}
+function loadRecent(task){
+  var box=document.getElementById('rec-'+task);
+  box.innerHTML='<div class="report-hint" style="padding:8px 0">Loading…</div>';
+  opsGet({action:'recent',task:task,limit:15}).then(function(res){
+    if(!res||!res.ok||!res.version||!res.entries){
+      box.innerHTML='<div class="proc-msg err">'+esc(res&&res.error?opsError(res,true):'Update the Operations script to see and fix entries here.')+'</div>';return;
+    }
+    recentData[task]=res.entries;renderRecent(task);
+  }).catch(function(){box.innerHTML='<div class="proc-msg err">Could not load entries. Check your signal.</div>';});
+}
+function recentLine(task,e){
+  if(task==='purchase')return {top:e.qty+' birds · '+money(e.totalCost),sub:esc(e.supplier)+' · '+money(e.costPerBird)+'/bird'};
+  if(task==='release')return {top:e.qty+' released',sub:esc(e.field)};
+  if(task==='harvest')return {top:e.qty+' harvested',sub:''};
+  return {top:e.qty+' cleaned · '+money(e.totalPay),sub:esc(e.workers||'No workers listed')};
+}
+function renderRecent(task){
+  var box=document.getElementById('rec-'+task),list=recentData[task]||[];
+  if(!list.length){box.innerHTML='<div class="report-hint" style="padding:8px 0">No entries yet.</div>';return;}
+  box.innerHTML=list.map(function(e,i){
+    var L=recentLine(task,e),id=task+'-'+i;
+    var extra=task==='purchase'?'<div class="field"><label>Cost Per Bird</label><input type="number" step="0.01" min="0" id="re-cost-'+id+'" value="'+e.costPerBird+'"></div>':
+      task==='cleaning'?'<div class="field"><label>Total Pay</label><input type="number" step="0.01" min="0" id="re-pay-'+id+'" value="'+e.totalPay+'"></div>':'';
+    return '<div class="re" id="re-'+id+'"><div class="re-top"><span>'+esc(usDate(e.date))+(e.group?' · '+esc(e.group):'')+'</span><span>'+L.top+'</span></div>'+
+      ((L.sub||e.notes)?'<div class="re-sub">'+L.sub+(L.sub&&e.notes?' · ':'')+esc(e.notes||'')+'</div>':'')+
+      '<div class="re-btns"><button type="button" onclick="reEdit(\''+task+'\','+i+')">Fix</button><button type="button" class="del" id="re-del-'+id+'" onclick="reDelete(\''+task+'\','+i+')">Delete</button></div>'+
+      '<div class="re-edit" id="re-ed-'+id+'"><div class="field"><label>'+(task==='harvest'?'Birds Harvested':task==='cleaning'?'Birds Cleaned':task==='release'?'Qty Released':'Qty of Birds')+'</label><input type="number" min="1" inputmode="numeric" id="re-qty-'+id+'" value="'+e.qty+'"></div>'+extra+
+      '<div class="field"><label>Notes</label><input type="text" id="re-notes-'+id+'" value="'+esc(e.notes||'')+'"></div>'+
+      '<div class="re-btns"><button type="button" onclick="reEdit(\''+task+'\','+i+')">Cancel</button><button type="button" class="save" onclick="reSave(\''+task+'\','+i+')">Save Fix</button></div></div>'+
+      '<div class="re-msg" id="re-msg-'+id+'"></div></div>';
+  }).join('');
+}
+function reEdit(task,i){document.getElementById('re-ed-'+task+'-'+i).classList.toggle('show');}
+function reDelete(task,i){
+  var b=document.getElementById('re-del-'+task+'-'+i);
+  if(!b.classList.contains('sure')){b.classList.add('sure');b.textContent='Tap again to delete';setTimeout(function(){b.classList.remove('sure');b.textContent='Delete';},4000);return;}
+  reChange(task,i,'delete',null);
+}
+function reSave(task,i){
+  var id=task+'-'+i,q=parseFloat(document.getElementById('re-qty-'+id).value)||0;
+  if(q<=0){alert('Enter a number above 0, or use Delete.');return;}
+  var f={qty:q,notes:document.getElementById('re-notes-'+id).value.trim()};
+  if(task==='purchase')f.costPerBird=parseFloat(document.getElementById('re-cost-'+id).value)||0;
+  if(task==='cleaning')f.totalPay=parseFloat(document.getElementById('re-pay-'+id).value)||0;
+  reChange(task,i,'edit',f);
+}
+async function reChange(task,i,action,fields){
+  var e=recentData[task][i],msg=document.getElementById('re-msg-'+task+'-'+i);
+  var say=function(t,bad){msg.textContent=t;msg.className='re-msg '+(bad?'err':'ok');};
+  if(!getPin()){var pin=prompt('Enter the records PIN:');if(!pin||!pin.trim())return;setPin(pin.trim());}
+  say('Saving…');
+  // cleaning lines also feed the pheasant pool: change that first (it refuses if birds already went to hunters)
+  if(task==='cleaning'&&e.group&&procConfigured()){
+    var pr;
+    try{pr=await procPost({action:'clean',submissionId:newId(),group:e.group,date:e.date,count:action==='delete'?0:fields.qty,mode:'set'});}catch(x){pr=null;}
+    if(!pr||!pr.ok){say('✗ Not changed: '+(pr?handleProcError(pr):'could not reach the records sheet.'),true);return;}
+  }
+  var res;
+  try{res=await opsPost({action:action,task:task,row:e.row,sig:e.sig,fields:fields||{},pin:getPin(),submissionId:newId()});}catch(x){res=null;}
+  if(!res||!res.ok){
+    var err=res?opsError(res,false):'could not reach the Operations sheet.';
+    if(err==='Wrong PIN.')err='Wrong PIN — the APP_PIN in the Operations script must match your records PIN.';
+    say('✗ Not changed: '+err,true);return;
+  }
+  say(action==='delete'?'✓ Deleted':'✓ Fixed');
+  setTimeout(function(){loadRecent(task);if(task==='harvest')refreshDayNote('h');if(task==='cleaning')refreshDayNote('c');},700);
+}
+
+/* ═══ DAILY SUMMARY ═══ */
+function loadSummary(){
+  var date=document.getElementById('ds-date').value||localToday();
+  var s=document.getElementById('ds-status'),body=document.getElementById('ds-body');
+  s.className='submit-status show';s.textContent='Loading…';
+  var withProc=procConfigured()&&!!getPin();
+  Promise.all([opsGet({action:'day',date:date}).catch(function(){return null;}),
+    withProc?procGet({action:'summary',date:date}).catch(function(){return null;}):Promise.resolve(null)]).then(function(rs){
+    s.className='submit-status';
+    var ops=rs[0],pr=rs[1];
+    var opsOk=!!(ops&&ops.ok&&ops.version),prOk=!!(pr&&pr.ok);
+    var notes=[];
+    if(!opsOk)notes.push(ops&&ops.error?'Operations: '+opsError(ops,true):'Harvest and release numbers need the updated Operations script.');
+    if(!withProc)notes.push('Enter the records PIN in Bird Receipts to include cleaned and given-out pheasants.');
+    else if(!prOk)notes.push('Bird Receipts numbers: '+(pr&&pr.error?pr.error:'could not load.'));
+    var by={},add=function(g){if(!by[g])by[g]={rel:0,hv:0,clOps:null,p:null};return by[g];};
+    if(opsOk){
+      Object.keys(ops.released).forEach(function(g){add(g).rel=ops.released[g];});
+      Object.keys(ops.harvest).forEach(function(g){add(g).hv=ops.harvest[g];});
+      Object.keys(ops.cleaning).forEach(function(g){add(g).clOps=ops.cleaning[g];});
+    }
+    if(prOk)pr.summary.forEach(function(x){add(x.group).p=x;});
+    var names=Object.keys(by).sort();
+    var html=(notes.length?'<div class="ds-note">'+notes.map(esc).join('<br>')+'</div>':'')+
+      (opsOk&&ops.purchased?'<div class="ds-top">Birds purchased '+esc(usDate(date))+': <b>'+ops.purchased+'</b></div>':'');
+    if(!names.length){body.innerHTML=html+'<div class="report-hint">Nothing logged for '+esc(usDate(date))+'.</div>';return;}
+    html+=names.map(function(g){
+      var x=by[g],p=x.p,cleaned=p?p.cleaned:(x.clOps||0),flags=[];
+      if(opsOk&&x.hv!==cleaned)flags.push('Harvested '+x.hv+' but cleaned '+cleaned+' — one of them needs fixing.');
+      if(p&&x.clOps!==null&&x.clOps!==p.cleaned)flags.push('Cleaning crew line says '+x.clOps+', pheasant pool says '+p.cleaned+'.');
+      if(p&&x.clOps===null&&p.cleaned&&opsOk)flags.push('No cleaning crew line for this day.');
+      var tile=function(v,l,bad,sm){return '<div'+(bad?' class="bad"':'')+'><b>'+v+'</b><span>'+l+'</span>'+(sm?'<small>'+sm+'</small>':'')+'</div>';};
+      return '<div class="ds-group"><div class="ds-name">'+esc(g)+'</div><div class="ds-grid">'+
+        tile(opsOk?x.rel:'—','Released')+
+        tile(opsOk?x.hv:'—','Harvested',opsOk&&x.hv!==cleaned)+
+        tile(cleaned,'Cleaned',opsOk&&x.hv!==cleaned)+
+        tile(p?p.given:'—','Given out',false,p&&p.early?p.early+' early':'')+
+        tile(p?p.released:'—','On receipts',false,p&&p.receipts?p.receipts+' receipt'+(p.receipts===1?'':'s'):'')+
+        tile(p?p.left:'—','Left to give')+
+        '</div>'+(flags.length?'<div class="ds-flag">⚠ '+flags.map(esc).join('<br>⚠ ')+'</div>':(opsOk&&p?'<div class="ds-ok">✓ Harvest and cleaning match.</div>':''))+
+        (p&&p.held?'<div class="re-sub" style="margin-top:6px">'+p.held+' pheasant'+(p.held===1?'':'s')+' given out and still waiting for a final receipt.</div>':'')+
+      '</div>';
+    }).join('');
+    body.innerHTML=html;
   });
 }
 /* ═══ PROCESSING RECORDS (GFP Wildlife Processing Facility, ARSD 41:06:03:10–12) ═══
@@ -910,7 +1300,7 @@ function handleProcError(res){
   return err;
 }
 function showProcControls(on){
-  var how={'c-group-wrap':'flex','proc-actions':'flex','btn-final':'block','b-total-wrap':'flex','b-submit':'block'};
+  var how={'c-group-wrap':'flex','proc-actions':'flex','btn-final':'block','btn-early':'block','b-total-wrap':'flex','b-submit':'block'};
   Object.keys(how).forEach(function(id){document.getElementById(id).style.display=on?how[id]:'none';});
 }
 
@@ -977,7 +1367,7 @@ function anyCountsEntered(){return ownerIds().some(function(id){return ownerData
 function onGroupChange(){
   var g=document.getElementById('c-group').value;
   document.getElementById('c-owners').innerHTML='';ownerSeq=0;
-  closeFinal();
+  closeFinal();closeEarly();
   updateBirdTotal();
   setPool(null);
   if(!g){procOpen={};procOpenGroup=null;return;}
@@ -1140,6 +1530,15 @@ function clearOwners(){
   procSavedForThisForm=false;procSubmissionId=null;
 }
 
+/* ── this trip's invoices ── */
+function tripStart(g){
+  var d=groupHunters(g).map(function(h){return h.huntDate;}).filter(Boolean).sort()[0];
+  var x=d?new Date(d+'T12:00:00'):new Date();x.setDate(x.getDate()-(d?3:21));return isoOf(x);
+}
+function tripInvoices(g){var from=tripStart(g);return procInvoices.filter(function(v){return v.group===g&&v.date>=from;});}
+function knownLeader(g){var v=tripInvoices(g).filter(function(x){return x.leader||x.type!=='Individual';})[0];return v?(v.leader||v.billTo.name):'';}
+function invoicedByName(g){var m={};tripInvoices(g).forEach(function(v){if(v.type==='Individual'){var k=String(v.billTo.name||'').toLowerCase();if(!m[k])m[k]=v;}});return m;}
+
 /* ── final receipts ── */
 function money(n){return '$'+Number(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
 function openFinal(){
@@ -1152,11 +1551,18 @@ function openFinal(){
   invBillList=groupHunters(g);
   var bill=document.getElementById('inv-bill');
   bill.innerHTML=invBillList.length?invBillList.map(function(h,i){return '<option value="'+i+'">'+esc(h.name)+'</option>';}).join(''):'<option value="">No waivers for this group</option>';
+  var kl=knownLeader(g);   // same leader as the earlier invoices on this trip
+  if(kl)invBillList.forEach(function(h,i){if(h.name===kl)bill.value=String(i);});
   document.getElementById('inv-count').value=invBillList.length||'';
   document.getElementById('inv-deposit').value='';
-  var already=procInvoices.filter(function(v){return v.group===g;});
-  document.getElementById('inv-already').textContent=already.length?'Already invoiced: #'+already[0].invoiceNo+' on '+usDate(already[0].date)+' ('+money(already[0].total)+'). Check the box only to make another.':'';
-  document.getElementById('inv-make').checked=!already.length&&invBillList.length>0;
+  var trip=tripInvoices(g),gInv=trip.filter(function(v){return v.type!=='Individual';})[0];
+  var ind=invoicedByName(g),indNames=Object.keys(ind).map(function(k){return ind[k];});
+  var left=invBillList.filter(function(h){return !ind[h.name.toLowerCase()];}).length;
+  var msg='';
+  if(gInv)msg='Already invoiced: group invoice #'+gInv.invoiceNo+' on '+usDate(gInv.date)+' ('+money(gInv.total)+'). Check the box only to make another.';
+  else if(indNames.length)msg='Already invoiced (won\u2019t be billed again): '+indNames.map(function(v){return v.billTo.name+' #'+v.invoiceNo;}).join(', ')+'.';
+  document.getElementById('inv-already').textContent=msg;
+  document.getElementById('inv-make').checked=!gInv&&left>0;
   invToggle();
   var box=document.getElementById('c-final-list');
   if(!finalList.length){
@@ -1188,19 +1594,27 @@ function invPreview(){
   var n=parseInt(document.getElementById('inv-count').value,10)||0;
   var dep=parseFloat(document.getElementById('inv-deposit').value)||0;
   if(!n){el.innerHTML='Enter how many hunters signed in.';return;}
+  var g=document.getElementById('c-group').value,done=invoicedByName(g);
+  var doneCount=Object.keys(done).length;
   if(ind){
-    var extra=Math.max(0,p.minHunters-n),k=invBillList.length;
+    var extra=Math.max(0,p.minHunters-n),todo=invBillList.filter(function(h){return !done[h.name.toLowerCase()];}),k=todo.length;
     var lead=invBillList[parseInt(document.getElementById('inv-bill').value,10)];
+    var leadDone=lead&&done[lead.name.toLowerCase()];
     var leadTotal=p.price*(1+extra);
+    if(!k){el.innerHTML='Everyone on the list already has an invoice for this trip.';return;}
     el.innerHTML=esc(p.package)+' (taxes included)<br><b>'+k+' invoice'+(k===1?'':'s')+' \u00d7 '+money(p.price)+'</b>'+
-      (extra?'<br>Group minimum '+p.minHunters+' ('+n+' signed in): '+esc(lead?lead.name:'the leader')+' also pays '+extra+' unfilled spot'+(extra===1?'':'s')+' ('+money(extra*p.price)+')':'')+
-      (dep?'<br>Deposit '+money(dep)+' comes off the leader\u2019s invoice':'')+
-      '<br>Leader\u2019s balance due: <b>'+money(leadTotal-dep)+'</b>';
+      (doneCount?'<br>'+doneCount+' already invoiced \u2014 skipped':'')+
+      (leadDone?'<br>'+esc(lead.name)+' (leader) already has invoice #'+esc(leadDone.invoiceNo):
+        (extra?'<br>Group minimum '+p.minHunters+' ('+n+' signed in): '+esc(lead?lead.name:'the leader')+' also pays '+extra+' unfilled spot'+(extra===1?'':'s')+' ('+money(extra*p.price)+')':'')+
+        (dep?'<br>Deposit '+money(dep)+' comes off the leader\u2019s invoice':'')+
+        '<br>Leader\u2019s balance due: <b>'+money(leadTotal-dep)+'</b>');
     return;
   }
-  var billed=Math.max(n,p.minHunters),total=billed*p.price;
+  var paid=Object.keys(done).reduce(function(a,k2){return a+(done[k2].huntersBilled||1);},0);
+  var billed=Math.max(n,p.minHunters)-paid,total=billed*p.price;
   el.innerHTML=esc(p.package)+' (taxes included)<br><b>'+billed+' hunters × '+money(p.price)+' = '+money(total)+'</b>'+
-    (billed>n?'<br>Group minimum '+p.minHunters+' ('+n+' signed in)':'')+
+    (Math.max(n,p.minHunters)>n?'<br>Group minimum '+p.minHunters+' ('+n+' signed in)':'')+
+    (paid?'<br>'+paid+' already paid on their own invoice \u2014 taken off':'')+
     (dep?'<br>Deposit '+money(dep)+' → <b>Balance due '+money(total-dep)+'</b>':'');
 }
 function closeFinal(){document.getElementById('c-final').classList.remove('show');}
@@ -1246,6 +1660,7 @@ async function makeFinalReceipts(){
     }else{
       if(ires.facility)procFacility=ires.facility;
       invoices=ires.created||[ires.invoice];procInvoices=ires.invoices||procInvoices;
+      if(ires.skipped&&ires.skipped.length)procMsg('Already invoiced, not billed again: '+ires.skipped.map(function(x){return x.name+' #'+x.invoiceNo;}).join(', ')+'.');
     }
   }
   btn.disabled=false;btn.textContent='Create';
@@ -1320,13 +1735,13 @@ function printDocs(invs,recs){
   if(!(invs&&invs.length)&&!(recs&&recs.length))return;
   var area=document.getElementById('print-area');
   if(!area){area=document.createElement('div');area.id='print-area';document.body.appendChild(area);}
+  // Individual invoice on top, the hunter's bird receipt below, dotted line to cut. Group invoices stay full page.
   var left=(recs||[]).slice(),out=[];
   (invs||[]).forEach(function(v){
-    out.push(invoiceDocHtml(v));
-    if(v.type==='Individual'){
-      var nm=String(v.billTo.name||'').toLowerCase();
-      left=left.filter(function(r){if(String(r.owner).toLowerCase()===nm){out.push(receiptHtml(r));return false;}return true;});
-    }
+    if(v.type!=='Individual'){out.push(invoiceDocHtml(v));return;}
+    var nm=String(v.billTo.name||'').toLowerCase(),mine=null;
+    left=left.filter(function(r){if(!mine&&String(r.owner).toLowerCase()===nm&&(!r.group||!v.group||r.group===v.group)){mine=r;return false;}return true;});
+    out.push('<div class="pair"><div class="half">'+invoiceDocHtml(v)+'</div><div class="cut"><span>&#9986; cut here</span></div><div class="half">'+(mine?receiptHtml(mine):'')+'</div></div>');
   });
   left.forEach(function(r){out.push(receiptHtml(r));});
   area.innerHTML=out.join('');
@@ -1337,33 +1752,33 @@ function printPaymentList(){
   if(!g){alert('Pick the group first.');return;}
   if(!procHunters){alert('Hunters are still loading. Try again in a moment.');return;}
   var hunters=groupHunters(g),p=procPricing||{package:'',price:0,minHunters:8};
-  var invs=procInvoices.filter(function(v){return v.group===g;});
-  var lastDate=invs.reduce(function(a,v){return v.date>a?v.date:a;},'');
-  var batch=invs.filter(function(v){return v.date===lastDate;});
+  var batch=tripInvoices(g);   // every invoice made on this trip (early checkouts too)
+  var lastDate=batch.reduce(function(a,v){return v.date>a?v.date:a;},'');
   var groupInv=batch.filter(function(v){return v.type!=='Individual';})[0];
-  var indByName={};batch.filter(function(v){return v.type==='Individual';}).forEach(function(v){indByName[v.billTo.name.toLowerCase()]=v;});
+  var indByName=invoicedByName(g);
   var dates=hunters.map(function(h){return h.huntDate;}).filter(Boolean).sort();
   var rows=[],total=0;
   hunters.forEach(function(h,i){
     var iv=indByName[h.name.toLowerCase()],amt,no='';
-    if(iv){amt=iv.balance;no=iv.invoiceNo;}
+    if(iv){amt=iv.total;no=iv.invoiceNo;}
     else{amt=p.price;no=groupInv?groupInv.invoiceNo:'';}
     if(groupInv&&groupInv.billTo.name===h.name)no+=' (leader)';
     total+=amt;
     rows.push('<tr><td>'+(i+1)+'</td><td>'+esc(h.name)+'</td><td>'+esc(h.phone||'')+'</td><td>'+esc(no)+'</td><td class="n">'+money(amt)+'</td><td class="box">\u2610</td><td></td><td></td><td></td></tr>');
   });
-  var extra=0;
-  if(groupInv){extra=Math.max(0,groupInv.huntersBilled-hunters.length);}
-  else if(!Object.keys(indByName).length){extra=Math.max(0,p.minHunters-hunters.length);}
+  var extra=0,indCount=Object.keys(indByName).length;
+  var extraBilled=Object.keys(indByName).reduce(function(a,k){return a+Math.max(0,(indByName[k].huntersBilled||1)-1);},0);
+  if(groupInv){extra=Math.max(0,groupInv.huntersBilled-(hunters.length-indCount));}
+  else{extra=Math.max(0,p.minHunters-hunters.length-extraBilled);}   // spots already on the leader's own invoice are in his amount
   if(extra){total+=extra*p.price;rows.push('<tr><td></td><td colspan="3"><i>Group minimum \u2014 '+extra+' unfilled spot'+(extra===1?'':'s')+'</i></td><td class="n">'+money(extra*p.price)+'</td><td class="box">\u2610</td><td></td><td></td><td></td></tr>');}
-  var dep=groupInv?groupInv.deposit:batch.reduce(function(a,v){return a+(v.deposit||0);},0);
+  var dep=batch.reduce(function(a,v){return a+(v.deposit||0);},0);
   if(dep){total-=dep;rows.push('<tr><td></td><td colspan="3"><i>Deposit already received</i></td><td class="n">\u2212'+money(dep)+'</td><td class="box">\u2611</td><td></td><td></td><td></td></tr>');}
   var f=procFacility;
   var html='<div class="pay-doc"><h1>PAYMENT LIST \u2014 '+esc(g)+'</h1>'+
     '<div class="sub">'+esc(f.name)+' \u00b7 '+esc(p.package)+' \u00b7 '+money(p.price)+' per hunter (taxes included)<br>'+
     'Hunt dates: '+esc(dates.length?usDate(dates[0])+(dates[dates.length-1]!==dates[0]?' \u2013 '+usDate(dates[dates.length-1]):''):'\u2014')+
     ' \u00b7 Hunters signed in: '+hunters.length+
-    (batch.length?' \u00b7 '+(groupInv?'Group invoice #'+esc(groupInv.invoiceNo):batch.length+' individual invoices')+' ('+esc(usDate(lastDate))+')':' \u00b7 No invoice created yet')+'</div>'+
+    (batch.length?' \u00b7 '+(groupInv?'Group invoice #'+esc(groupInv.invoiceNo)+(indCount?' + '+indCount+' individual':''):batch.length+' individual invoice'+(batch.length===1?'':'s'))+' (latest '+esc(usDate(lastDate))+')':' \u00b7 No invoice created yet')+'</div>'+
     '<table><tr><th>#</th><th>Hunter</th><th>Phone</th><th>Invoice #</th><th>Amount Due</th><th>Paid</th><th>Method<br>(Cash/Check/Card/Venmo)</th><th>Check #</th><th>Date</th></tr>'+
     rows.join('')+
     '<tr class="tot"><td></td><td colspan="3">Total due</td><td class="n">'+money(total)+'</td><td></td><td></td><td></td><td></td></tr></table>'+
@@ -1392,7 +1807,16 @@ function shownInvoices(){
   });
 }
 function printAll(){printDocs(shownInvoices(),shownReceipts());}
-function printInvoice(btn){var v=shownInvoices()[+btn.dataset.i];if(v)printDocs([v],[]);}
+function printInvoice(btn){
+  var v=shownInvoices()[+btn.dataset.i];if(!v)return;
+  var mine=[];
+  if(v.type==='Individual'){   // reprint with the hunter's receipt on the same sheet
+    var nm=String(v.billTo.name||'').toLowerCase();
+    var r=receiptData.filter(function(x){return String(x.owner).toLowerCase()===nm&&(!x.group||x.group===v.group);})[0];
+    if(r)mine=[r];
+  }
+  printDocs([v],mine);
+}
 function shownReceipts(){
   if(receiptMode!=='reprint')return receiptData;
   var q=(document.getElementById('reprint-search').value||'').toLowerCase().trim();
@@ -1413,7 +1837,7 @@ function renderReceiptList(){
     var ind=v.type==='Individual';
     return '<div class="rc inv"><div class="rc-line1"><span>'+(ind?'Invoice \u2014 '+esc(v.billTo.name):'Group Invoice \u2014 '+esc(v.group))+'</span><span class="rc-no">#'+esc(v.invoiceNo)+'</span></div>'+
       '<div class="rc-line2">'+(ind?esc(v.group)+(v.leader===v.billTo.name?' (leader)':''):'Bill to '+esc(v.billTo.name)+' \u00b7 '+v.huntersBilled+' \u00d7 '+money(v.price))+' \u00b7 <b>'+money(v.balance)+' due</b> \u00b7 '+esc(usDate(v.date))+'</div>'+
-      '<div class="rc-btns"><button type="button" class="rc-print" data-i="'+i+'" onclick="printInvoice(this)">Print Invoice</button></div>'+
+      '<div class="rc-btns"><button type="button" class="rc-print" data-i="'+i+'" onclick="printInvoice(this)">'+(ind?'Print Invoice + Receipt':'Print Invoice')+'</button></div>'+
       (v.pdfUrl?'<a class="rc-pdf" href="'+esc(v.pdfUrl)+'" target="_blank" rel="noopener">Open PDF copy in Google Drive</a>':'')+
       (v.pdfError?'<div class="rc-pdf-err">PDF copy not saved: '+esc(v.pdfError)+'</div>':'')+
     '</div>';
@@ -1461,6 +1885,137 @@ function openReprint(){
   });
 }
 
+/* ── EARLY CHECKOUT (hunter leaving before the day's harvest / cleaning is logged) ── */
+var earlyList=[],earlySubmissionId=null;
+function closeEarly(){var e=document.getElementById('c-early');if(e)e.classList.remove('show');}
+function openEarly(){
+  var g=document.getElementById('c-group').value;
+  if(!g){alert('Pick the group first.');return;}
+  closeFinal();
+  var seen={};
+  earlyList=groupHunters(g).map(function(h){var k=hunterKey(h.name,h.address);seen[k]=1;return Object.assign({key:k},h);});
+  Object.keys(procOpen).forEach(function(k){   // typed-in hunters holding birds
+    var o=procOpen[k];if(seen[k]||procOpenGroup!==g)return;
+    earlyList.push({key:k,name:o.owner,address:o.ownerAddress,cityStateZip:o.ownerCityStateZip,phone:o.phone,license:o.license,group:g});
+  });
+  document.getElementById('c-early-title').textContent='Early Checkout — '+g;
+  document.getElementById('e-date').value=localToday();
+  var done=invoicedByName(g);
+  var lead=document.getElementById('e-lead');
+  lead.innerHTML=earlyList.map(function(h,i){return '<option value="'+i+'">'+esc(h.name)+'</option>';}).join('');
+  var kl=knownLeader(g);
+  if(kl)earlyList.forEach(function(h,i){if(h.name===kl)lead.value=String(i);});
+  document.getElementById('e-count').value=groupHunters(g).length||earlyList.length||'';
+  document.getElementById('e-dep').value='';
+  document.getElementById('e-list').innerHTML=earlyList.length?earlyList.map(function(h,i){
+    var o=procOpen[h.key],iv=done[h.name.toLowerCase()],rc=procRecent[h.key];
+    var missing=!h.address||!h.cityStateZip;
+    var notes=[];
+    if(o)notes.push('Already holding '+o.total+' pheasant'+(o.total===1?'':'s')+' — they go on the receipt too');
+    if(rc)notes.push('Adds to receipt #'+rc.receiptNo);
+    if(iv)notes.push('Already invoiced #'+iv.invoiceNo+' — no new invoice');
+    return '<div class="eh" id="eh-'+i+'"><label class="check-line" style="margin:0 0 8px"><input type="checkbox" id="eh-cb-'+i+'" onchange="earlyToggle('+i+')"> <b>'+esc(h.name)+'</b></label>'+
+      '<div class="eh-body">'+(notes.length?'<div class="eh-note">'+esc(notes.join(' · '))+'</div>':'')+
+      '<div class="species-grid"><label for="eh-n-'+i+'">Pheasants to give now</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="eh-n-'+i+'" oninput="earlyPlan()"></div>'+
+      (missing?'<div class="owner-addr missing" style="margin:4px 0 8px">No full address on this waiver — add it below.</div>'+
+        '<div class="field"><label>Street Address <span class="req">*</span></label><input type="text" id="eh-addr-'+i+'" value="'+esc(h.address||'')+'"></div>'+
+        '<div class="field"><label>City, State ZIP <span class="req">*</span></label><input type="text" id="eh-csz-'+i+'" value="'+esc(h.cityStateZip||'')+'"></div>':'')+
+      '<input type="text" class="fl-del" id="eh-del-'+i+'" placeholder="Picked up by (blank = owner)"></div></div>';
+  }).join(''):'<div class="report-hint" style="padding:8px 0">No hunters on the waivers for '+esc(g)+'.</div>';
+  earlySubmissionId=newId();
+  document.getElementById('e-status').className='submit-status';
+  earlyPlan();
+  var box=document.getElementById('c-early');box.classList.add('show');
+  setTimeout(function(){box.scrollIntoView({behavior:'smooth',block:'start'});},50);
+}
+function earlyToggle(i){
+  var on=document.getElementById('eh-cb-'+i).checked;
+  document.getElementById('eh-'+i).classList.toggle('on',on);
+  earlyPlan();
+}
+function earlyPicked(){
+  return earlyList.map(function(h,i){return {h:h,i:i};}).filter(function(x){var c=document.getElementById('eh-cb-'+x.i);return c&&c.checked;}).map(function(x){
+    var i=x.i,h=x.h;
+    return {i:i,h:h,count:parseInt(val('eh-n-'+i),10)||0,address:val('eh-addr-'+i)||h.address||'',csz:val('eh-csz-'+i)||h.cityStateZip||'',deliveredTo:val('eh-del-'+i)};
+  });
+}
+function earlyPlan(){
+  var el=document.getElementById('e-plan');if(!el)return;
+  var g=document.getElementById('c-group').value,picked=earlyPicked(),date=val('e-date')||localToday();
+  var wantInv=document.getElementById('e-inv').checked;
+  document.getElementById('e-inv-fields').style.display=wantInv?'block':'none';
+  if(!picked.length){el.innerHTML='Check each hunter who is leaving.';document.getElementById('e-harvest-wrap').style.display='none';return;}
+  var want=picked.reduce(function(a,x){return a+x.count;},0);
+  var ready=procPool?procPool.left:0,shot=Math.max(0,want-ready);
+  var lines=['<b>'+picked.length+' leaving · '+want+' pheasant'+(want===1?'':'s')+' to give now</b>'];
+  if(want){
+    if(!shot)lines.push('All '+want+' come from birds already cleaned ('+ready+' ready).');
+    else lines.push((Math.min(ready,want)?Math.min(ready,want)+' from birds already cleaned + ':'')+'<b>'+shot+' shot today</b> — added to '+esc(usDate(date))+'’s Cleaned line'+(document.getElementById('e-harvest').checked?' and Harvest line':'')+'. Tonight, enter the whole day’s total including them.');
+  }
+  document.getElementById('e-harvest-wrap').style.display=shot?'flex':'none';
+  if(wantInv){
+    var p=procPricing||{price:0,minHunters:8},done=invoicedByName(g);
+    var n=parseInt(val('e-count'),10)||0,extra=Math.max(0,p.minHunters-n),dep=parseFloat(val('e-dep'))||0;
+    var lead=earlyList[parseInt(document.getElementById('e-lead').value,10)];
+    var leadName=lead?lead.name:'';
+    picked.forEach(function(x){
+      var iv=done[x.h.name.toLowerCase()];
+      if(iv){lines.push(esc(x.h.name)+': already invoiced #'+esc(iv.invoiceNo));return;}
+      var isLead=x.h.name===leadName;
+      var tot=p.price*(1+(isLead?extra:0));
+      lines.push('Invoice '+esc(x.h.name)+(isLead?' (leader'+(extra?', +'+extra+' unfilled spot'+(extra===1?'':'s'):'')+')':'')+': <b>'+money(isLead?tot-dep:tot)+'</b>'+(isLead&&dep?' after '+money(dep)+' deposit':''));
+    });
+    if(leadName&&!picked.some(function(x){return x.h.name===leadName;})&&(extra||dep))lines.push('Unfilled spots and the deposit stay on '+esc(leadName)+'’s invoice at the end of the trip.');
+  }
+  el.innerHTML=lines.join('<br>');
+}
+async function submitEarly(){
+  var g=document.getElementById('c-group').value,date=val('e-date'),picked=earlyPicked();
+  if(!date){alert('Enter the date.');return;}
+  if(!picked.length){alert('Check who is leaving.');return;}
+  var bad=picked.filter(function(x){return !x.address||!x.csz;}).map(function(x){return x.h.name;});
+  if(bad.length){alert('Address missing for: '+bad.join(', '));return;}
+  var wantInv=document.getElementById('e-inv').checked;
+  var lead=earlyList[parseInt(document.getElementById('e-lead').value,10)];
+  if(wantInv&&!lead){alert('Pick the group leader.');return;}
+  var count=parseInt(val('e-count'),10)||0;
+  if(wantInv&&!count){alert('Enter how many hunters signed in.');return;}
+  var want=picked.reduce(function(a,x){return a+x.count;},0);
+  var btn=document.getElementById('btn-early-go');btn.disabled=true;btn.textContent='Checking out…';
+  var res;
+  try{
+    res=await procPost({action:'early',submissionId:earlySubmissionId,group:g,date:date,
+      hunters:picked.map(function(x){var h=x.h,rc=procRecent[h.key];
+        return {owner:h.name,ownerAddress:x.address,ownerCityStateZip:x.csz,phone:h.phone,license:h.license,count:x.count,deliveredTo:x.deliveredTo,combineWith:rc?rc.receiptNo:''};}),
+      invoice:{make:wantInv,leader:lead?{name:lead.name,address:lead.address,cityStateZip:lead.cityStateZip,phone:lead.phone}:{},huntersSignedIn:count,
+        deposit:parseFloat(val('e-dep'))||0,groupHunters:earlyList.map(function(h){return {name:h.name};})}});
+  }catch(e){res=null;}
+  btn.disabled=false;btn.textContent='Check Out';
+  if(!res||!res.ok){alert('Not checked out: '+(res?handleProcError(res):'could not reach the records sheet. Nothing was changed. Check your signal and try again.'));return;}
+  if(res.facility)procFacility=res.facility;
+  setOpen(g,res.open);setPool(res.pool);
+  procInvoices=res.invoices||procInvoices;procRecent={};(res.recent||[]).forEach(function(r){procRecent[r.key]=r;});
+  closeEarly();
+  var s=document.getElementById('e-status');
+  var say=function(t,err){s.className='submit-status show '+(err?'error':'success');s.textContent=t;};
+  var names=picked.map(function(x){return x.h.name;}).join(', ');
+  var msg='✓ Checked out '+names+': '+res.receipts.length+' receipt'+(res.receipts.length===1?'':'s')+(res.created.length?' + '+res.created.length+' invoice'+(res.created.length===1?'':'s'):'')+'.';
+  if(res.skipped&&res.skipped.length)msg+=' Already invoiced: '+res.skipped.map(function(x){return x.name+' #'+x.invoiceNo;}).join(', ')+'.';
+  say(msg);
+  showReceipts(res.receipts,'new',res.created);
+  // birds shot today that weren't cleaned yet: today's Cleaning (and Harvest) lines in the Operations sheet
+  if(res.shortage){
+    var note='Early checkout: '+names+' ('+res.shortage+')';
+    var jobs=[opsPost({task:'cleaning',submissionId:earlySubmissionId+'-c',date:date,group:g,totalBirds:res.shortage,payPerBird:0,totalPay:0,workers:'',notes:note,mode:'add'}).catch(function(){return null;})];
+    if(document.getElementById('e-harvest').checked)jobs.push(opsPost({task:'harvest',submissionId:earlySubmissionId+'-h',date:date,group:g,qty:res.shortage,notes:note,mode:'add'}).catch(function(){return null;}));
+    Promise.all(jobs).then(function(rs){
+      var fails=rs.filter(function(r){return !r||!r.ok;});
+      msg+=' '+res.shortage+' bird'+(res.shortage===1?'':'s')+' shot today '+(fails.length?'are on the pheasant pool, but the Operations '+(rs.length>1?'harvest/cleaning lines':'cleaning line')+' did NOT update ('+(fails[0]?opsError(fails[0],true):'no signal')+') — add them when you log the day.':'added to today’s '+(rs.length>1?'Harvest and Cleaning lines':'Cleaning line')+'. Tonight, enter the whole day’s total.');
+      say(msg,!!fails.length);
+    });
+  }
+}
+
 /* ── GIVE PHEASANTS (from the group's pool, oldest cleaning date first) ── */
 async function submitBirds(){
   var group=document.getElementById('c-group').value;
@@ -1506,33 +2061,41 @@ async function submitBirds(){
   setTimeout(function(){s.className='submit-status';},4000);
 }
 
-var cleanSubmissionId=null;
+var cleanIds=null;
 async function submitCleaning(){
   var date=document.getElementById('c-date').value;
-  var qty=parseInt(document.getElementById('c-qty').value)||0;
+  var qtyRaw=document.getElementById('c-qty').value,qty=parseInt(qtyRaw)||0;
   var group=document.getElementById('c-group-clean').value;
-  if(!date||!qty){alert('Please enter a date and total birds cleaned.');return;}
+  var mode=dayMode('c'),st=dayState.c;
+  if(!date||qtyRaw===''||(!qty&&mode!=='set')){alert('Please enter a date and total birds cleaned.');return;}
   if(!group){alert('Pick the group these birds were cleaned for.');return;}
+  var dayTotal=mode==='set'?qty:(st?st.cur:0)+qty;
+  if(st&&dayTotal<st.given){alert(st.given+' pheasants from '+usDate(date)+' already went to hunters'+(st.early?' ('+st.early+' with early checkout)':'')+'.\nThe day total can\u2019t be less than '+st.given+'.');return;}
   var rate=parseFloat(document.getElementById('c-rate').value)||0;
   var totalPay=parseFloat(document.getElementById('c-total-pay').value)||0;
   var workers=getWorkerNames();
   var notes=document.getElementById('c-notes').value;
   var btn=document.querySelector('#card-cleaning .btn-submit');
   var s=document.getElementById('c-status');
-  var poolNote='';
+  var poolNote='',procDone=false;
+  var sig=JSON.stringify([date,qty,group,mode,rate,totalPay,workers,notes]);
+  if(!cleanIds||cleanIds.sig!==sig)cleanIds={sig:sig,proc:newId(),ops:newId()};
   if(procConfigured()){
-    // add the cleaned pheasants to the group's pool in the processing records
+    // the cleaned pheasants go into the group's pool in the processing records (same day = same line)
     if(!getPin()){var pin=prompt('Enter the records PIN (only needed once on this device):');if(!pin||!pin.trim())return;setPin(pin.trim());}
-    if(!cleanSubmissionId)cleanSubmissionId=newId();
     btn.disabled=true;btn.textContent='Saving...';s.className='submit-status';
     var res;
-    try{res=await procPost({action:'clean',submissionId:cleanSubmissionId,group:group,date:date,count:qty,workers:workers.join(', '),notes:notes});}
-    catch(err){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');s.className='submit-status show error';s.textContent='Could not connect. Nothing was saved. Check your signal and try again.';return;}
-    if(!res||!res.ok){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');s.className='submit-status show error';s.textContent='Not saved: '+handleProcError(res);return;}
-    if(res.pool)poolNote=' — '+group+' has '+res.pool.left+' pheasant'+(res.pool.left===1?'':'s')+' to give out';
+    try{res=await procPost({action:'clean',submissionId:cleanIds.proc,group:group,date:date,count:qty,mode:mode,workers:workers.join(', '),notes:notes});}
+    catch(err){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');s.className='submit-status show error';s.textContent='\u2717 NOT saved \u2014 could not reach the records sheet. Check your signal and try again.';return;}
+    if(!res||!res.ok){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');s.className='submit-status show error';s.textContent='\u2717 NOT saved: '+handleProcError(res);return;}
+    procDone=true;
+    if(res.pool)poolNote=' \u00b7 '+group+' has '+res.pool.left+' pheasant'+(res.pool.left===1?'':'s')+' to give out';
   }
-  postData({task:'cleaning',date,group:group,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:notes},'c-status',btn,'Cleaning logged!'+poolNote,function(){
-    cleanSubmissionId=null;
+  var saved=await saveOps('c',{task:'cleaning',submissionId:cleanIds.ops,date,group:group,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:notes,mode:mode},'c-status',btn,function(r){
+    return (r.total!==undefined?'Cleaning for '+group+' on '+usDate(date)+' is now '+r.total+(r.before?' (was '+r.before+')':''):'Cleaning logged')+poolNote;
+  },function(){
+    cleanIds=null;
+    refreshDayNote('c');
     document.getElementById('c-qty').value='';
     document.getElementById('c-rate').value='';
     document.getElementById('c-total-pay').value='';
@@ -1545,6 +2108,7 @@ async function submitCleaning(){
       if(cb) cb.checked=false;
     });
   });
+  if(!saved&&procDone){var s2=document.getElementById('c-status');s2.textContent+=' The pheasant pool WAS updated \u2014 tap Log Cleaning again to save the crew line (the birds won\u2019t double).';}
 }
 function submitInventory(){
   var itemId=document.getElementById('inv-item-select').value;
@@ -1558,13 +2122,12 @@ function submitInventory(){
   if(type==='restock') n=old+qty;
   else if(type==='use') n=Math.max(0,old-qty);
   else n=qty;
-  item.currentQty=n;
-  var qel=document.getElementById('inv-qty-'+itemId);
-  if(qel){qel.textContent=n;refreshItemStyle(itemId,n,item.low);refreshLowBanner();}
-  document.getElementById('inv-current-display').textContent=n+' on hand';
   var date=localToday();
   var btn=document.querySelector('#card-inventory .btn-submit');
-  postData({task:'inventory',date:date,itemId:itemId,itemName:item.name,category:item.cat,transactionType:type,qty:qty,qtyBefore:old,qtyAfter:n,notes:document.getElementById('inv-notes').value},'inv-status',btn,item.name+' updated — now '+n,function(){
+  saveOps('inv',{task:'inventory',date:date,itemId:itemId,itemName:item.name,category:item.cat,transactionType:type,qty:qty,qtyBefore:old,qtyAfter:n,notes:document.getElementById('inv-notes').value},'inv-status',btn,item.name+' updated \u2014 now '+n,function(){
+    item.currentQty=n;
+    var qel=document.getElementById('inv-qty-'+itemId);
+    if(qel){qel.textContent=n;refreshItemStyle(itemId,n,item.low);refreshLowBanner();}
     document.getElementById('inv-item-select').value='';
     document.getElementById('inv-type').value='';
     document.getElementById('inv-qty-input').value='';
