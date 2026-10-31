@@ -474,6 +474,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
         <div class="day-preview" id="c-day-prev"></div>
       </div>
       <div class="field"><label id="c-qty-label">Total Birds Cleaned <span class="req">*</span></label><input type="number" id="c-qty" placeholder="0" min="0" inputmode="numeric" oninput="calcPay();dayPreview('c')"></div>
+      <div class="field"><label id="c-disc-label">Discarded <span class="opt">(harvested but too shot up to clean)</span></label><input type="number" id="c-disc" placeholder="0" min="0" inputmode="numeric" oninput="dayPreview('c')"></div>
       <div class="field-row">
         <div class="field"><label>Pay Per Bird <span class="opt">(optional)</span></label><input type="number" id="c-rate" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromRate()"></div>
         <div class="field"><label id="c-pay-label">Total Pay <span class="opt">(optional)</span></label><input type="number" id="c-total-pay" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromTotal()"></div>
@@ -1124,14 +1125,16 @@ function refreshDayNote(k){
     var ops=rs[0],pr=(rs[1]&&rs[1].ok)?rs[1].day:null;
     var opsOk=!!(ops&&ops.ok&&ops.version);
     var cur=0,pay=0;
-    if(opsOk){cur=k==='h'?(ops.harvest[group]||0):(ops.cleaning[group]||0);pay=k==='c'?((ops.cleaningPay||{})[group]||0):0;}
+    var disc=0;
+    if(opsOk){cur=k==='h'?(ops.harvest[group]||0):(ops.cleaning[group]||0);pay=k==='c'?((ops.cleaningPay||{})[group]||0):0;disc=k==='c'?((ops.discarded||{})[group]||0):0;}
     if(k==='c'&&pr&&!opsOk)cur=pr.cleaned;
-    var st={cur:cur,pay:pay,early:pr?pr.early:0,given:pr?pr.given:0,pool:pr?pr.cleaned:null,group:group,date:date};
+    var st={cur:cur,pay:pay,disc:disc,early:pr?pr.early:0,given:pr?pr.given:0,pool:pr?pr.cleaned:null,group:group,date:date};
     dayState[k]=st;
     if(!st.cur&&!st.early){dayLabels(k);return;}
     var m=pr&&String(pr.notes||'').match(/Early checkout: ([^;(]+)/);
     var what=k==='h'?'harvested':'cleaned';
     var html='<b>'+esc(group)+' already has '+st.cur+' '+what+' for '+esc(usDate(date))+'.</b>'+
+      (k==='c'&&st.disc?' Plus '+st.disc+' discarded.':'')+
       (k==='c'&&st.pay?' Crew pay so far '+money(st.pay)+'.':'')+
       (k==='c'&&st.pool!==null&&st.pool!==st.cur?' (Pheasant pool shows '+st.pool+'.)':'')+
       (st.early?'<span class="early-note">'+st.early+' of these went home early'+(m?' with '+esc(m[1].trim()):'')+'. Count them in the day total.</span>':'');
@@ -1151,6 +1154,7 @@ function dayLabels(k){
   if(k==='c'){
     var pl=document.getElementById('c-pay-label');
     pl.innerHTML=(has?(mode==='set'?'Total Pay for the Day':'Pay to Add'):'Total Pay')+' <span class="opt">(optional)</span>';
+    document.getElementById('c-disc-label').innerHTML=(has?(mode==='set'?'Discarded for the Day':'Discarded to Add'):'Discarded')+' <span class="opt">(harvested but too shot up to clean)</span>';
   }
   if(!has)document.getElementById(k+'-day-prev').textContent='';
 }
@@ -1161,10 +1165,11 @@ function dayPreview(k){
   var raw=document.getElementById(k+'-qty').value,n=parseInt(raw,10)||0;
   if(raw===''){el.textContent='';el.className='day-preview';return;}
   var total=dayMode(k)==='set'?n:st.cur+n;
+  var dIn=k==='c'?parseInt(document.getElementById('c-disc').value,10)||0:0,dTot=k==='c'?(dayMode(k)==='set'?dIn:(st.disc||0)+dIn):0;
   var bad=k==='c'&&total<st.given;
   el.className='day-preview'+(bad||total<st.cur?' bad':'');
   el.textContent=bad?'Can’t be less than '+st.given+' — that many from this day already went to hunters.':
-    'Line for '+usDate(st.date)+': '+st.cur+' → '+total+(total<st.cur?' (lower than before)':'');
+    'Line for '+usDate(st.date)+': '+st.cur+' → '+total+(dTot?' + '+dTot+' discarded':'')+(total<st.cur?' (lower than before)':'');
 }
 
 /* ═══ CHECKLIST: WHAT'S LOGGED, WHAT'S MISSING ═══ */
@@ -1226,13 +1231,13 @@ function renderChecklist(st){
     var gl=waiverInfo.now&&waiverInfo.latest[waiverInfo.now];
     if(gl&&d>=gl&&d<today)groups[waiverInfo.now]=1;
     Object.keys(groups).sort().forEach(function(k){
-      var r=x?x.release[k]||0:0,hv=x?x.harvest[k]||0:0,cl=x?x.cleaning[k]||0:0;
+      var r=x?x.release[k]||0:0,hv=x?x.harvest[k]||0:0,cl=x?x.cleaning[k]||0:0,ds=x&&x.discarded?x.discarded[k]||0:0;
       var label=esc(usDate(d).slice(0,5))+' '+esc(k)+': ';
       if(!r&&!hv&&!cl){lines+=row('soon',label+'nothing logged','If they hunted that day, log the release, harvest and cleaning','release',d,k);return;}
       if(!hv)lines+=row('bad',label+'no harvest logged','','harvest',d,k);
-      if(!cl)lines+=row('bad',label+'no cleaning logged',hv?'Harvest says '+hv:'','cleaning',d,k);
+      if(!cl&&!ds)lines+=row('bad',label+'no cleaning logged',hv?'Harvest says '+hv:'','cleaning',d,k);
       if(!r)lines+=row('soon',label+'no release logged','','release',d,k);
-      if(hv&&cl&&hv!==cl)lines+=row('bad',label+'harvest '+hv+' but cleaned '+cl,'One of them needs fixing','harvest',d,k);
+      if(hv&&(cl||ds)&&hv!==cl+ds)lines+=row('bad',label+'harvest '+hv+' but cleaned '+cl+(ds?' + '+ds+' discarded':''),'Fix one of them, or log birds too shot up to clean as Discarded','cleaning',d,k);
     });
   }
   if(lines)html+='<div class="ck-sec">Last 7 days</div>'+lines;
@@ -1307,7 +1312,7 @@ function recentLine(task,e){
   if(task==='purchase')return {top:e.qty+' birds · '+money(e.totalCost),sub:esc(e.supplier)+' · '+money(e.costPerBird)+'/bird'};
   if(task==='release')return {top:e.qty+' released',sub:esc(e.field)};
   if(task==='harvest')return {top:e.qty+' harvested',sub:''};
-  return {top:e.qty+' cleaned · '+money(e.totalPay),sub:esc(e.workers||'No workers listed')};
+  return {top:e.qty+' cleaned'+(e.discarded?' + '+e.discarded+' discarded':'')+' \u00b7 '+money(e.totalPay),sub:esc(e.workers||'No workers listed')};
 }
 function renderRecent(task){
   var box=document.getElementById('rec-'+task),list=recentData[task]||[];
@@ -1315,7 +1320,7 @@ function renderRecent(task){
   box.innerHTML=list.map(function(e,i){
     var L=recentLine(task,e),id=task+'-'+i;
     var extra=task==='purchase'?'<div class="field"><label>Cost Per Bird</label><input type="number" step="0.01" min="0" id="re-cost-'+id+'" value="'+e.costPerBird+'"></div>':
-      task==='cleaning'?'<div class="field"><label>Total Pay</label><input type="number" step="0.01" min="0" id="re-pay-'+id+'" value="'+e.totalPay+'"></div>':'';
+      task==='cleaning'?'<div class="field"><label>Discarded</label><input type="number" min="0" inputmode="numeric" id="re-disc-'+id+'" value="'+(e.discarded||0)+'"></div><div class="field"><label>Total Pay</label><input type="number" step="0.01" min="0" id="re-pay-'+id+'" value="'+e.totalPay+'"></div>':'';
     return '<div class="re" id="re-'+id+'"><div class="re-top"><span>'+esc(usDate(e.date))+(e.group?' · '+esc(e.group):'')+'</span><span>'+L.top+'</span></div>'+
       ((L.sub||e.notes)?'<div class="re-sub">'+L.sub+(L.sub&&e.notes?' · ':'')+esc(e.notes||'')+'</div>':'')+
       '<div class="re-btns"><button type="button" onclick="reEdit(\''+task+'\','+i+')">Fix</button><button type="button" class="del" id="re-del-'+id+'" onclick="reDelete(\''+task+'\','+i+')">Delete</button></div>'+
@@ -1336,7 +1341,7 @@ function reSave(task,i){
   if(q<=0){alert('Enter a number above 0, or use Delete.');return;}
   var f={qty:q,notes:document.getElementById('re-notes-'+id).value.trim()};
   if(task==='purchase')f.costPerBird=parseFloat(document.getElementById('re-cost-'+id).value)||0;
-  if(task==='cleaning')f.totalPay=parseFloat(document.getElementById('re-pay-'+id).value)||0;
+  if(task==='cleaning'){f.totalPay=parseFloat(document.getElementById('re-pay-'+id).value)||0;f.discarded=parseInt(document.getElementById('re-disc-'+id).value,10)||0;}
   reChange(task,i,'edit',f);
 }
 async function reChange(task,i,action,fields){
@@ -1376,11 +1381,12 @@ function loadSummary(){
     if(!opsOk)notes.push(ops&&ops.error?'Operations: '+opsError(ops,true):'Harvest and release numbers need the updated Operations script.');
     if(!withProc)notes.push('Enter the records PIN in Bird Receipts to include cleaned and given-out pheasants.');
     else if(!prOk)notes.push('Bird Receipts numbers: '+(pr&&pr.error?pr.error:'could not load.'));
-    var by={},add=function(g){if(!by[g])by[g]={rel:0,hv:0,clOps:null,p:null};return by[g];};
+    var by={},add=function(g){if(!by[g])by[g]={rel:0,hv:0,clOps:null,ds:0,p:null};return by[g];};
     if(opsOk){
       Object.keys(ops.released).forEach(function(g){add(g).rel=ops.released[g];});
       Object.keys(ops.harvest).forEach(function(g){add(g).hv=ops.harvest[g];});
       Object.keys(ops.cleaning).forEach(function(g){add(g).clOps=ops.cleaning[g];});
+      Object.keys(ops.discarded||{}).forEach(function(g){add(g).ds=ops.discarded[g];});
     }
     if(prOk)pr.summary.forEach(function(x){add(x.group).p=x;});
     var names=Object.keys(by).sort();
@@ -1388,15 +1394,15 @@ function loadSummary(){
       (opsOk&&ops.purchased?'<div class="ds-top">Birds purchased '+esc(usDate(date))+': <b>'+ops.purchased+'</b></div>':'');
     if(!names.length){body.innerHTML=html+'<div class="report-hint">Nothing logged for '+esc(usDate(date))+'.</div>';return;}
     html+=names.map(function(g){
-      var x=by[g],p=x.p,cleaned=p?p.cleaned:(x.clOps||0),flags=[];
-      if(opsOk&&x.hv!==cleaned)flags.push('Harvested '+x.hv+' but cleaned '+cleaned+' — one of them needs fixing.');
+      var x=by[g],p=x.p,cleaned=p?p.cleaned:(x.clOps||0),flags=[],off=opsOk&&x.hv!==cleaned+x.ds;
+      if(off)flags.push('Harvested '+x.hv+' but cleaned '+cleaned+(x.ds?' + '+x.ds+' discarded':'')+' \u2014 one of them needs fixing.');
       if(p&&x.clOps!==null&&x.clOps!==p.cleaned)flags.push('Cleaning crew line says '+x.clOps+', pheasant pool says '+p.cleaned+'.');
       if(p&&x.clOps===null&&p.cleaned&&opsOk)flags.push('No cleaning crew line for this day.');
       var tile=function(v,l,bad,sm){return '<div'+(bad?' class="bad"':'')+'><b>'+v+'</b><span>'+l+'</span>'+(sm?'<small>'+sm+'</small>':'')+'</div>';};
       return '<div class="ds-group"><div class="ds-name">'+esc(g)+'</div><div class="ds-grid">'+
         tile(opsOk?x.rel:'—','Released')+
-        tile(opsOk?x.hv:'—','Harvested',opsOk&&x.hv!==cleaned)+
-        tile(cleaned,'Cleaned',opsOk&&x.hv!==cleaned)+
+        tile(opsOk?x.hv:'—','Harvested',off)+
+        tile(cleaned,'Cleaned',off,x.ds?x.ds+' discarded':'')+
         tile(p?p.given:'—','Given out',false,p&&p.early?p.early+' early':'')+
         tile(p?p.released:'—','On receipts',false,p&&p.receipts?p.receipts+' receipt'+(p.receipts===1?'':'s'):'')+
         tile(p?p.left:'—','Left to give')+
@@ -2390,9 +2396,11 @@ var cleanIds=null;
 async function submitCleaning(){
   var date=document.getElementById('c-date').value;
   var qtyRaw=document.getElementById('c-qty').value,qty=parseInt(qtyRaw)||0;
+  var disc=parseInt(document.getElementById('c-disc').value,10)||0;
   var group=document.getElementById('c-group-clean').value;
   var mode=dayMode('c'),st=dayState.c;
-  if(!date||qtyRaw===''||(!qty&&mode!=='set')){alert('Please enter a date and total birds cleaned.');return;}
+  if(qtyRaw===''&&disc&&mode!=='set')qtyRaw='0';
+  if(!date||qtyRaw===''||(!qty&&!disc&&mode!=='set')){alert('Please enter a date and total birds cleaned.');return;}
   if(!group){alert('Pick the group these birds were cleaned for.');return;}
   var dayTotal=mode==='set'?qty:(st?st.cur:0)+qty;
   if(st&&dayTotal<st.given){alert(st.given+' pheasants from '+usDate(date)+' already went to hunters'+(st.early?' ('+st.early+' with early checkout)':'')+'.\nThe day total can\u2019t be less than '+st.given+'.');return;}
@@ -2403,9 +2411,9 @@ async function submitCleaning(){
   var btn=document.querySelector('#card-cleaning .btn-submit');
   var s=document.getElementById('c-status');
   var poolNote='',procDone=false;
-  var sig=JSON.stringify([date,qty,group,mode,rate,totalPay,workers,notes]);
+  var sig=JSON.stringify([date,qty,disc,group,mode,rate,totalPay,workers,notes]);
   if(!cleanIds||cleanIds.sig!==sig)cleanIds={sig:sig,proc:newId(),ops:newId()};
-  if(procConfigured()){
+  if(procConfigured()&&(qty||mode==='set')){
     // the cleaned pheasants go into the group's pool in the processing records (same day = same line)
     if(!getPin()){var pin=prompt('Enter the records PIN (only needed once on this device):');if(!pin||!pin.trim())return;setPin(pin.trim());}
     btn.disabled=true;btn.textContent='Saving...';s.className='submit-status';
@@ -2416,12 +2424,13 @@ async function submitCleaning(){
     procDone=true;
     if(res.pool)poolNote=' \u00b7 '+group+' has '+res.pool.left+' pheasant'+(res.pool.left===1?'':'s')+' to give out';
   }
-  var saved=await saveOps('c',{task:'cleaning',submissionId:cleanIds.ops,date,group:group,totalBirds:qty,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:notes,mode:mode},'c-status',btn,function(r){
-    return (r.total!==undefined?'Cleaning for '+group+' on '+usDate(date)+' is now '+r.total+(r.before?' (was '+r.before+')':''):'Cleaning logged')+poolNote;
+  var saved=await saveOps('c',{task:'cleaning',submissionId:cleanIds.ops,date,group:group,totalBirds:qty,discarded:disc,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:notes,mode:mode},'c-status',btn,function(r){
+    return (r.total!==undefined?'Cleaning for '+group+' on '+usDate(date)+' is now '+r.total+(r.before?' (was '+r.before+')':'')+(r.discarded?' + '+r.discarded+' discarded':''):'Cleaning logged')+poolNote;
   },function(){
     cleanIds=null;
     refreshDayNote('c');
     document.getElementById('c-qty').value='';
+    document.getElementById('c-disc').value='';
     document.getElementById('c-rate').value='';
     document.getElementById('c-total-pay').value='';
     document.getElementById('c-total').textContent='$0.00';
