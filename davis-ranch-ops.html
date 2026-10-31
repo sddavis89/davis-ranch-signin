@@ -335,6 +335,8 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .more-box.show{display:block;}
 .pend{background:#fff;border:1.5px dashed var(--warn);border-radius:10px;padding:10px 12px;margin-bottom:10px;}
 .pend .field-row{margin:8px 0;}
+.rc-reopen{display:block;width:100%;margin-top:8px;padding:8px;border-radius:8px;border:1.5px dashed var(--warn);background:#fff;color:var(--warn);font-family:var(--font-body);font-weight:700;font-size:.82rem;cursor:pointer;}
+.rc-reopen.sure{background:var(--warn);color:#fff;border-style:solid;}
 .pend-title{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--warn);font-weight:700;margin:0 0 8px;}
 .receipt-doc .blank{display:inline-block;min-width:1.1in;border-bottom:1px solid #000;height:12pt;vertical-align:bottom;}
 .receipt-doc .blank.wide{min-width:2.6in;}
@@ -1848,7 +1850,7 @@ function invoiceDocHtml(v){
   }).join('');
   return '<div class="inv-doc">'+
     '<div class="top"><div class="fac"><b>'+esc(f.name)+'</b>'+(f.address?'<br>'+esc(f.address):'')+(f.phone?'<br>'+esc(f.phone):'')+'</div>'+
-    '<div class="meta"><h1>INVOICE</h1>Invoice # <b>'+esc(v.invoiceNo)+'</b><br>Date: '+esc(usDate(v.date))+'<br>Group: '+esc(v.group)+(v.type==='Individual'&&v.leader&&v.leader!==v.billTo.name?'<br>Group leader: '+esc(v.leader):'')+'</div></div>'+
+    '<div class="meta"><h1>INVOICE</h1>Invoice # <b>'+esc(v.invoiceNo)+'</b><br>Date: '+esc(usDate(v.date))+'<br>Group: '+esc(v.group)+'</div></div>'+
     '<div class="bill"><b>Bill To:</b><br>'+esc(v.billTo.name)+(v.billTo.address?'<br>'+esc(v.billTo.address):'')+(v.billTo.cityStateZip?'<br>'+esc(v.billTo.cityStateZip):'')+(v.billTo.phone?'<br>'+esc(v.billTo.phone):'')+'</div>'+
     '<table class="items"><tr><th>Description</th><th class="n">Hunters</th><th class="n">Rate</th><th class="n">Amount</th></tr>'+
     lines+'</table>'+
@@ -1977,10 +1979,30 @@ function renderReceiptList(){
       '<div class="rc-line2">'+(r.pending?'Printed blank \u2014 waiting for numbers':esc(speciesText(r))+' · released '+esc(usDate(r.dateReleased)))+(r.group?' · '+esc(r.group):'')+'</div>'+
       '<div class="rc-btns"><button type="button" class="rc-print" data-i="'+i+'" onclick="printOne(this)">'+(r.pending?'Print Blank':'Print')+'</button>'+
       (r.pending?'':'<a class="rc-text" href="'+esc(smsHref(r))+'">Text'+(r.phone?'':' (add number)')+'</a>')+'</div>'+
+      (r.pending||!r.receiptNo?'':'<button type="button" class="rc-reopen" data-i="'+i+'" onclick="reopenReceipt(this)">Still hunting? Make this receipt blank again</button>')+
       (r.pdfUrl?'<a class="rc-pdf" href="'+esc(r.pdfUrl)+'" target="_blank" rel="noopener">Open PDF copy in Google Drive</a>':'')+
       (r.pdfError?'<div class="rc-pdf-err">PDF copy not saved: '+esc(r.pdfError)+'</div>':'')+
       '</div>';
   }).join('');
+}
+// He checked out but kept hunting: same receipt number goes back to blank (Drive copy too).
+async function reopenReceipt(btn){
+  var r=shownReceipts()[+btn.dataset.i];if(!r)return;
+  if(!btn.classList.contains('sure')){btn.classList.add('sure');btn.textContent='Tap again: #'+r.receiptNo+' goes back to blank';setTimeout(function(){btn.classList.remove('sure');btn.textContent='Still hunting? Make this receipt blank again';},5000);return;}
+  btn.disabled=true;btn.textContent='Working\u2026';
+  var res;
+  try{res=await procPost({action:'reopen',submissionId:newId(),receiptNo:r.receiptNo,date:localToday(),tripFrom:r.group?tripStart(r.group):''});}catch(e){res=null;}
+  if(!res||!res.ok){btn.disabled=false;btn.classList.remove('sure');btn.textContent='Still hunting? Make this receipt blank again';alert('Not changed: '+(res?handleProcError(res):'could not reach the records sheet.'));return;}
+  if(res.facility)procFacility=res.facility;
+  var g=res.group,inv=(res.invoices||[]).filter(function(v){return v.type==='Individual'&&String(v.billTo.name).toLowerCase()===String(r.owner).toLowerCase();})[0];
+  if(document.getElementById('c-group').value===g){
+    procTrip=res.trip||procTrip;procPending=res.pending||procPending;procInvoices=res.invoices||procInvoices;
+    procRecent={};(res.recent||[]).forEach(function(x){procRecent[x.key]=x;});
+    setOpen(g,res.open);setPool(res.pool);renderPending();
+  }
+  showReceipts(res.receipts,'new',inv?[inv]:[]);
+  document.getElementById('c-receipts-title').textContent='\u2713 #'+r.receiptNo+' '+r.owner+' is blank again'+(inv?' \u2014 print it with his invoice':'');
+  procMsg('Receipt #'+r.receiptNo+' is waiting for numbers (Drive copy updated). His '+r.total+' birds stay with him and go on the receipt when you Save Numbers.');
 }
 function printOne(btn){var r=shownReceipts()[+btn.dataset.i];if(r)printReceipts([r]);}
 function showReceipts(list,mode,invs){
