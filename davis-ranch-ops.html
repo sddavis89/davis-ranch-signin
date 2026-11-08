@@ -388,6 +388,33 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
 .ck-row.bad{border-color:#C0392B;}
 .ck-row.bad .ic{color:#FF8A80;}
 .ck-row small{display:block;color:#c9b99a;font-size:.74rem;}
+/* print reports */
+.rr-presets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px;}
+.rr-presets button{padding:10px;border-radius:8px;border:1.5px solid var(--gold);background:#fff;color:var(--fg);font-family:var(--font-body);font-weight:700;font-size:.86rem;cursor:pointer;}
+.rr-presets button.on{background:#FFF6E3;box-shadow:0 0 0 2px rgba(200,150,62,.3);}
+#card-print .field-row .field{min-width:0;}
+#card-print .field-row input{min-width:0;width:100%;}
+.rr-list{display:grid;gap:6px;margin:4px 0 8px;}
+.rr-list label{display:flex;gap:10px;align-items:flex-start;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;font-size:.92rem;color:var(--fg);}
+.rr-list input{width:20px;height:20px;margin-top:1px;accent-color:var(--gold);flex:0 0 auto;}
+.rr-list small{display:block;font-size:.76rem;color:var(--fg-soft);}
+.rr-all{text-align:right;font-size:.84rem;margin-bottom:14px;color:var(--fg-soft);}
+.rep-doc{font-family:Georgia,'Times New Roman',serif;color:#000;font-size:9.5pt;max-width:7.5in;margin:0 auto;}
+.rep-doc .rh{border-bottom:2px solid #000;padding-bottom:4pt;margin-bottom:10pt;}
+.rep-doc .rh b{font-size:15pt;letter-spacing:.5px;}
+.rep-doc h2{font-size:12pt;margin:14pt 0 4pt;page-break-after:avoid;break-after:avoid;}
+.rep-doc table{width:100%;border-collapse:collapse;margin-bottom:4pt;}
+.rep-doc th,.rep-doc td{border:1px solid #999;padding:3pt 5pt;text-align:left;vertical-align:top;}
+.rep-doc th{background:#eee;font-size:8.5pt;}
+.rep-doc td.n,.rep-doc th.n{text-align:right;white-space:nowrap;}
+.rep-doc tr{page-break-inside:avoid;break-inside:avoid;}
+.rep-doc tr.tot td{font-weight:bold;border-top:2px solid #000;background:#f7f7f7;}
+.rep-doc tr.bad td{background:#ffe5e5;}
+.rep-doc .none{font-style:italic;color:#555;margin:2pt 0 6pt;}
+.rep-doc .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:6pt;}
+.rep-doc .kv div{border:1px solid #999;padding:5pt 6pt;}
+.rep-doc .kv b{display:block;font-size:14pt;}
+.rep-doc .foot{margin-top:12pt;font-size:8pt;color:#444;}
 #print-area{display:none;}
 @media print{
   html,body{background:#fff !important;}
@@ -427,6 +454,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
         <option value="cleaning">&#9986; Bird Cleaning</option>
         <option value="receipts">&#129534; Bird Receipts</option>
         <option value="summary">&#128203; Daily Summary</option>
+        <option value="print">&#128424; Print Reports</option>
         <option value="inventory">&#127968; Lodge Inventory</option>
         <option value="reports">&#128202; Season Reports</option>
       </select>
@@ -639,6 +667,26 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
           <button type="button" class="btn-small" onclick="closeReceipts()">Done</button>
         </div>
       </div>
+    </div>
+
+    <div class="form-card" id="card-print">
+      <div class="card-title">Print Reports</div>
+      <div class="card-desc">Check what you want, pick the dates, tap Print. Everything checked prints together so you can compare.</div>
+      <div class="field"><label>Group</label><select id="rr-group" onchange="rrPresetsShow()"></select></div>
+      <div class="rr-presets" id="rr-presets">
+        <button type="button" id="rr-trip" onclick="rrPreset('trip')">This trip</button>
+        <button type="button" onclick="rrPreset('week')">Last 7 days</button>
+        <button type="button" onclick="rrPreset('month')">This month</button>
+        <button type="button" onclick="rrPreset('season')">Whole season</button>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>From</label><input type="date" id="rr-from"></div>
+        <div class="field"><label>To</label><input type="date" id="rr-to"></div>
+      </div>
+      <div class="rr-list" id="rr-list"></div>
+      <div class="rr-all"><button type="button" class="proc-link" onclick="rrAll(true)">Check all</button> &middot; <button type="button" class="proc-link" onclick="rrAll(false)">Clear</button></div>
+      <button class="btn-submit" id="rr-btn" data-label="Print" onclick="printReport()">Print</button>
+      <div class="submit-status" id="rr-status"></div>
     </div>
 
     <div class="form-card" id="card-summary">
@@ -972,7 +1020,7 @@ function stat(label,value){
   return '<div class="report-stat"><span class="report-stat-label">'+label+'</span><span class="report-stat-value">'+value+'</span></div>';
 }
 function showTask(val){
-  ['purchase','release','harvest','cleaning','receipts','summary','inventory','reports'].forEach(function(t){
+  ['purchase','release','harvest','cleaning','receipts','summary','print','inventory','reports'].forEach(function(t){
     var el=document.getElementById('card-'+t);
     if(t===val){
       el.style.display='block';
@@ -986,6 +1034,7 @@ function showTask(val){
   if(val==='harvest') refreshDayNote('h');
   if(val==='cleaning') refreshDayNote('c');
   if(val==='summary') loadSummary();
+  if(val==='print') rrInit();
   if(val){
     setTimeout(function(){
       var card=document.getElementById('card-'+val);
@@ -1416,6 +1465,116 @@ async function reChange(task,i,action,fields){
   }
   say(action==='delete'?'✓ Deleted':'✓ Fixed');loadChecklist();
   setTimeout(function(){loadRecent(task);if(task==='harvest')refreshDayNote('h');if(task==='cleaning')refreshDayNote('c');},700);
+}
+
+/* ═══ PRINT REPORTS ═══ */
+var RP_SECTIONS=[
+  ['season','Season Totals','Purchased, released, harvested, cleaned, given out, crew pay'],
+  ['daily','Day-by-Day Comparison','Released \u00b7 Harvested \u00b7 Cleaned \u00b7 Discarded \u00b7 Given out, side by side'],
+  ['purchases','Bird Purchases','Date, supplier, qty, cost'],
+  ['releases','Bird Releases','Date, field, group, qty'],
+  ['harvest','Bird Harvest','Date, group, qty'],
+  ['cleaning','Bird Cleaning','Birds, discarded, workers, pay'],
+  ['crew','Crew Pay','Totals per worker'],
+  ['birdlog','Birds Given Out (GFP Bird Log)','Receipt #, hunter, dates, birds'],
+  ['invoices','Invoices & Payments','Invoice #, who, total, deposit, balance'],
+  ['inventory','Lodge Inventory','Current counts, low items flagged']];
+var rpPresetOn='';
+function rrInit(){
+  var list=document.getElementById('rr-list');
+  if(!list.innerHTML){
+    var saved={};try{JSON.parse(localStorage.getItem('dr_rp')||'[]').forEach(function(k){saved[k]=1;});}catch(e){}
+    list.innerHTML=RP_SECTIONS.map(function(s){return '<label><input type="checkbox" id="rr-'+s[0]+'"'+(saved[s[0]]?' checked':'')+'><span>'+esc(s[1])+'<small>'+esc(s[2])+'</small></span></label>';}).join('');
+  }
+  var sel=document.getElementById('rr-group'),cur=sel.value;
+  var groups=Object.keys(waiverInfo.latest||{}).sort(function(a,b){return (waiverInfo.latest[b]||'').localeCompare(waiverInfo.latest[a]||'')||a.localeCompare(b);});
+  DEFAULT_GROUPS.forEach(function(g){if(groups.indexOf(g)===-1)groups.push(g);});
+  sel.innerHTML='<option value="">All groups</option>'+groups.map(function(g){return '<option value="'+esc(g)+'">'+esc(g)+'</option>';}).join('');
+  sel.value=cur||'';
+  if(!val('rr-from'))rrPreset('season');
+  rrPresetsShow();
+}
+function rrPresetsShow(){document.getElementById('rr-trip').style.display=val('rr-group')?'block':'none';}
+function seasonStartIso(){var t=localToday(),y=+t.slice(0,4),m=+t.slice(5,7);return (m>=8?y:y-1)+'-08-01';}
+function rrPreset(k){
+  var t=localToday(),g=val('rr-group'),f=t;
+  if(k==='week')f=addDays(t,-6);
+  if(k==='month')f=t.slice(0,8)+'01';
+  if(k==='season')f=seasonStartIso();
+  if(k==='trip'){if(!g)return;f=procHunters?tripStart(g):addDays(t,-7);}
+  document.getElementById('rr-from').value=f;document.getElementById('rr-to').value=t;
+  rpPresetOn=k;document.querySelectorAll('#rr-presets button').forEach(function(b){b.classList.toggle('on',b.getAttribute('onclick')==="rrPreset('"+k+"')");});
+}
+function rrAll(on){RP_SECTIONS.forEach(function(s){document.getElementById('rr-'+s[0]).checked=on;});}
+function printReport(){
+  var secs=RP_SECTIONS.filter(function(s){return document.getElementById('rr-'+s[0]).checked;}).map(function(s){return s[0];});
+  var s=document.getElementById('rr-status'),btn=document.getElementById('rr-btn');
+  if(!secs.length){alert('Check at least one thing to print.');return;}
+  var from=val('rr-from'),to=val('rr-to');
+  if(!from||!to||from>to){alert('Pick a From date on or before the To date.');return;}
+  if(!getPin()){var pin=prompt('Enter the records PIN:');if(!pin||!pin.trim())return;setPin(pin.trim());}
+  try{localStorage.setItem('dr_rp',JSON.stringify(secs));}catch(e){}
+  btn.disabled=true;btn.textContent='Getting it ready\u2026';s.className='submit-status';
+  procGet({action:'report',from:from,to:to,group:val('rr-group'),sections:secs.join(',')}).then(function(r){
+    btn.disabled=false;btn.textContent='Print';
+    if(!r||!r.ok){s.className='submit-status show error';s.textContent='\u2717 '+(r?handleProcError(r):'Could not load.');return;}
+    if(r.facility)procFacility=r.facility;
+    var area=document.getElementById('print-area');
+    if(!area){area=document.createElement('div');area.id='print-area';document.body.appendChild(area);}
+    area.innerHTML=reportHtml(r,secs);
+    s.className='submit-status show success';s.textContent='\u2713 Ready \u2014 '+secs.length+' section'+(secs.length===1?'':'s');
+    setTimeout(function(){window.print();},60);
+  }).catch(function(){btn.disabled=false;btn.textContent='Print';s.className='submit-status show error';s.textContent='\u2717 Could not reach the records sheet. Check your signal.';});
+}
+function reportHtml(r,secs){
+  var f=procFacility||{name:'Davis Ranch Hunting LLC'},n=function(x){return Math.round(x*10)/10;};
+  var T=function(heads,rows,tot,cls){
+    if(!rows.length)return '<div class="none">Nothing in these dates.</div>';
+    return '<table><thead><tr>'+heads.map(function(h){return '<th'+(h.n?' class="n"':'')+'>'+esc(h.t)+'</th>';}).join('')+'</tr></thead><tbody>'+
+      rows.map(function(row,i){return '<tr'+(cls&&cls(i)?' class="'+cls(i)+'"':'')+'>'+row.map(function(c,j){return '<td'+(heads[j].n?' class="n"':'')+'>'+c+'</td>';}).join('')+'</tr>';}).join('')+
+      (tot?'<tr class="tot">'+tot.map(function(c,j){return '<td'+(heads[j].n?' class="n"':'')+'>'+c+'</td>';}).join('')+'</tr>':'')+'</tbody></table>';
+  };
+  var sum=function(a,k){return a.reduce(function(t,x){return t+(+x[k]||0);},0);};
+  var d=function(x){return esc(usDate(x));};
+  var out='<div class="rep-doc"><div class="rh"><b>'+esc(f.name)+' \u2014 Report</b><br>'+d(r.from)+' to '+d(r.to)+' \u00b7 '+esc(r.group||'All groups')+' \u00b7 Printed '+d(localToday())+'</div>';
+  secs.forEach(function(k){
+    var title=RP_SECTIONS.filter(function(s){return s[0]===k;})[0][1];
+    out+='<h2>'+esc(title)+'</h2>';
+    if(k==='season'){var x=r.season;
+      out+='<div class="kv">'+[['Purchased'+(r.group?' (all groups)':''),x.purchased+' ('+money(x.purchaseCost)+')'],['Released',x.released],['Harvested',x.harvested],['Cleaned',x.cleaned],['Discarded',x.discarded],['Given out',x.given+' ('+x.receipts+' receipts)'],
+        ['Crew pay',money(x.crewPay)]].concat(r.group?[]:[['In the pens (bought \u2212 released)',x.purchased-x.released]]).concat([['Harvested vs cleaned + discarded',x.harvested===x.cleaned+x.discarded?'Match':(x.harvested+' vs '+(x.cleaned+x.discarded))]])
+        .map(function(p){return '<div>'+esc(p[0])+'<b>'+esc(p[1])+'</b></div>';}).join('')+'</div>';}
+    if(k==='daily'){var a=r.daily;
+      out+=T([{t:'Date'},{t:'Group'},{t:'Released',n:1},{t:'Harvested',n:1},{t:'Cleaned',n:1},{t:'Discarded',n:1},{t:'Given Out',n:1},{t:'Check'}],
+        a.map(function(y){return [d(y.date),esc(y.group),y.released,y.harvested,y.cleaned,y.discarded||'',y.given,y.match?'OK':'Harvest \u2260 cleaned + discarded'];}),
+        ['Total','',sum(a,'released'),sum(a,'harvested'),sum(a,'cleaned'),sum(a,'discarded'),sum(a,'given'),''],function(i){return a[i].match?'':'bad';});}
+    if(k==='purchases'){var a=r.purchases;
+      out+=T([{t:'Date'},{t:'Supplier'},{t:'Qty',n:1},{t:'Cost / Bird',n:1},{t:'Total',n:1},{t:'Notes'}],
+        a.map(function(y){return [d(y.date),esc(y.supplier),y.qty,money(y.cost),money(y.total),esc(y.notes)];}),['Total','',sum(a,'qty'),'',money(sum(a,'total')),'']);}
+    if(k==='releases'){var a=r.releases;
+      out+=T([{t:'Date'},{t:'Field'},{t:'Group'},{t:'Qty',n:1},{t:'Notes'}],a.map(function(y){return [d(y.date),esc(y.field),esc(y.group),y.qty,esc(y.notes)];}),['Total','','',sum(a,'qty'),'']);}
+    if(k==='harvest'){var a=r.harvest;
+      out+=T([{t:'Date'},{t:'Group'},{t:'Qty',n:1},{t:'Notes'}],a.map(function(y){return [d(y.date),esc(y.group),y.qty,esc(y.notes)];}),['Total','',sum(a,'qty'),'']);}
+    if(k==='cleaning'){var a=r.cleaning;
+      out+=T([{t:'Date'},{t:'Group'},{t:'Birds',n:1},{t:'Discarded',n:1},{t:'Workers'},{t:'Pay',n:1},{t:'Notes'}],
+        a.map(function(y){return [d(y.date),esc(y.group||'(no group)'),y.birds,y.discarded||'',esc(y.workers),money(y.pay),esc(y.notes)];}),['Total','',sum(a,'birds'),sum(a,'discarded'),'',money(sum(a,'pay')),'']);}
+    if(k==='crew'){var a=r.crew;
+      out+=T([{t:'Worker'},{t:'Days',n:1},{t:'Birds',n:1},{t:'Pay',n:1}],a.map(function(y){return [esc(y.worker),y.days,n(y.birds),money(y.pay)];}),['Total','',n(sum(a,'birds')),money(sum(a,'pay'))]);
+      out+='<div class="none">When more than one worker is on a day&rsquo;s line, birds and pay are split evenly between them.</div>';}
+    if(k==='birdlog'){var a=r.birdlog;
+      out+=T([{t:'Receipt #'},{t:'Hunter'},{t:'Group'},{t:'Date(s) Received'},{t:'Birds',n:1},{t:'Released'},{t:'Delivered To'}],
+        a.map(function(y){return [esc(y.receiptNo||'\u2014'),esc(y.owner),esc(y.group),esc(y.received.map(usDate).join(', ')),y.birds,y.released?d(y.released):esc(y.status),esc(y.deliveredTo||(y.receiptNo?y.owner:''))];}),
+        ['Total','','','',sum(a,'birds'),'','']);}
+    if(k==='invoices'){var a=r.invoices,live=a.filter(function(v){return v.type!=='Void';});
+      out+=T([{t:'Invoice #'},{t:'Date'},{t:'Group'},{t:'Bill To'},{t:'Type'},{t:'Total',n:1},{t:'Deposit',n:1},{t:'Balance',n:1}],
+        a.map(function(v){return [esc(v.invoiceNo),d(v.date),esc(v.group),esc(v.billTo.name),esc(v.type),money(v.total),v.deposit?money(v.deposit):'',money(v.balance)];}),
+        ['Total (not counting void)','','','','',money(sum(live,'total')),money(sum(live,'deposit')),money(sum(live,'balance'))]);}
+    if(k==='inventory'){var a=(r.inventory||[]).slice().sort(function(x,y){return x.category.localeCompare(y.category)||x.name.localeCompare(y.name);});
+      var low={};INVENTORY.forEach(function(i){low[i.id]=i.low||0;});
+      out+=T([{t:'Category'},{t:'Item'},{t:'On Hand',n:1},{t:'Start',n:1},{t:'Status'}],
+        a.map(function(i){return [esc(i.category),esc(i.name),i.currentQty,i.startQty,low[i.id]&&i.currentQty<=low[i.id]?'LOW':''];}),null,function(i){return low[a[i].id]&&a[i].currentQty<=low[a[i].id]?'bad':'';});}
+  });
+  return out+'<div class="foot">From the Davis Ranch sheet. Dates are the day of the entry.</div></div>';
 }
 
 /* ═══ DAILY SUMMARY ═══ */
