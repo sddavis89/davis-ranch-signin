@@ -80,6 +80,22 @@
 .pl-notes{font-size:.82rem;color:var(--pl-muted);}
 .pl-notes summary{cursor:pointer;color:var(--pl-ink);font-weight:600;}
 .pl-notes p{margin-top:6px;}
+.pl-datebar{display:flex;align-items:center;gap:10px;margin:12px 0 4px;}
+.pl-datebar label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pl-muted);}
+.pl-datebar input{font-family:var(--pl-sans);font-size:1rem;padding:6px 10px;background:#fff;border:1px solid rgba(11,11,11,.18);border-radius:6px;color:var(--pl-ink);}
+.pl-tiles.six{grid-template-columns:repeat(3,minmax(0,1fr));}
+@media(min-width:620px){.pl-tiles.six{grid-template-columns:repeat(6,minmax(0,1fr));}}
+.pl-tile.bad{border-color:rgba(164,37,40,.45);background:rgba(164,37,40,.04);}
+.pl-tile.bad b{color:var(--pl-bad);}
+.pl-tile.sm b{font-size:1.6rem;}
+.pl-gh{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.pl-pill{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+.pl-pill.ok{color:var(--pl-ok);background:rgba(0,108,16,.08);}
+.pl-pill.bad{color:var(--pl-bad);background:rgba(164,37,40,.08);}
+.pl-pill.mut{color:var(--pl-muted);background:rgba(11,11,11,.05);}
+.pl-flag{font-size:.84rem;color:var(--pl-bad);line-height:1.45;}
+.pl-flag.warn{color:var(--pl-warn);}
+.pl-empty{font-size:.9rem;color:var(--pl-muted);padding:10px 0;}
 html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;color:var(--fg);}
 
 /* IMAGE — full width, natural height, never cropped */
@@ -761,11 +777,10 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div id="pl-body"><div class="report-hint">Loading&hellip;</div></div>
     </div>
 
-    <div class="form-card" id="card-summary">
-      <div class="card-title">Daily Summary</div>
-      <div class="card-desc">One day at a glance for each group: released, harvested, cleaned, given out and what&rsquo;s left. Anything that doesn&rsquo;t match shows in red.</div>
-      <div class="field"><label>Date</label><input type="date" id="ds-date" onchange="loadSummary()"></div>
-      <button class="btn-refresh" onclick="loadSummary()">&#8635; Refresh</button>
+    <div class="form-card pl-card" id="card-summary">
+      <div class="pl-top"><div><div class="pl-eyebrow">Davis Ranch &middot; one day at a glance</div><h2 class="pl-h1">Daily Summary</h2></div>
+        <button type="button" class="pl-refresh" onclick="loadSummary()">&#8635; Refresh</button></div>
+      <div class="pl-datebar"><label for="ds-date">Day</label><input type="date" id="ds-date" onchange="loadSummary()"></div>
       <div id="ds-status" class="submit-status"></div>
       <div id="ds-body"><div class="report-hint">Tap Refresh to load the day.</div></div>
     </div>
@@ -803,10 +818,9 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       </div>
     </div>
 
-    <div class="form-card" id="card-reports">
-      <div class="card-title">&#128202; Season Reports</div>
-      <div class="card-desc">Live totals pulled from your Google Sheet</div>
-      <button class="btn-refresh" onclick="loadReports()">&#8635; Refresh</button>
+    <div class="form-card pl-card" id="card-reports">
+      <div class="pl-top"><div><div class="pl-eyebrow">Davis Ranch &middot; 2026 season</div><h2 class="pl-h1">Season Reports</h2></div>
+        <button type="button" class="pl-refresh" onclick="loadReports()">&#8635; Refresh</button></div>
       <div id="reports-status" class="submit-status"></div>
       <div id="reports-body" class="reports-body">
         <div class="report-hint">Tap Refresh to load current season totals.</div>
@@ -1019,73 +1033,45 @@ var SIGNIN_URL='https://script.google.com/macros/s/AKfycbykbCf8ZwLFso7ObUhu6q3mf
 var GROUP_LIMITS={'FarmHouse':6,'Jared Hendrickson':6};
 
 function loadReports(){
-  var s=document.getElementById('reports-status');
-  var body=document.getElementById('reports-body');
-  s.className='submit-status show';s.textContent='Loading...';
-  body.innerHTML='';
-  Promise.all([
-    fetch(SCRIPT_URL).then(function(r){return r.json();}),
-    fetch(SIGNIN_URL).then(function(r){return r.json();})
-  ]).then(function(results){
-    var ops=results[0];
-    var signin=results[1];
+  var s=document.getElementById('reports-status'),body=document.getElementById('reports-body');
+  s.className='submit-status show';s.textContent='Loading…';
+  Promise.all([opsGet({}).catch(function(){return null;}),opsGet({action:'planning'}).catch(function(){return null;}),
+    fetch(SIGNIN_URL).then(function(r){return r.json();}).catch(function(){return null;})]).then(function(rs){
+    var ops=rs[0],pl=rs[1]&&rs[1].ok?rs[1]:null,signin=rs[2]||{};
+    if(!ops||ops.ok===false){s.className='submit-status show error';s.textContent='Could not load data. Check your signal and tap Refresh.';return;}
     s.className='submit-status';
-    var onHand=(ops.purchased||0)-(ops.harvested||0);
-
-    // Combine signin counts by group across all dates
-    var huntersByGroup={};
-    Object.keys(signin).forEach(function(date){
-      Object.keys(signin[date]).forEach(function(group){
-        huntersByGroup[group]=(huntersByGroup[group]||0)+signin[date][group];
-      });
-    });
-
-    // Harvest by group from ops
-    var harvestByGroup=ops.harvestByGroup||{};
-
-    // Build group rows
-    var allGroups=Array.from(new Set(Object.keys(huntersByGroup).concat(Object.keys(harvestByGroup))));
-    var groupRows='';
-    allGroups.forEach(function(group){
-      var hunters=huntersByGroup[group]||0;
-      var birds=harvestByGroup[group]||0;
-      var perHunter=GROUP_LIMITS[group]||9;
-      var limit=hunters*perHunter;
-      var pct=limit>0?Math.round((birds/limit)*100):0;
-      var avg=hunters>0?(birds/hunters).toFixed(1):0;
-      groupRows+='<div class="report-group">'+
-        '<div class="report-group-name">'+group+'</div>'+
-        '<div class="report-group-stats">'+
-        '<span>&#128101; '+hunters+' hunters</span>'+
-        '<span>&#127819; '+birds+' birds</span>'+
-        '<span>&#127919; '+avg+'/hunter</span>'+
+    var signed={};Object.keys(signin).forEach(function(d){Object.keys(signin[d]||{}).forEach(function(g){signed[g]=(signed[g]||0)+signin[d][g];});});
+    var ws=ops.workerSessions||{},wk=Object.keys(ws).sort(function(a,b){return ws[b]-ws[a];}),wmax=wk.length?ws[wk[0]]:1;
+    var cleaned=ops.cleaningBirds||0,pay=ops.cleaningPay||0,field=Math.max(0,(ops.released||0)-(ops.harvested||0));
+    var groups=pl?pl.groups:Object.keys(ops.harvestByGroup||{}).map(function(g){var h=signed[g]||0,lim=h*(GROUP_LIMITS[g]||9),hv=ops.harvestByGroup[g];return {group:g,hunters:h,days:null,harvested:hv,limit:lim,filled:lim?hv/lim:null,released:null};});
+    var S=pl?pl.season:null;
+    body.innerHTML='<div class="pl-wrap">'+
+      '<div class="pl-head"><div class="pl-head-l"><div class="pl-take">This season: <b>'+(ops.harvested||0)+'</b> birds harvested from <b>'+(ops.released||0)+'</b> released, with <b>'+groups.length+'</b> group'+(groups.length===1?'':'s')+' hunted.</div>'+
+        (S&&S.short&&S.short.length?'<div class="pl-note">Came up short of the limit: <b>'+S.short.map(function(x){return esc(x.group)+' ('+plPct(x.filled)+')';}).join(', ')+'</b></div>':'')+
+      '</div>'+(S?'<div class="pl-head-r"><div class="pl-big">'+plPct(S.filled)+'</div><div class="pl-big-l">of the season&rsquo;s limit harvested</div></div>':'')+'</div>'+
+      '<div class="pl-tiles">'+
+        '<div class="pl-tile"><span>Birds bought</span><b>'+(ops.purchased||0)+'</b><em>Bird Purchases</em></div>'+
+        '<div class="pl-tile"><span>Released</span><b>'+(ops.released||0)+'</b><em>All fields</em></div>'+
+        '<div class="pl-tile"><span>Harvested</span><b>'+(ops.harvested||0)+'</b><em>Wild and released</em></div>'+
+        '<div class="pl-tile"><span>Released, not shot</span><b>'+field+'</b><em>Still out in the fields</em></div>'+
+      '</div>'+
+      '<div class="pl-panel"><h3>By group</h3><div class="pl-sub">'+(pl?'Hunters counted from receipts; limit = hunters × 3 × days hunted.':'Hunters counted from the sign-in waivers.')+'</div>'+
+        '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Group</th><th>Hunters</th><th>Harvested</th><th>Limit</th><th>Of limit</th><th>Per hunter</th></tr></thead><tbody>'+
+        groups.map(function(g){return '<tr><td class="l">'+esc(g.group)+'</td><td>'+g.hunters+'</td><td>'+g.harvested+'</td><td>'+g.limit+'</td><td>'+(g.filled===null?'—':plMeter(g.filled))+'</td><td>'+(g.hunters?plFmt(g.harvested/g.hunters,1):'—')+'</td></tr>';}).join('')+
+        '</tbody></table></div></div>'+
+      '<div class="pl-grid">'+
+        '<div class="pl-panel"><h3>Cleaning</h3><div class="pl-sub">From the Bird Cleaning tab.</div>'+
+          '<div class="pl-tiles" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
+            '<div class="pl-tile sm"><span>Birds cleaned</span><b>'+cleaned+'</b></div>'+
+            '<div class="pl-tile sm"><span>Total pay</span><b>$'+Math.round(pay).toLocaleString('en-US')+'</b></div>'+
+            '<div class="pl-tile sm"><span>Per bird</span><b>$'+(cleaned?(pay/cleaned).toFixed(2):'0')+'</b></div>'+
+          '</div></div>'+
+        '<div class="pl-panel"><h3>Cleaning crew</h3><div class="pl-sub">Days each person worked a cleaning session.</div>'+
+          (wk.length?'<div class="pl-tw"><table class="pl-table"><tbody>'+wk.map(function(n){return '<tr><td class="l">'+esc(n)+'</td><td><span class="pl-meter"><i><em style="width:'+Math.round(ws[n]/wmax*100)+'%;background:var(--pl-accent)"></em></i>'+ws[n]+'</span></td></tr>';}).join('')+'</tbody></table></div>':'<div class="pl-empty">No cleaning logged yet.</div>')+
         '</div>'+
-        '<div class="report-limit-bar-wrap"><div class="report-limit-bar" style="width:'+Math.min(100,pct)+'%"></div></div>'+
-        '<div class="report-limit-label">'+pct+'% of limit ('+birds+' / '+limit+' birds &mdash; '+perHunter+' per hunter)</div>'+
-        '</div>';
-    });
-
-    body.innerHTML=
-      '<div class="report-section-title">Season Bird Totals</div>'+
-      stat('Purchased',ops.purchased||0)+
-      stat('Released',ops.released||0)+
-      stat('Harvested',ops.harvested||0)+
-      stat('Est. On Hand',Math.max(0,onHand))+
-      '<div class="report-section-title" style="margin-top:12px">Cleaning</div>'+
-      stat('Birds Cleaned',ops.cleaningBirds||0)+
-      stat('Total Pay','$'+((ops.cleaningPay||0).toFixed(2)))+
-      '<div class="report-section-title" style="margin-top:12px">Worker Sessions</div>'+
-      (function(){
-        var ws=ops.workerSessions||{};
-        var keys=Object.keys(ws);
-        if(!keys.length) return '<div class="report-hint">No worker data yet.</div>';
-        return keys.map(function(n){return stat(n,ws[n]+' sessions');}).join('');
-      })()+
-      '<div class="report-section-title" style="margin-top:12px">By Group</div>'+
-      (groupRows||'<div class="report-hint">No group data yet.</div>');
-  }).catch(function(err){
-    s.className='submit-status show error';
-    s.textContent='Could not load data. Check your connection.';
+      '</div>'+
+      (pl?'':'<div class="pl-note">Update the script to see days hunted and limits from receipts.</div>')+
+    '</div>';
   });
 }
 function stat(label,value){
@@ -1106,6 +1092,7 @@ function showTask(val){
   if(val==='harvest') refreshDayNote('h');
   if(val==='cleaning') refreshDayNote('c');
   if(val==='summary') loadSummary();
+  if(val==='reports') loadReports();
   if(val==='print') rrInit();
   if(val==='planning') loadPlanning();
   if(val){
@@ -1792,27 +1779,38 @@ function loadSummary(){
     }
     if(prOk)pr.summary.forEach(function(x){add(x.group).p=x;});
     var names=Object.keys(by).sort();
-    var html=(notes.length?'<div class="ds-note">'+notes.map(esc).join('<br>')+'</div>':'')+
-      (opsOk&&ops.purchased?'<div class="ds-top">Birds purchased '+esc(usDate(date))+': <b>'+ops.purchased+'</b></div>':'');
-    if(!names.length){body.innerHTML=html+'<div class="report-hint">Nothing logged for '+esc(usDate(date))+'.</div>';return;}
+    var tot={rel:0,hv:0,cl:0,given:0};
+    names.forEach(function(g){var x=by[g];tot.rel+=x.rel;tot.hv+=x.hv;tot.cl+=(x.p?x.p.cleaned:(x.clOps||0));tot.given+=(x.p?x.p.given:0);});
+    var html='<div class="pl-wrap">'+(notes.length?'<div class="pl-flag warn">'+notes.map(esc).join('<br>')+'</div>':'');
+    if(!names.length){body.innerHTML=html+'<div class="pl-empty">Nothing logged for '+esc(plDay(date))+'.</div></div>';return;}
+    html+='<div class="pl-tiles">'+
+      '<div class="pl-tile"><span>Released</span><b>'+(opsOk?tot.rel:'—')+'</b><em>'+esc(plDay(date))+'</em></div>'+
+      '<div class="pl-tile"><span>Harvested</span><b>'+(opsOk?tot.hv:'—')+'</b><em>All groups</em></div>'+
+      '<div class="pl-tile"><span>Cleaned</span><b>'+tot.cl+'</b><em>All groups</em></div>'+
+      '<div class="pl-tile"><span>Bought</span><b>'+(opsOk?(ops.purchased||0):'—')+'</b><em>Bird Purchases</em></div>'+
+    '</div>';
     html+=names.map(function(g){
       var x=by[g],p=x.p,cleaned=p?p.cleaned:(x.clOps||0),flags=[],off=opsOk&&x.hv!==cleaned+x.ds;
-      if(off)flags.push('Harvested '+x.hv+' but cleaned '+cleaned+(x.ds?' + '+x.ds+' discarded':'')+' \u2014 one of them needs fixing.');
+      if(off)flags.push('Harvested '+x.hv+' but cleaned '+cleaned+(x.ds?' + '+x.ds+' discarded':'')+'. One of them needs fixing.');
       if(p&&x.clOps!==null&&x.clOps!==p.cleaned)flags.push('Cleaning crew line says '+x.clOps+', pheasant pool says '+p.cleaned+'.');
       if(p&&x.clOps===null&&p.cleaned&&opsOk)flags.push('No cleaning crew line for this day.');
-      var tile=function(v,l,bad,sm){return '<div'+(bad?' class="bad"':'')+'><b>'+v+'</b><span>'+l+'</span>'+(sm?'<small>'+sm+'</small>':'')+'</div>';};
-      return '<div class="ds-group"><div class="ds-name">'+esc(g)+'</div><div class="ds-grid">'+
-        tile(opsOk?x.rel:'—','Released')+
-        tile(opsOk?x.hv:'—','Harvested',off)+
-        tile(cleaned,'Cleaned',off,x.ds?x.ds+' discarded':'')+
-        tile(p?p.given:'—','Given out',false,p&&p.early?p.early+' early':'')+
-        tile(p?p.released:'—','On receipts',false,p&&p.receipts?p.receipts+' receipt'+(p.receipts===1?'':'s'):'')+
-        tile(p?p.left:'—','Left to give')+
-        '</div>'+(flags.length?'<div class="ds-flag">⚠ '+flags.map(esc).join('<br>⚠ ')+'</div>':(opsOk&&p?'<div class="ds-ok">✓ Harvest and cleaning match.</div>':''))+
-        (p&&p.pending&&p.pending.length?'<div class="ds-flag">\u26a0 Waiting for numbers: '+p.pending.map(function(x){return '#'+esc(x.receiptNo)+' '+esc(x.owner);}).join(', ')+' \u2014 enter them in Bird Receipts.</div>':'')+
-        (p&&p.held?'<div class="re-sub" style="margin-top:6px">'+p.held+' pheasant'+(p.held===1?'':'s')+' given out and still waiting for a final receipt.</div>':'')+
+      var pend=p&&p.pending&&p.pending.length?p.pending:[];
+      var pill=flags.length?'<span class="pl-pill bad">Needs a fix</span>':(opsOk&&p?'<span class="pl-pill ok">Harvest and cleaning match</span>':'<span class="pl-pill mut">Partial data</span>');
+      var tile=function(v,l,bad,sm){return '<div class="pl-tile sm'+(bad?' bad':'')+'"><span>'+l+'</span><b>'+v+'</b>'+(sm?'<em>'+sm+'</em>':'')+'</div>';};
+      return '<div class="pl-panel"><div class="pl-gh"><h3>'+esc(g)+'</h3>'+pill+'</div>'+
+        '<div class="pl-tiles six">'+
+          tile(opsOk?x.rel:'—','Released')+
+          tile(opsOk?x.hv:'—','Harvested',off)+
+          tile(cleaned,'Cleaned',off,x.ds?x.ds+' discarded':'')+
+          tile(p?p.given:'—','Given out',false,p&&p.early?p.early+' early':'')+
+          tile(p?p.released:'—','On receipts',false,p&&p.receipts?p.receipts+' receipt'+(p.receipts===1?'':'s'):'')+
+          tile(p?p.left:'—','Left to give')+
+        '</div>'+
+        (flags.length?'<div class="pl-flag">'+flags.map(esc).join('<br>')+'</div>':'')+
+        (pend.length?'<div class="pl-flag warn">Waiting for numbers: '+pend.map(function(z){return '#'+esc(z.receiptNo)+' '+esc(z.owner);}).join(', ')+'. Enter them in Bird Receipts.</div>':'')+
+        (p&&p.held?'<div class="pl-sub">'+p.held+' pheasant'+(p.held===1?'':'s')+' given out and still waiting for a final receipt.</div>':'')+
       '</div>';
-    }).join('');
+    }).join('')+'</div>';
     body.innerHTML=html;
   });
 }
