@@ -1642,7 +1642,16 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function procConfigured(){return PROCESSING_URL.indexOf('script.google.com')!==-1;}
 function getPin(){try{return localStorage.getItem('dr_proc_pin')||'';}catch(e){return '';}}
 function setPin(v){try{if(v)localStorage.setItem('dr_proc_pin',v);else localStorage.removeItem('dr_proc_pin');}catch(e){}}
-function procMsg(text,isErr){var m=document.getElementById('proc-msg');m.textContent=text||'';m.className='proc-msg'+(isErr?' err':'');}
+function procMsg(text,isErr){var m=document.getElementById('proc-msg');m.textContent=text||'';m.className='proc-msg'+(isErr?' err':'');if(text)toast(text,isErr);}
+// short pop-up at the bottom so you see "saved" without scrolling back to the top
+function toast(text,isErr){
+  var t=document.getElementById('dr-toast');
+  if(!t){t=document.createElement('div');t.id='dr-toast';t.setAttribute('role','status');
+    t.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);max-width:calc(100% - 32px);box-sizing:border-box;padding:10px 14px;border-radius:10px;font-size:15px;line-height:1.35;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .3s';
+    document.body.appendChild(t);}
+  t.textContent=text;t.style.background=isErr?'#8b1d1d':'#1f4d2b';t.style.color='#fff';t.style.opacity='1';t.style.display='block';
+  clearTimeout(t._h);t._h=setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.style.display='none';},300);},isErr?7000:4000);
+}
 function usDate(iso){var m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[2]+'/'+m[3]+'/'+m[1]:String(iso||'');}
 function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
 function procGet(params){
@@ -2411,7 +2420,7 @@ async function invSave(i){
   try{res=await procPost({action:'editInvoice',submissionId:newId(),invoiceNo:v.invoiceNo,lines:lines,deposit:parseFloat(val('ie-dep-'+i))||0});}catch(e){res=null;}
   if(!res||!res.ok){msg.className='re-msg err';msg.textContent='✗ Not saved: '+(res?handleProcError(res):'could not reach the records sheet.');return;}
   invReplace(res.invoice,res.invoices);
-  showReceipts(receiptData,receiptMode,invoiceData);
+  showReceipts(receiptData,receiptMode,invoiceData,true);
   procMsg('✓ Invoice #'+res.invoice.invoiceNo+' fixed: '+money(res.invoice.balance)+' due. Drive copy replaced. Tap Print to reprint it.');
 }
 async function invVoid(i){
@@ -2421,7 +2430,7 @@ async function invVoid(i){
   try{res=await procPost({action:'voidInvoice',submissionId:newId(),invoiceNo:v.invoiceNo,reason:'Voided'});}catch(e){res=null;}
   if(!res||!res.ok){msg.className='re-msg err';msg.textContent='✗ Not changed: '+(res?handleProcError(res):'could not reach the records sheet.');return;}
   invReplace(res.invoice,res.invoices);
-  showReceipts(receiptData,receiptMode,invoiceData);
+  showReceipts(receiptData,receiptMode,invoiceData,true);
   procMsg('Invoice #'+v.invoiceNo+' is void (kept on record). You can make a new one at checkout.');
 }
 function invReplace(inv,all){
@@ -2446,7 +2455,7 @@ async function rcSave(i){
   var nr=res.receipts[0];
   receiptData=receiptData.map(function(x){return String(x.receiptNo)===String(nr.receiptNo)?nr:x;});
   if(document.getElementById('c-group').value===res.group){procTrip=res.trip||procTrip;setOpen(res.group,res.open);setPool(res.pool);}
-  showReceipts(receiptData,receiptMode,invoiceData);
+  showReceipts(receiptData,receiptMode,invoiceData,true);
   procMsg('✓ Receipt #'+nr.receiptNo+' now has '+nr.total+' bird'+(nr.total===1?'':'s')+'. Drive copy replaced. Tap Print to reprint it.');
 }
 
@@ -2470,7 +2479,8 @@ async function reopenReceipt(btn){
   procMsg('Receipt #'+r.receiptNo+' is waiting for numbers (Drive copy updated). His '+r.total+' birds stay with him and go on the receipt when you Save Numbers.');
 }
 function printOne(btn){var r=shownReceipts()[+btn.dataset.i];if(r)printReceipts([r]);}
-function showReceipts(list,mode,invs){
+function showReceipts(list,mode,invs,stay){
+  var keepY=stay?window.scrollY:null;   // fixing one receipt: stay where you were in the list
   receiptMode=mode;receiptData=list||[];invoiceData=invs||[];
   document.getElementById('c-receipts-title').textContent=mode==='reprint'?'Past Receipts & Invoices':'\u2713 Created \u2014 '+(invoiceData.length?(invoiceData.length===1?'Invoice':invoiceData.length+' invoices')+' + ':'')+receiptData.length+' receipt'+(receiptData.length===1?'':'s');
   var s=document.getElementById('reprint-search');s.style.display=mode==='reprint'?'block':'none';if(mode!=='reprint')s.value='';
@@ -2479,6 +2489,7 @@ function showReceipts(list,mode,invs){
   document.getElementById('btn-print-all').style.display=(mode==='reprint'||receiptData.length+invoiceData.length>1)?'block':'none';
   renderReceiptList();
   var box=document.getElementById('c-receipts');box.classList.add('show');
+  if(keepY!==null){window.scrollTo(0,keepY);return;}
   setTimeout(function(){box.scrollIntoView({behavior:'smooth',block:'start'});},50);
 }
 function closeReceipts(){document.getElementById('c-receipts').classList.remove('show');}
