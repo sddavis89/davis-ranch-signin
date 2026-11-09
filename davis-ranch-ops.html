@@ -1654,10 +1654,11 @@ function loadPlanning(){
 function planCalc(){
   var b=document.getElementById('pl-out');if(!b||!planData)return;
   var S=planData.season,h=Math.max(0,parseInt(val('pl-hunters'),10)||0),d=parseInt(val('pl-days'),10)||3,lim=h*S.dailyLimit*d;
-  var ok=S.perLimitFull&&h;
-  b.innerHTML='<div class="pl-num">'+(ok?Math.ceil(lim*S.perLimitFull):'—')+'</div>'+
-    '<div>birds to buy and release for a limit of <b>'+lim+'</b></div>'+
-    (ok?'<div>This season&rsquo;s range for a full limit: <b>'+Math.ceil(lim*S.perLimitLow)+'</b> to <b>'+Math.ceil(lim*S.perLimitHigh)+'</b></div>':'<div>Enter the number of hunters.</div>');
+  var ok=S.perLimitFull&&h,BOX=5,box=function(n){return Math.ceil(Math.round(n*100)/100/BOX)*BOX;};   // birds come in boxes of 5
+  var buy=ok?box(lim*S.perLimitFull):0;
+  b.innerHTML='<div class="pl-num">'+(ok?buy:'—')+'</div>'+
+    '<div>birds to buy and release'+(ok?' (<b>'+(buy/BOX)+'</b> boxes of '+BOX+')':'')+' for a limit of <b>'+lim+'</b></div>'+
+    (ok?'<div>This season&rsquo;s range for a full limit: <b>'+box(lim*S.perLimitLow)+'</b> to <b>'+box(lim*S.perLimitHigh)+'</b>, rounded up to full boxes</div>':'<div>Enter the number of hunters.</div>');
 }
 function plSvgEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function plTicks(max,n){var step=Math.pow(10,Math.floor(Math.log10(max/n))),err=max/n/step;step*=err>=7.5?10:err>=3.5?5:err>=1.5?2:1;var t=[];for(var v=0;v<=max;v+=step)t.push(v);return t;}
@@ -1751,7 +1752,7 @@ function renderPlanning(){
     '<p><b>Limit</b> = hunters × '+S.dailyLimit+' × days hunted. Hunters are counted from receipts, days from Bird Harvest.</p>'+
     '<p><b>Of limit</b> = harvested ÷ limit. Over 100% means more were shot than went home on receipts (mounts, discards, extras kept by the ranch).</p>'+
     '<p><b>Left from earlier</b> = birds the group released before that day minus birds shot before that day. Some of those will have flown off.</p>'+
-    '<p><b>Plan</b> = hunters × '+S.dailyLimit+' × days × what the groups that filled their limit needed per limit bird, rounded up.</p>'+
+    '<p><b>Plan</b> = hunters × '+S.dailyLimit+' × days × what the groups that filled their limit needed per limit bird, rounded up to the next full box of 5.</p>'+
     '<p>Wild and released birds aren&rsquo;t told apart in the harvest log, and purchases aren&rsquo;t tied to a group.</p></details>'+
   '</div>';
   planCalc();plDrawCharts();
