@@ -92,9 +92,19 @@
 .pl-pill{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;}
 .pl-pill.ok{color:var(--pl-ok);background:rgba(83,197,86,.12);}
 .pl-pill.bad{color:var(--pl-bad);background:rgba(241,119,120,.12);}
+.pl-pill.warn{color:var(--pl-warn);background:rgba(228,156,6,.12);}
 .pl-pill.mut{color:var(--pl-muted);background:rgba(255,255,255,.06);}
 .pl-flag{font-size:.84rem;color:var(--pl-bad);line-height:1.45;}
 .pl-flag.warn{color:var(--pl-warn);}
+.pl-bags{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;}
+.pl-bags-n b{display:block;font-family:var(--pl-serif);font-weight:400;font-size:3.2rem;line-height:1;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
+.pl-bags-n b.low{color:var(--pl-bad);}
+.pl-bags-n b.warn{color:var(--pl-warn);}
+.pl-bags-n span{font-size:.8rem;color:var(--pl-muted);}
+.pl-bags-m{flex:1 1 12rem;min-width:0;display:flex;flex-direction:column;gap:6px;}
+.pl-bar-case{height:10px;border-radius:5px;background:rgba(255,255,255,.10);overflow:hidden;}
+.pl-bar-case em{display:block;height:100%;border-radius:5px;background:var(--pl-accent);}
+.pl-sub b{color:var(--pl-ink);}
 .pl-empty{font-size:.9rem;color:var(--pl-muted);padding:10px 0;}
 html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;color:var(--fg);}
 
@@ -1707,6 +1717,23 @@ function plDrawCharts(){
   dc.querySelectorAll('.pl-small').forEach(function(el,i){var g=P.groups[i],list=P.days.filter(function(d){return d.group===g.group;}),c=el.querySelector('.pl-chart');
     c.innerHTML=plDaysSvg(g,list,maxD,Math.max(180,c.clientWidth||220));plTipOn(c);});
 }
+function plBagsPanel(B,groups){
+  if(!B)return '<div class="pl-panel"><h3>Vacuum bags</h3><div class="pl-sub">Add the vacuum bags to the Inventory tab (item ID vb01) to see a running count.</div></div>';
+  var per=groups.length?B.used/groups.length:0,left=per?B.onHand/per:null,pct=Math.max(0,Math.min(1,B.onHand/B.perCase));
+  var pill=B.onHand<=0?'<span class="pl-pill bad">Out of bags</span>':B.low?'<span class="pl-pill bad">Order more</span>':(left!==null&&left<1.5?'<span class="pl-pill warn">Order before the next group</span>':'<span class="pl-pill ok">Stocked</span>');
+  return '<div class="pl-panel"><div class="pl-gh"><h3>Vacuum bags</h3>'+pill+'</div>'+
+    '<div class="pl-sub">'+esc(B.item)+'. One bag per cleaned bird, so this counts down as you log cleaning. It&rsquo;s close, not exact, since a bag gets thrown away now and then.</div>'+
+    '<div class="pl-bags"><div class="pl-bags-n"><b class="'+(B.low||B.onHand<=0?'low':(left!==null&&left<1.5?'warn':''))+'">'+B.onHand+'</b><span>bags on hand</span></div>'+
+      '<div class="pl-bags-m"><div class="pl-bar-case"><em style="width:'+(pct*100).toFixed(1)+'%"></em></div>'+
+      '<div class="pl-sub">'+(pct*100).toFixed(0)+'% of a '+B.perCase+'-bag case'+(left!==null?' &middot; about <b>'+plFmt(left,1)+'</b> group'+(Math.abs(left-1)<0.05?'':'s')+'&rsquo; worth at '+Math.round(per)+' birds a group':'')+'</div></div></div>'+
+    '<div class="pl-tiles" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
+      '<div class="pl-tile sm"><span>'+(B.since?'Counted '+esc(usDate(B.since).slice(0,5)):'Started with')+'</span><b>'+B.start+'</b></div>'+
+      '<div class="pl-tile sm"><span>Added</span><b>'+B.received+'</b>'+(B.wasted?'<em>'+B.wasted+' thrown away</em>':'')+'</div>'+
+      '<div class="pl-tile sm"><span>Used cleaning</span><b>'+B.used+'</b></div>'+
+    '</div>'+
+    '<div class="pl-sub">Got a new case? Log it in <b>Inventory</b> as <b>Restocked</b>. Counted the box? Use <b>Set Exact Count</b> and it starts over from your count.</div>'+
+  '</div>';
+}
 function plMeter(v){return '<span class="pl-meter'+(v<1?' low':'')+'"><i><em style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></em></i>'+plPct(v)+'</span>';}
 function renderPlanning(){
   var P=planData,S=P.season,body=document.getElementById('pl-body');
@@ -1724,6 +1751,7 @@ function renderPlanning(){
     '<div class="pl-tile"><span>Harvested</span><b>'+S.harvested+'</b><em>Wild and released</em></div>'+
     '<div class="pl-tile"><span>Season limit</span><b>'+S.limit+'</b><em>'+S.dailyLimit+' per hunter per day</em></div>'+
   '</div>'+
+  plBagsPanel(P.bags,P.groups)+
   '<div class="pl-panel"><h3>Plan the next group</h3><div class="pl-sub">Uses what the groups that filled their limit needed this season.</div>'+
     '<div class="pl-plan"><div class="field"><label>Hunters</label><input type="number" id="pl-hunters" min="1" max="40" value="10" inputmode="numeric" oninput="planCalc()"></div>'+
     '<div class="field"><label>Hunt days</label><select id="pl-days" onchange="planCalc()"><option value="3">3 days</option><option value="2">2 days</option></select></div>'+
