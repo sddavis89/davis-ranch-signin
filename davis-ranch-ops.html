@@ -16,6 +16,63 @@
   --font-body:'Source Sans 3',system-ui,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+.pl-card{--pl-ink:#1F2328;--pl-muted:#6B7280;--pl-line:#E6E4DF;--pl-panel:#FFFFFF;--pl-wash:#F7F6F3;--pl-accent:#2F6FDB;--pl-rel:#C9CED6;--pl-ok:#1E7F4F;--pl-warn:#B45309;}
+.pl-wrap{display:flex;flex-direction:column;gap:14px;margin-top:12px;color:var(--pl-ink);}
+.pl-head{border-bottom:1px solid var(--pl-line);padding-bottom:14px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;}
+.pl-head-l{flex:1 1 18rem;min-width:0;}
+.pl-eyebrow{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--pl-muted);}
+.pl-take{font-size:1.02rem;line-height:1.5;margin-top:4px;}
+.pl-take b{font-family:var(--font-display);font-weight:400;font-size:1.45em;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
+.pl-note{font-size:.86rem;color:var(--pl-muted);margin-top:4px;}
+.pl-note b{color:var(--pl-warn);font-weight:600;}
+.pl-note.best b{color:var(--pl-ok);}
+.pl-head-r{text-align:right;}
+.pl-big{font-family:var(--font-display);font-weight:400;font-size:3.6rem;line-height:1;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
+.pl-big-l{font-size:.8rem;color:var(--pl-muted);}
+.pl-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+@media(min-width:620px){.pl-tiles{grid-template-columns:repeat(4,minmax(0,1fr));}}
+.pl-tile{background:var(--pl-panel);border:1px solid var(--pl-line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;}
+.pl-tile span{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pl-muted);}
+.pl-tile b{font-family:var(--font-display);font-weight:400;font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums;}
+.pl-tile em{font-style:normal;font-size:.72rem;color:var(--pl-muted);}
+.pl-panel{background:var(--pl-panel);border:1px solid var(--pl-line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0;}
+.pl-panel h3{font-family:var(--font-body);font-size:1rem;font-weight:600;color:var(--pl-ink);text-transform:none;letter-spacing:0;}
+.pl-sub{font-size:.8rem;color:var(--pl-muted);}
+.pl-plan{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;}
+.pl-plan .field{margin:0;}
+.pl-plan label{color:var(--pl-muted)!important;}
+.pl-plan input,.pl-plan select{width:7rem;font-size:1.15rem;}
+.pl-answer{flex:1 1 12rem;min-width:0;}
+.pl-answer .pl-num{font-family:var(--font-display);font-weight:400;font-size:3rem;line-height:1;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
+.pl-answer div{font-size:.88rem;color:var(--pl-muted);}
+.pl-answer div b{color:var(--pl-ink);}
+.pl-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--pl-muted);}
+.pl-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:5px;}
+.pl-legend i.r{background:var(--pl-rel);}.pl-legend i.h{background:var(--pl-accent);}.pl-legend i.l{background:var(--pl-ink);width:14px;height:2px;vertical-align:3px;}
+.pl-chart{position:relative;}
+.pl-chart svg{display:block;width:100%;overflow:visible;}
+.pl-chart text{font-family:var(--font-body);}
+.pl-smalls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:14px;}
+.pl-smalls h4{font-size:.85rem;font-weight:600;margin-bottom:2px;}
+.pl-tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--pl-line);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:6px 9px;font-size:.75rem;line-height:1.45;white-space:nowrap;z-index:5;color:var(--pl-ink);}
+.pl-tip .t{color:var(--pl-muted);margin-bottom:2px;}
+.pl-tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;}
+.pl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,26rem),1fr));gap:14px;}
+.pl-tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.pl-table{width:100%;border-collapse:collapse;font-size:.86rem;font-variant-numeric:tabular-nums;}
+.pl-table th{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--pl-muted);font-weight:600;text-align:right;padding:6px 8px;border-bottom:1px solid var(--pl-line);white-space:nowrap;}
+.pl-table td{text-align:right;padding:8px;border-bottom:1px solid var(--pl-line);white-space:nowrap;}
+.pl-table th.l,.pl-table td.l{text-align:left;}
+.pl-table td.good{color:var(--pl-ok);font-weight:600;}
+.pl-table td.low{color:var(--pl-warn);font-weight:600;}
+.pl-table tr.best td{background:#EEF6F0;}
+.pl-meter{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;}
+.pl-meter i{display:inline-block;width:56px;height:6px;border-radius:3px;background:#ECEAE5;overflow:hidden;}
+.pl-meter i em{display:block;height:100%;border-radius:3px;background:var(--pl-ok);}
+.pl-meter.low{color:var(--pl-warn);}.pl-meter.low i em{background:var(--pl-warn);}
+.pl-notes{font-size:.82rem;color:var(--pl-muted);}
+.pl-notes summary{cursor:pointer;color:var(--pl-ink);font-weight:600;}
+.pl-notes p{margin-top:6px;}
 html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;color:var(--fg);}
 
 /* IMAGE — full width, natural height, never cropped */
@@ -457,6 +514,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
         <option value="print">&#128424; Print Reports</option>
         <option value="inventory">&#127968; Lodge Inventory</option>
         <option value="reports">&#128202; Season Reports</option>
+        <option value="planning">&#128200; Bird Planning</option>
       </select>
     </div>
 
@@ -687,6 +745,14 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
       <div class="rr-all"><button type="button" class="proc-link" onclick="rrAll(true)">Check all</button> &middot; <button type="button" class="proc-link" onclick="rrAll(false)">Clear</button></div>
       <button class="btn-submit" id="rr-btn" data-label="Print" onclick="printReport()">Print</button>
       <div class="submit-status" id="rr-status"></div>
+    </div>
+
+    <div class="form-card pl-card" id="card-planning">
+      <div class="card-title">Bird Planning</div>
+      <div class="card-desc">How many birds it took to fill a limit this season, so you can order the fewest birds for a good hunt. Wild birds count inside the harvest, and shooting matters too, so read it as a guide.</div>
+      <button class="btn-refresh" onclick="loadPlanning()">&#8635; Refresh</button>
+      <div id="pl-status" class="submit-status"></div>
+      <div id="pl-body"><div class="report-hint">Loading&hellip;</div></div>
     </div>
 
     <div class="form-card" id="card-summary">
@@ -1020,7 +1086,7 @@ function stat(label,value){
   return '<div class="report-stat"><span class="report-stat-label">'+label+'</span><span class="report-stat-value">'+value+'</span></div>';
 }
 function showTask(val){
-  ['purchase','release','harvest','cleaning','receipts','summary','print','inventory','reports'].forEach(function(t){
+  ['purchase','release','harvest','cleaning','receipts','summary','print','inventory','reports','planning'].forEach(function(t){
     var el=document.getElementById('card-'+t);
     if(t===val){
       el.style.display='block';
@@ -1035,6 +1101,7 @@ function showTask(val){
   if(val==='cleaning') refreshDayNote('c');
   if(val==='summary') loadSummary();
   if(val==='print') rrInit();
+  if(val==='planning') loadPlanning();
   if(val){
     setTimeout(function(){
       var card=document.getElementById('card-'+val);
@@ -1578,6 +1645,124 @@ function reportHtml(r,secs){
 }
 
 /* ═══ DAILY SUMMARY ═══ */
+/* ═══ BIRD PLANNING ═══ */
+var planData=null;
+function plFmt(n,d){return n===null||n===undefined||isNaN(n)?'—':Number(n).toFixed(d||0);}
+function plPct(n){return n===null||n===undefined?'—':Math.round(n*100)+'%';}
+function plDay(iso){var d=new Date(iso+'T12:00:00');return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+usDate(iso).slice(0,5);}
+function loadPlanning(){
+  var s=document.getElementById('pl-status');
+  s.className='submit-status show';s.textContent='Loading…';
+  opsGet({action:'planning'}).then(function(res){
+    if(!res||!res.ok){s.className='submit-status show error';s.textContent=res&&res.error?res.error:'Update the script (paste the newest one and deploy a new version) to see Bird Planning.';return;}
+    s.className='submit-status';planData=res;renderPlanning();
+  }).catch(function(){s.className='submit-status show error';s.textContent='Could not load. Check your signal and tap Refresh.';});
+}
+function planCalc(){
+  var b=document.getElementById('pl-out');if(!b||!planData)return;
+  var S=planData.season,h=Math.max(0,parseInt(val('pl-hunters'),10)||0),d=parseInt(val('pl-days'),10)||3,lim=h*S.dailyLimit*d;
+  var ok=S.perLimitFull&&h;
+  b.innerHTML='<div class="pl-num">'+(ok?Math.ceil(lim*S.perLimitFull):'—')+'</div>'+
+    '<div>birds to buy and release for a limit of <b>'+lim+'</b></div>'+
+    (ok?'<div>This season&rsquo;s range for a full limit: <b>'+Math.ceil(lim*S.perLimitLow)+'</b> to <b>'+Math.ceil(lim*S.perLimitHigh)+'</b></div>':'<div>Enter the number of hunters.</div>');
+}
+function plSvgEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function plTicks(max,n){var step=Math.pow(10,Math.floor(Math.log10(max/n))),err=max/n/step;step*=err>=7.5?10:err>=3.5?5:err>=1.5?2:1;var t=[];for(var v=0;v<=max;v+=step)t.push(v);return t;}
+function plGroupsSvg(groups,W){
+  var rowH=48,top=4,H=top+groups.length*rowH+22,labelW=Math.min(110,Math.max(70,Math.round(W*0.2)));
+  var max=Math.max.apply(null,groups.map(function(g){return Math.max(g.released,g.harvested,g.limit);}))*1.15,x=function(v){return labelW+(W-labelW-44)*v/max;};
+  var o='<svg viewBox="0 0 '+W+' '+H+'" height="'+H+'" role="img" aria-label="Released, harvested and limit by group">';
+  plTicks(max,4).forEach(function(t){o+='<line x1="'+x(t)+'" x2="'+x(t)+'" y1="'+top+'" y2="'+(H-20)+'" stroke="#EEECE8"/><text x="'+x(t)+'" y="'+(H-5)+'" text-anchor="middle" font-size="11" fill="#6B7280">'+t+'</text>';});
+  groups.forEach(function(g,i){var y=top+i*rowH,c=g.filled<1?'#B45309':'#1E7F4F';
+    o+='<text x="0" y="'+(y+24)+'" font-size="13" font-weight="600" fill="#1F2328">'+plSvgEsc(g.group)+'</text>'+
+      '<rect x="'+x(0)+'" y="'+(y+7)+'" height="14" rx="3" width="'+(x(g.released)-x(0))+'" fill="#C9CED6"/>'+
+      '<rect x="'+x(0)+'" y="'+(y+23)+'" height="14" rx="3" width="'+(x(g.harvested)-x(0))+'" fill="#2F6FDB"/>'+
+      '<line x1="'+x(g.limit)+'" x2="'+x(g.limit)+'" y1="'+(y+3)+'" y2="'+(y+41)+'" stroke="#1F2328" stroke-width="2"/>'+
+      '<text x="'+(x(Math.max(g.released,g.harvested,g.limit))+6)+'" y="'+(y+27)+'" font-size="12" font-weight="700" fill="'+c+'">'+plPct(g.filled)+'</text>'+
+      '<rect class="pl-hit" data-tip="'+plSvgEsc(JSON.stringify({t:g.group+' · '+g.hunters+' hunters, '+g.days+' days',l:[['#C9CED6','Released',g.released],['#2F6FDB','Harvested',g.harvested],['#1F2328','Limit',g.limit],['','Of limit',plPct(g.filled)]]}))+'" x="0" y="'+y+'" width="'+W+'" height="'+rowH+'" fill="transparent"/>';});
+  return o+'</svg>';
+}
+function plDaysSvg(g,list,max,W){
+  var H=150,L=26,B=20,top=6,x0=L,x1=W-4,bw=(x1-x0)/list.length,y=function(v){return H-B-(H-B-top)*v/max;};
+  var o='<svg viewBox="0 0 '+W+' '+H+'" height="'+H+'" role="img" aria-label="'+plSvgEsc(g.group)+' by day">';
+  plTicks(max,3).forEach(function(t){o+='<line x1="'+L+'" x2="'+x1+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="#EEECE8"/><text x="'+(L-5)+'" y="'+(y(t)+4)+'" text-anchor="end" font-size="10" fill="#6B7280">'+t+'</text>';});
+  list.forEach(function(d,i){var cx=x0+i*bw,w=bw*0.32,gap=bw*0.18;
+    o+='<rect x="'+(cx+gap)+'" y="'+y(d.released)+'" width="'+w+'" height="'+(y(0)-y(d.released))+'" rx="2" fill="#C9CED6"/>'+
+      '<rect x="'+(cx+gap+w+2)+'" y="'+y(d.harvested)+'" width="'+w+'" height="'+(y(0)-y(d.harvested))+'" rx="2" fill="#2F6FDB"/>'+
+      '<text x="'+(cx+bw/2)+'" y="'+(H-5)+'" text-anchor="middle" font-size="10" fill="#6B7280">'+plSvgEsc(usDate(d.date).slice(0,5))+'</text>'+
+      '<rect class="pl-hit" data-tip="'+plSvgEsc(JSON.stringify({t:g.group+' · day '+d.day+', '+plDay(d.date),l:[['#C9CED6','Released',d.released],['#2F6FDB','Harvested',d.harvested],['','Field',d.field],['','Left from earlier days',d.inField],['','Day limit',d.dayLimit]]}))+'" x="'+cx+'" y="0" width="'+bw+'" height="'+H+'" fill="transparent"/>';});
+  o+='<line x1="'+L+'" x2="'+x1+'" y1="'+y(list[0].dayLimit)+'" y2="'+y(list[0].dayLimit)+'" stroke="#1F2328" stroke-width="1.5" stroke-dasharray="5 4"/>';
+  return o+'</svg>';
+}
+function plTipOn(box){
+  var tip=document.createElement('div');tip.className='pl-tip';tip.hidden=true;box.appendChild(tip);
+  var show=function(e){var t=e.target.closest&&e.target.closest('.pl-hit');if(!t){tip.hidden=true;return;}
+    var d;try{d=JSON.parse(t.getAttribute('data-tip'));}catch(x){return;}
+    tip.innerHTML='<div class="t">'+esc(d.t)+'</div>'+d.l.map(function(r){return '<div>'+(r[0]?'<i style="background:'+r[0]+'"></i>':'')+esc(r[1])+': <b>'+esc(r[2])+'</b></div>';}).join('');
+    tip.hidden=false;var b=box.getBoundingClientRect(),p=e.touches?e.touches[0]:e,x=p.clientX-b.left,y=p.clientY-b.top;
+    tip.style.left=Math.max(0,Math.min(b.width-tip.offsetWidth,x+12))+'px';tip.style.top=Math.max(0,y-tip.offsetHeight-10)+'px';};
+  box.addEventListener('mousemove',show);box.addEventListener('click',show);box.addEventListener('mouseleave',function(){tip.hidden=true;});
+}
+var plResizeT=null;
+window.addEventListener('resize',function(){clearTimeout(plResizeT);plResizeT=setTimeout(function(){var c=document.getElementById('card-planning');if(planData&&c&&c.style.display==='block')plDrawCharts();},200);});
+function plDrawCharts(){
+  var P=planData,gc=document.getElementById('pl-gchart'),dc=document.getElementById('pl-dcharts');if(!gc||!dc)return;
+  gc.innerHTML=plGroupsSvg(P.groups,Math.max(280,gc.clientWidth||600));plTipOn(gc);
+  var maxD=Math.max.apply(null,P.days.map(function(d){return Math.max(d.released,d.harvested,d.dayLimit);}))*1.12;
+  dc.innerHTML=P.groups.map(function(g){return '<div class="pl-small" data-g="'+esc(g.group)+'"><h4>'+esc(g.group)+'</h4><div class="pl-chart"></div></div>';}).join('');
+  dc.querySelectorAll('.pl-small').forEach(function(el,i){var g=P.groups[i],list=P.days.filter(function(d){return d.group===g.group;}),c=el.querySelector('.pl-chart');
+    c.innerHTML=plDaysSvg(g,list,maxD,Math.max(180,c.clientWidth||220));plTipOn(c);});
+}
+function plMeter(v){return '<span class="pl-meter'+(v<1?' low':'')+'"><i><em style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></em></i>'+plPct(v)+'</span>';}
+function renderPlanning(){
+  var P=planData,S=P.season,body=document.getElementById('pl-body');
+  if(!P.groups.length){body.innerHTML='<div class="report-hint">Nothing harvested yet this season.</div>';return;}
+  var best=P.days.filter(function(d){return d.perReleased!==null;}).sort(function(a,b){return b.perReleased-a.perReleased;})[0];
+  body.innerHTML='<div class="pl-wrap">'+
+  '<div class="pl-head"><div class="pl-head-l"><div class="pl-eyebrow">Davis Ranch · season to date</div>'+
+    '<div class="pl-take">Groups that filled their limit needed about <b>'+plFmt(S.perHunterFull,1)+'</b> released birds per hunter, or <b>'+plFmt(S.perLimitFull,2)+'</b> for every bird of limit.</div>'+
+    (S.short.length?'<div class="pl-note">Came up short of the limit: <b>'+S.short.map(function(x){return esc(x.group)+' ('+plPct(x.filled)+')';}).join(', ')+'</b></div>':'')+
+    (best?'<div class="pl-note best">Best day: <b>'+esc(best.group)+' '+esc(plDay(best.date))+'</b>, '+esc(best.field)+': '+best.harvested+' shot from '+best.released+' released ('+plFmt(best.perReleased,2)+' per bird)</div>':'')+
+  '</div><div class="pl-head-r"><div class="pl-big">'+plPct(S.filled)+'</div><div class="pl-big-l">of the season&rsquo;s limit harvested</div></div></div>'+
+  '<div class="pl-tiles">'+
+    '<div class="pl-tile"><span>Birds bought</span><b>'+S.purchased+'</b><em>Bird Purchases</em></div>'+
+    '<div class="pl-tile"><span>Released</span><b>'+S.released+'</b><em>All fields</em></div>'+
+    '<div class="pl-tile"><span>Harvested</span><b>'+S.harvested+'</b><em>Wild and released</em></div>'+
+    '<div class="pl-tile"><span>Season limit</span><b>'+S.limit+'</b><em>'+S.dailyLimit+' per hunter per day</em></div>'+
+  '</div>'+
+  '<div class="pl-panel"><h3>Plan the next group</h3><div class="pl-sub">Uses what the groups that filled their limit needed this season.</div>'+
+    '<div class="pl-plan"><div class="field"><label>Hunters</label><input type="number" id="pl-hunters" min="1" max="40" value="10" inputmode="numeric" oninput="planCalc()"></div>'+
+    '<div class="field"><label>Hunt days</label><select id="pl-days" onchange="planCalc()"><option value="3">3 days</option><option value="2">2 days</option></select></div>'+
+    '<div class="pl-answer" id="pl-out"></div></div></div>'+
+  '<div class="pl-grid">'+
+    '<div class="pl-panel"><h3>Released, harvested and limit by group</h3><div class="pl-sub">Each group&rsquo;s whole hunt, in the order they came. Tap a bar for details.</div>'+
+      '<div class="pl-legend"><span><i class="r"></i>Released</span><span><i class="h"></i>Harvested</span><span><i class="l"></i>Limit</span></div><div class="pl-chart" id="pl-gchart"></div></div>'+
+    '<div class="pl-panel"><h3>Day by day</h3><div class="pl-sub">The dashed line is the day&rsquo;s limit. Days with no release run on birds left in the field and wild birds.</div>'+
+      '<div class="pl-legend"><span><i class="r"></i>Released</span><span><i class="h"></i>Harvested</span><span><i class="l"></i>Day limit</span></div><div class="pl-smalls" id="pl-dcharts"></div></div>'+
+  '</div>'+
+  '<div class="pl-panel"><h3>Group comparison</h3><div class="pl-sub">Released per limit bird: birds released for every bird the group was allowed. Lower is cheaper.</div>'+
+  '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Group</th><th>Hunters</th><th>Days</th><th>Released</th><th>Harvested</th><th>Limit</th><th>Of limit</th><th>Per limit bird</th><th>Per hunter</th></tr></thead><tbody>'+
+  P.groups.map(function(g){return '<tr><td class="l">'+esc(g.group)+'</td><td>'+g.hunters+'</td><td>'+g.days+'</td><td>'+g.released+'</td><td>'+g.harvested+'</td><td>'+g.limit+'</td><td>'+plMeter(g.filled)+'</td><td>'+plFmt(g.perLimit,2)+'</td><td>'+plFmt(g.perHunter,1)+'</td></tr>';}).join('')+
+  '</tbody></table></div></div>'+
+  '<div class="pl-panel"><h3>Every hunt day</h3><div class="pl-sub">Where the birds went out and what came back. Over 1.00 per bird released means wild birds and leftovers added to the bag.</div>'+
+  '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Day</th><th class="l">Group</th><th class="l">Field released</th><th>Released</th><th>Left from earlier</th><th>Harvested</th><th>Per bird released</th><th>Day limit filled</th></tr></thead><tbody>'+
+  P.days.slice().sort(function(a,b){return a.date<b.date?-1:1;}).map(function(d){
+    return '<tr'+(best&&d===best?' class="best"':'')+'><td class="l">'+esc(plDay(d.date))+'</td><td class="l">'+esc(d.group)+'</td><td class="l">'+esc(d.field)+'</td><td>'+d.released+'</td><td>'+d.inField+'</td><td>'+d.harvested+'</td>'+
+      '<td class="'+(d.perReleased!==null&&d.perReleased>=1?'good':'')+'">'+(d.perReleased===null?'No release':plFmt(d.perReleased,2))+'</td><td>'+plMeter(d.dayFilled)+'</td></tr>';
+  }).join('')+'</tbody></table></div></div>'+
+  '<div class="pl-panel"><h3>Fields</h3><div class="pl-sub">Harvest on the same days each field was released. Harvest isn&rsquo;t logged by field, so this is a rough guide.</div>'+
+  '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Field</th><th>Release days</th><th>Released</th><th>Harvested those days</th><th>Per bird released</th></tr></thead><tbody>'+
+  P.fields.map(function(f){return '<tr><td class="l">'+esc(f.field)+'</td><td>'+f.releases+'</td><td>'+f.released+'</td><td>'+f.sameDay+'</td><td class="'+(f.ratio>=1?'good':'')+'">'+plFmt(f.ratio,2)+'</td></tr>';}).join('')+
+  '</tbody></table></div></div>'+
+  '<details class="pl-notes"><summary>How these numbers are worked out</summary>'+
+    '<p><b>Limit</b> = hunters × '+S.dailyLimit+' × days hunted. Hunters are counted from receipts, days from Bird Harvest.</p>'+
+    '<p><b>Of limit</b> = harvested ÷ limit. Over 100% means more were shot than went home on receipts (mounts, discards, extras kept by the ranch).</p>'+
+    '<p><b>Left from earlier</b> = birds the group released before that day minus birds shot before that day. Some of those will have flown off.</p>'+
+    '<p><b>Plan</b> = hunters × '+S.dailyLimit+' × days × what the groups that filled their limit needed per limit bird, rounded up.</p>'+
+    '<p>Wild and released birds aren&rsquo;t told apart in the harvest log, and purchases aren&rsquo;t tied to a group.</p></details>'+
+  '</div>';
+  planCalc();plDrawCharts();
+}
 function loadSummary(){
   var date=document.getElementById('ds-date').value||localToday();
   var s=document.getElementById('ds-status'),body=document.getElementById('ds-body');
