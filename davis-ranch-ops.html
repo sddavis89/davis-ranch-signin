@@ -1734,6 +1734,23 @@ function plBagsPanel(B,groups){
     '<div class="pl-sub">Got a new case? Log it in <b>Inventory</b> as <b>Restocked</b>. Counted the box? Use <b>Set Exact Count</b> and it starts over from your count.</div>'+
   '</div>';
 }
+function plHoneyPanel(H,groups){
+  if(!H)return '<div class="pl-panel"><h3>Honey jars</h3><div class="pl-sub">Add the honey to the Inventory tab (item ID hn01) to see a running count.</div></div>';
+  var hunters=groups.reduce(function(a,g){return a+g.hunters;},0),per=groups.length?hunters/groups.length:0,left=per?H.onHand/per:null;
+  var st=H.onHand<=0?'bad':H.low?'bad':(left!==null&&left<1.5?'warn':'ok');
+  var pill={ok:'<span class="pl-pill ok">Stocked</span>',warn:'<span class="pl-pill warn">Order before the next group</span>',bad:'<span class="pl-pill bad">'+(H.onHand<=0?'Out of honey':'Order more')+'</span>'}[st];
+  var full=Math.max(H.start+H.received,1),pct=Math.max(0,Math.min(1,H.onHand/full));
+  return '<div class="pl-panel"><div class="pl-gh"><h3>Honey jars</h3>'+pill+'</div>'+
+    '<div class="pl-sub">'+esc(H.item)+'. One jar per hunter, so it counts down as hunters get their receipts.</div>'+
+    '<div class="pl-bags"><div class="pl-bags-n"><b class="'+(st==='bad'?'low':st==='warn'?'warn':'')+'">'+H.onHand+'</b><span>jars on hand</span></div>'+
+      '<div class="pl-bags-m"><div class="pl-bar-case"><em style="width:'+(pct*100).toFixed(1)+'%;background:'+(st==='bad'?'var(--pl-bad)':st==='warn'?'var(--pl-warn)':'var(--pl-accent)')+'"></em></div>'+
+      '<div class="pl-sub">'+(left!==null?'About <b>'+plFmt(left,1)+'</b> groups&rsquo; worth at '+plFmt(per,0)+' hunters a group':'')+'</div></div></div>'+
+    '<div class="pl-tiles" style="grid-template-columns:repeat(3,minmax(0,1fr))">'+
+      '<div class="pl-tile sm"><span>'+(H.since?'Counted '+esc(usDate(H.since).slice(0,5)):'Started with')+'</span><b>'+H.start+'</b></div>'+
+      '<div class="pl-tile sm"><span>Added</span><b>'+H.received+'</b>'+(H.wasted?'<em>'+H.wasted+' used other ways</em>':'')+'</div>'+
+      '<div class="pl-tile sm"><span>Given to hunters</span><b>'+H.used+'</b></div>'+
+    '</div></div>';
+}
 function plMeter(v){return '<span class="pl-meter'+(v<1?' low':'')+'"><i><em style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></em></i>'+plPct(v)+'</span>';}
 function renderPlanning(){
   var P=planData,S=P.season,body=document.getElementById('pl-body');
@@ -1751,7 +1768,7 @@ function renderPlanning(){
     '<div class="pl-tile"><span>Harvested</span><b>'+S.harvested+'</b><em>Wild and released</em></div>'+
     '<div class="pl-tile"><span>Season limit</span><b>'+S.limit+'</b><em>'+S.dailyLimit+' per hunter per day</em></div>'+
   '</div>'+
-  plBagsPanel(P.bags,P.groups)+
+  '<div class="pl-grid">'+plBagsPanel(P.bags,P.groups)+plHoneyPanel(P.honey,P.groups)+'</div>'+
   '<div class="pl-panel"><h3>Plan the next group</h3><div class="pl-sub">Uses what the groups that filled their limit needed this season.</div>'+
     '<div class="pl-plan"><div class="field"><label>Hunters</label><input type="number" id="pl-hunters" min="1" max="40" value="10" inputmode="numeric" oninput="planCalc()"></div>'+
     '<div class="field"><label>Hunt days</label><select id="pl-days" onchange="planCalc()"><option value="3">3 days</option><option value="2">2 days</option></select></div>'+
