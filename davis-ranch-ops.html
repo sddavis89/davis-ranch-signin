@@ -1038,7 +1038,7 @@ function showTask(val){
   if(val){
     setTimeout(function(){
       var card=document.getElementById('card-'+val);
-      if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+      if(card) jumpTo(card);
     },50);
   }
 }
@@ -1642,6 +1642,8 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function procConfigured(){return PROCESSING_URL.indexOf('script.google.com')!==-1;}
 function getPin(){try{return localStorage.getItem('dr_proc_pin')||'';}catch(e){return '';}}
 function setPin(v){try{if(v)localStorage.setItem('dr_proc_pin',v);else localStorage.removeItem('dr_proc_pin');}catch(e){}}
+// The app never moves the page by itself. Only you scroll.
+function jumpTo(el){}
 function procMsg(text,isErr){var m=document.getElementById('proc-msg');m.textContent=text||'';m.className='proc-msg'+(isErr?' err':'');if(text)toast(text,isErr);}
 // short pop-up at the bottom so you see "saved" without scrolling back to the top
 function toast(text,isErr){
@@ -1989,7 +1991,7 @@ function openFinal(){
   finalSubmissionId=newId();
   finRender();
   var f=document.getElementById('c-final');f.classList.add('show');
-  setTimeout(function(){f.scrollIntoView({behavior:'smooth',block:'start'});},50);
+  setTimeout(function(){jumpTo(f);},50);
 }
 function invToggle(){
   document.getElementById('inv-fields').style.display=document.getElementById('inv-make').checked?'block':'none';
@@ -2489,8 +2491,8 @@ function showReceipts(list,mode,invs,stay){
   document.getElementById('btn-print-all').style.display=(mode==='reprint'||receiptData.length+invoiceData.length>1)?'block':'none';
   renderReceiptList();
   var box=document.getElementById('c-receipts');box.classList.add('show');
-  if(keepY!==null){window.scrollTo(0,keepY);return;}
-  setTimeout(function(){box.scrollIntoView({behavior:'smooth',block:'start'});},50);
+  if(keepY!==null)window.scrollTo(0,keepY);   // a redrawn list keeps your place
+  setTimeout(function(){jumpTo(box);},50);
 }
 function closeReceipts(){document.getElementById('c-receipts').classList.remove('show');}
 function openReprint(){
@@ -2560,7 +2562,7 @@ function openEarly(){
   document.getElementById('e-status').className='submit-status';
   earlyPlan();
   var box=document.getElementById('c-early');box.classList.add('show');
-  setTimeout(function(){box.scrollIntoView({behavior:'smooth',block:'start'});},50);
+  setTimeout(function(){jumpTo(box);},50);
 }
 function earlyToggle(i){
   var on=document.getElementById('eh-cb-'+i).checked;
