@@ -16,34 +16,41 @@
   --font-body:'Source Sans 3',system-ui,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-.pl-card{--pl-ink:#1F2328;--pl-muted:#6B7280;--pl-line:#E6E4DF;--pl-panel:#FFFFFF;--pl-wash:#F7F6F3;--pl-accent:#2F6FDB;--pl-rel:#C9CED6;--pl-ok:#1E7F4F;--pl-warn:#B45309;}
+.pl-card{--pl-ink:#1F1E1D;--pl-muted:#5F5E5A;--pl-line:rgba(11,11,11,.10);--pl-panel:#FFFFFF;--pl-wash:#FAF9F5;--pl-accent:#2A78D6;--pl-rel:#C3C2B7;--pl-ok:#006C10;--pl-warn:#794C02;--pl-bad:#A42528;
+  --pl-sans:"Anthropic Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--pl-serif:"Anthropic Serif",ui-serif,Georgia,"Times New Roman",serif;
+  background:var(--pl-wash)!important;border:0!important;border-radius:14px;padding:20px 16px 24px!important;font-family:var(--pl-sans);color:var(--pl-ink);}
+.pl-card .submit-status{font-family:var(--pl-sans);}
+.pl-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.pl-h1{font-family:var(--pl-serif);font-weight:400;font-size:2.2rem;line-height:1.05;color:var(--pl-ink);margin-top:2px;}
+.pl-refresh{font-family:var(--pl-sans);font-size:.8rem;font-weight:500;color:var(--pl-ink);background:var(--pl-panel);border:1px solid var(--pl-line);border-radius:6px;padding:6px 10px;cursor:pointer;white-space:nowrap;}
 .pl-wrap{display:flex;flex-direction:column;gap:14px;margin-top:12px;color:var(--pl-ink);}
 .pl-head{border-bottom:1px solid var(--pl-line);padding-bottom:14px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;}
 .pl-head-l{flex:1 1 18rem;min-width:0;}
 .pl-eyebrow{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--pl-muted);}
 .pl-take{font-size:1.02rem;line-height:1.5;margin-top:4px;}
-.pl-take b{font-family:var(--font-display);font-weight:400;font-size:1.45em;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
+.pl-take b{font-family:var(--pl-serif);font-weight:400;font-size:1.45em;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
 .pl-note{font-size:.86rem;color:var(--pl-muted);margin-top:4px;}
 .pl-note b{color:var(--pl-warn);font-weight:600;}
 .pl-note.best b{color:var(--pl-ok);}
 .pl-head-r{text-align:right;}
-.pl-big{font-family:var(--font-display);font-weight:400;font-size:3.6rem;line-height:1;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
+.pl-big{font-family:var(--pl-serif);font-weight:400;font-size:3.6rem;line-height:1;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
 .pl-big-l{font-size:.8rem;color:var(--pl-muted);}
 .pl-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
 @media(min-width:620px){.pl-tiles{grid-template-columns:repeat(4,minmax(0,1fr));}}
 .pl-tile{background:var(--pl-panel);border:1px solid var(--pl-line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;}
 .pl-tile span{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pl-muted);}
-.pl-tile b{font-family:var(--font-display);font-weight:400;font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums;}
+.pl-tile b{font-family:var(--pl-serif);font-weight:400;font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums;}
 .pl-tile em{font-style:normal;font-size:.72rem;color:var(--pl-muted);}
 .pl-panel{background:var(--pl-panel);border:1px solid var(--pl-line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0;}
-.pl-panel h3{font-family:var(--font-body);font-size:1rem;font-weight:600;color:var(--pl-ink);text-transform:none;letter-spacing:0;}
+.pl-panel h3{font-family:var(--pl-sans);font-size:1rem;font-weight:600;color:var(--pl-ink);text-transform:none;letter-spacing:0;}
 .pl-sub{font-size:.8rem;color:var(--pl-muted);}
 .pl-plan{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;}
 .pl-plan .field{margin:0;}
 .pl-plan label{color:var(--pl-muted)!important;}
-.pl-plan input,.pl-plan select{width:7rem;font-size:1.15rem;}
+.pl-plan input,.pl-plan select{width:7rem;font-size:1.15rem;font-family:var(--pl-sans);background-color:#fff!important;border:1px solid rgba(11,11,11,.18)!important;border-radius:6px!important;color:var(--pl-ink)!important;box-shadow:none!important;}
+.pl-plan input:focus,.pl-plan select:focus{outline:2px solid var(--pl-accent);outline-offset:1px;}
 .pl-answer{flex:1 1 12rem;min-width:0;}
-.pl-answer .pl-num{font-family:var(--font-display);font-weight:400;font-size:3rem;line-height:1;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
+.pl-answer .pl-num{font-family:var(--pl-serif);font-weight:400;font-size:3rem;line-height:1;color:var(--pl-ok);font-variant-numeric:tabular-nums;}
 .pl-answer div{font-size:.88rem;color:var(--pl-muted);}
 .pl-answer div b{color:var(--pl-ink);}
 .pl-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--pl-muted);}
@@ -51,10 +58,10 @@
 .pl-legend i.r{background:var(--pl-rel);}.pl-legend i.h{background:var(--pl-accent);}.pl-legend i.l{background:var(--pl-ink);width:14px;height:2px;vertical-align:3px;}
 .pl-chart{position:relative;}
 .pl-chart svg{display:block;width:100%;overflow:visible;}
-.pl-chart text{font-family:var(--font-body);}
+.pl-chart text{font-family:var(--pl-sans);}
 .pl-smalls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:14px;}
 .pl-smalls h4{font-size:.85rem;font-weight:600;margin-bottom:2px;}
-.pl-tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--pl-line);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:6px 9px;font-size:.75rem;line-height:1.45;white-space:nowrap;z-index:5;color:var(--pl-ink);}
+.pl-tip{position:absolute;pointer-events:none;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.10);font-family:var(--pl-sans);padding:6px 9px;font-size:.75rem;line-height:1.45;white-space:nowrap;z-index:5;color:var(--pl-ink);}
 .pl-tip .t{color:var(--pl-muted);margin-bottom:2px;}
 .pl-tip i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;}
 .pl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,26rem),1fr));gap:14px;}
@@ -65,9 +72,9 @@
 .pl-table th.l,.pl-table td.l{text-align:left;}
 .pl-table td.good{color:var(--pl-ok);font-weight:600;}
 .pl-table td.low{color:var(--pl-warn);font-weight:600;}
-.pl-table tr.best td{background:#EEF6F0;}
+.pl-table tr.best td{background:rgba(0,108,16,.07);}
 .pl-meter{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;}
-.pl-meter i{display:inline-block;width:56px;height:6px;border-radius:3px;background:#ECEAE5;overflow:hidden;}
+.pl-meter i{display:inline-block;width:56px;height:6px;border-radius:3px;background:rgba(11,11,11,.08);overflow:hidden;}
 .pl-meter i em{display:block;height:100%;border-radius:3px;background:var(--pl-ok);}
 .pl-meter.low{color:var(--pl-warn);}.pl-meter.low i em{background:var(--pl-warn);}
 .pl-notes{font-size:.82rem;color:var(--pl-muted);}
@@ -514,7 +521,7 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
         <option value="print">&#128424; Print Reports</option>
         <option value="inventory">&#127968; Lodge Inventory</option>
         <option value="reports">&#128202; Season Reports</option>
-        <option value="planning">&#128200; Bird Planning</option>
+        <option value="planning">&#128202; Dashboard</option>
       </select>
     </div>
 
@@ -748,9 +755,8 @@ html,body{background:#1A1008;font-family:var(--font-body);font-size:16px;line-he
     </div>
 
     <div class="form-card pl-card" id="card-planning">
-      <div class="card-title">Bird Planning</div>
-      <div class="card-desc">How many birds it took to fill a limit this season, so you can order the fewest birds for a good hunt. Wild birds count inside the harvest, and shooting matters too, so read it as a guide.</div>
-      <button class="btn-refresh" onclick="loadPlanning()">&#8635; Refresh</button>
+      <div class="pl-top"><div><div class="pl-eyebrow">Davis Ranch &middot; 2026 season</div><h2 class="pl-h1">Dashboard</h2></div>
+        <button type="button" class="pl-refresh" onclick="loadPlanning()" aria-label="Refresh">&#8635; Refresh</button></div>
       <div id="pl-status" class="submit-status"></div>
       <div id="pl-body"><div class="report-hint">Loading&hellip;</div></div>
     </div>
@@ -1672,26 +1678,26 @@ function plGroupsSvg(groups,W){
   var rowH=48,top=4,H=top+groups.length*rowH+22,labelW=Math.min(110,Math.max(70,Math.round(W*0.2)));
   var max=Math.max.apply(null,groups.map(function(g){return Math.max(g.released,g.harvested,g.limit);}))*1.15,x=function(v){return labelW+(W-labelW-44)*v/max;};
   var o='<svg viewBox="0 0 '+W+' '+H+'" height="'+H+'" role="img" aria-label="Released, harvested and limit by group">';
-  plTicks(max,4).forEach(function(t){o+='<line x1="'+x(t)+'" x2="'+x(t)+'" y1="'+top+'" y2="'+(H-20)+'" stroke="#EEECE8"/><text x="'+x(t)+'" y="'+(H-5)+'" text-anchor="middle" font-size="11" fill="#6B7280">'+t+'</text>';});
-  groups.forEach(function(g,i){var y=top+i*rowH,c=g.filled<1?'#B45309':'#1E7F4F';
-    o+='<text x="0" y="'+(y+24)+'" font-size="13" font-weight="600" fill="#1F2328">'+plSvgEsc(g.group)+'</text>'+
-      '<rect x="'+x(0)+'" y="'+(y+7)+'" height="14" rx="3" width="'+(x(g.released)-x(0))+'" fill="#C9CED6"/>'+
-      '<rect x="'+x(0)+'" y="'+(y+23)+'" height="14" rx="3" width="'+(x(g.harvested)-x(0))+'" fill="#2F6FDB"/>'+
-      '<line x1="'+x(g.limit)+'" x2="'+x(g.limit)+'" y1="'+(y+3)+'" y2="'+(y+41)+'" stroke="#1F2328" stroke-width="2"/>'+
+  plTicks(max,4).forEach(function(t){o+='<line x1="'+x(t)+'" x2="'+x(t)+'" y1="'+top+'" y2="'+(H-20)+'" stroke="rgba(11,11,11,.10)"/><text x="'+x(t)+'" y="'+(H-5)+'" text-anchor="middle" font-size="11" fill="#5F5E5A">'+t+'</text>';});
+  groups.forEach(function(g,i){var y=top+i*rowH,c=g.filled<1?'#794C02':'#006C10';
+    o+='<text x="0" y="'+(y+24)+'" font-size="13" font-weight="600" fill="#1F1E1D">'+plSvgEsc(g.group)+'</text>'+
+      '<rect x="'+x(0)+'" y="'+(y+7)+'" height="14" rx="3" width="'+(x(g.released)-x(0))+'" fill="#C3C2B7"/>'+
+      '<rect x="'+x(0)+'" y="'+(y+23)+'" height="14" rx="3" width="'+(x(g.harvested)-x(0))+'" fill="#2A78D6"/>'+
+      '<line x1="'+x(g.limit)+'" x2="'+x(g.limit)+'" y1="'+(y+3)+'" y2="'+(y+41)+'" stroke="#1F1E1D" stroke-width="2"/>'+
       '<text x="'+(x(Math.max(g.released,g.harvested,g.limit))+6)+'" y="'+(y+27)+'" font-size="12" font-weight="700" fill="'+c+'">'+plPct(g.filled)+'</text>'+
-      '<rect class="pl-hit" data-tip="'+plSvgEsc(JSON.stringify({t:g.group+' · '+g.hunters+' hunters, '+g.days+' days',l:[['#C9CED6','Released',g.released],['#2F6FDB','Harvested',g.harvested],['#1F2328','Limit',g.limit],['','Of limit',plPct(g.filled)]]}))+'" x="0" y="'+y+'" width="'+W+'" height="'+rowH+'" fill="transparent"/>';});
+      '<rect class="pl-hit" data-tip="'+plSvgEsc(JSON.stringify({t:g.group+' · '+g.hunters+' hunters, '+g.days+' days',l:[['#C3C2B7','Released',g.released],['#2A78D6','Harvested',g.harvested],['#1F1E1D','Limit',g.limit],['','Of limit',plPct(g.filled)]]}))+'" x="0" y="'+y+'" width="'+W+'" height="'+rowH+'" fill="transparent"/>';});
   return o+'</svg>';
 }
 function plDaysSvg(g,list,max,W){
   var H=150,L=26,B=20,top=6,x0=L,x1=W-4,bw=(x1-x0)/list.length,y=function(v){return H-B-(H-B-top)*v/max;};
   var o='<svg viewBox="0 0 '+W+' '+H+'" height="'+H+'" role="img" aria-label="'+plSvgEsc(g.group)+' by day">';
-  plTicks(max,3).forEach(function(t){o+='<line x1="'+L+'" x2="'+x1+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="#EEECE8"/><text x="'+(L-5)+'" y="'+(y(t)+4)+'" text-anchor="end" font-size="10" fill="#6B7280">'+t+'</text>';});
+  plTicks(max,3).forEach(function(t){o+='<line x1="'+L+'" x2="'+x1+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="rgba(11,11,11,.10)"/><text x="'+(L-5)+'" y="'+(y(t)+4)+'" text-anchor="end" font-size="10" fill="#5F5E5A">'+t+'</text>';});
   list.forEach(function(d,i){var cx=x0+i*bw,w=bw*0.32,gap=bw*0.18;
-    o+='<rect x="'+(cx+gap)+'" y="'+y(d.released)+'" width="'+w+'" height="'+(y(0)-y(d.released))+'" rx="2" fill="#C9CED6"/>'+
-      '<rect x="'+(cx+gap+w+2)+'" y="'+y(d.harvested)+'" width="'+w+'" height="'+(y(0)-y(d.harvested))+'" rx="2" fill="#2F6FDB"/>'+
-      '<text x="'+(cx+bw/2)+'" y="'+(H-5)+'" text-anchor="middle" font-size="10" fill="#6B7280">'+plSvgEsc(usDate(d.date).slice(0,5))+'</text>'+
-      '<rect class="pl-hit" data-tip="'+plSvgEsc(JSON.stringify({t:g.group+' · day '+d.day+', '+plDay(d.date),l:[['#C9CED6','Released',d.released],['#2F6FDB','Harvested',d.harvested],['','Field',d.field],['','Left from earlier days',d.inField],['','Day limit',d.dayLimit]]}))+'" x="'+cx+'" y="0" width="'+bw+'" height="'+H+'" fill="transparent"/>';});
-  o+='<line x1="'+L+'" x2="'+x1+'" y1="'+y(list[0].dayLimit)+'" y2="'+y(list[0].dayLimit)+'" stroke="#1F2328" stroke-width="1.5" stroke-dasharray="5 4"/>';
+    o+='<rect x="'+(cx+gap)+'" y="'+y(d.released)+'" width="'+w+'" height="'+(y(0)-y(d.released))+'" rx="2" fill="#C3C2B7"/>'+
+      '<rect x="'+(cx+gap+w+2)+'" y="'+y(d.harvested)+'" width="'+w+'" height="'+(y(0)-y(d.harvested))+'" rx="2" fill="#2A78D6"/>'+
+      '<text x="'+(cx+bw/2)+'" y="'+(H-5)+'" text-anchor="middle" font-size="10" fill="#5F5E5A">'+plSvgEsc(usDate(d.date).slice(0,5))+'</text>'+
+      '<rect class="pl-hit" data-tip="'+plSvgEsc(JSON.stringify({t:g.group+' · day '+d.day+', '+plDay(d.date),l:[['#C3C2B7','Released',d.released],['#2A78D6','Harvested',d.harvested],['','Field',d.field],['','Left from earlier days',d.inField],['','Day limit',d.dayLimit]]}))+'" x="'+cx+'" y="0" width="'+bw+'" height="'+H+'" fill="transparent"/>';});
+  o+='<line x1="'+L+'" x2="'+x1+'" y1="'+y(list[0].dayLimit)+'" y2="'+y(list[0].dayLimit)+'" stroke="#1F1E1D" stroke-width="1.5" stroke-dasharray="5 4"/>';
   return o+'</svg>';
 }
 function plTipOn(box){
@@ -1719,7 +1725,7 @@ function renderPlanning(){
   if(!P.groups.length){body.innerHTML='<div class="report-hint">Nothing harvested yet this season.</div>';return;}
   var best=P.days.filter(function(d){return d.perReleased!==null;}).sort(function(a,b){return b.perReleased-a.perReleased;})[0];
   body.innerHTML='<div class="pl-wrap">'+
-  '<div class="pl-head"><div class="pl-head-l"><div class="pl-eyebrow">Davis Ranch · season to date</div>'+
+  '<div class="pl-head"><div class="pl-head-l">'+
     '<div class="pl-take">Groups that filled their limit needed about <b>'+plFmt(S.perHunterFull,1)+'</b> released birds per hunter, or <b>'+plFmt(S.perLimitFull,2)+'</b> for every bird of limit.</div>'+
     (S.short.length?'<div class="pl-note">Came up short of the limit: <b>'+S.short.map(function(x){return esc(x.group)+' ('+plPct(x.filled)+')';}).join(', ')+'</b></div>':'')+
     (best?'<div class="pl-note best">Best day: <b>'+esc(best.group)+' '+esc(plDay(best.date))+'</b>, '+esc(best.field)+': '+best.harvested+' shot from '+best.released+' released ('+plFmt(best.perReleased,2)+' per bird)</div>':'')+
