@@ -1752,7 +1752,8 @@ function plHoneyPanel(H,groups){
     '</div></div>';
 }
 function plHist(H){return (H||[]).map(function(r){var rel=r.released!==null?r.released:r.bought,est=r.released===null&&r.bought!==null;
-  return {y:r.year,live:!!r.live,hunters:r.hunters,rel:rel,est:est,har:r.harvested,lim:r.limit,cost:r.costPerBird,notes:r.notes,
+  return {y:r.year,live:!!r.live,hunters:r.hunters,rel:rel,est:est,har:r.harvested,lim:r.limit,cost:r.costPerBird,notes:r.notes,billed:r.billed,profit:r.profit,tips:r.tips,expenses:r.expenses,
+    profitPer:r.profit!==null&&r.profit!==undefined&&r.hunters?r.profit/r.hunters:null,
     perBird:rel&&r.harvested!==null?r.harvested/rel:null,perHunter:rel&&r.hunters?rel/r.hunters:null,ofLimit:r.limit&&r.harvested!==null?r.harvested/r.limit:null};});}
 function plYearBars(rows,key,fmt,W,title,refLine){
   var H=150,L=34,B=22,top=14,vals=rows.map(function(r){return r[key];}),max=Math.max.apply(null,vals.filter(function(v){return v!==null;}).concat(refLine||0))*1.18||1;
@@ -1777,6 +1778,9 @@ function plHistoryPanel(H){
     '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Season</th><th>Hunters</th><th>Released</th><th>Harvested</th><th>Limit</th><th>Of limit</th><th>Per bird released</th><th>Per hunter</th><th>Cost per bird</th></tr></thead><tbody>'+
     rows.map(function(r){return '<tr'+(r.live?' class="best"':'')+'><td class="l">'+r.y+(r.live?' so far':'')+'</td><td>'+(r.hunters===null?'—':r.hunters)+'</td><td>'+(r.rel===null?'—':r.rel+(r.est?'*':''))+'</td><td>'+(r.har===null?'—':r.har)+'</td><td>'+(r.lim===null?'—':r.lim)+'</td><td>'+(r.ofLimit===null?'—':plMeter(r.ofLimit))+'</td><td>'+plFmt(r.perBird,2)+'</td><td>'+plFmt(r.perHunter,1)+'</td><td>'+(r.cost===null?'—':'$'+plFmt(r.cost,2))+'</td></tr>';}).join('')+
     '</tbody></table></div>'+
+    (rows.some(function(r){return r.billed;})?'<h4 style="margin-top:6px">Money</h4><div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Season</th><th>Billed</th><th>Expenses</th><th>Net profit</th><th>Profit per hunter</th><th>Tips</th></tr></thead><tbody>'+
+      rows.map(function(r){var m=function(v){return v===null||v===undefined?'—':'$'+Math.round(v).toLocaleString('en-US');};return '<tr'+(r.live?' class="best"':'')+'><td class="l">'+r.y+(r.live?' so far':'')+'</td><td>'+m(r.billed)+'</td><td>'+m(r.expenses)+'</td><td>'+m(r.profit)+'</td><td>'+m(r.profitPer)+'</td><td>'+m(r.tips)+'</td></tr>';}).join('')+
+      '</tbody></table></div>':'')+
     (rows.some(function(r){return r.est;})?'<div class="pl-sub">* Released wasn&rsquo;t logged that year, so birds bought is shown instead.</div>':'')+
     (rows.some(function(r){return r.notes&&!r.live;})?'<div class="pl-sub">'+rows.filter(function(r){return r.notes&&!r.live;}).map(function(r){return '<b>'+r.y+':</b> '+esc(r.notes);}).join(' &middot; ')+'</div>':'')+
   '</div>';
