@@ -1708,7 +1708,7 @@ function plTipOn(box){
   box.addEventListener('mousemove',show);box.addEventListener('click',show);box.addEventListener('mouseleave',function(){tip.hidden=true;});
 }
 var plResizeT=null;
-window.addEventListener('resize',function(){clearTimeout(plResizeT);plResizeT=setTimeout(function(){var c=document.getElementById('card-planning');if(planData&&c&&c.style.display==='block')plDrawCharts();},200);});
+window.addEventListener('resize',function(){clearTimeout(plResizeT);plResizeT=setTimeout(function(){var c=document.getElementById('card-planning');if(planData&&c&&c.style.display==='block'){plDrawCharts();plDrawYoy();}},200);});
 function plDrawCharts(){
   var P=planData,gc=document.getElementById('pl-gchart'),dc=document.getElementById('pl-dcharts');if(!gc||!dc)return;
   gc.innerHTML=plGroupsSvg(P.groups,Math.max(280,gc.clientWidth||600));plTipOn(gc);
@@ -1751,6 +1751,45 @@ function plHoneyPanel(H,groups){
       '<div class="pl-tile sm"><span>Given to hunters</span><b>'+H.used+'</b></div>'+
     '</div></div>';
 }
+function plHist(H){return (H||[]).map(function(r){var rel=r.released!==null?r.released:r.bought,est=r.released===null&&r.bought!==null;
+  return {y:r.year,live:!!r.live,hunters:r.hunters,rel:rel,est:est,har:r.harvested,lim:r.limit,cost:r.costPerBird,notes:r.notes,
+    perBird:rel&&r.harvested!==null?r.harvested/rel:null,perHunter:rel&&r.hunters?rel/r.hunters:null,ofLimit:r.limit&&r.harvested!==null?r.harvested/r.limit:null};});}
+function plYearBars(rows,key,fmt,W,title,refLine){
+  var H=150,L=34,B=22,top=14,vals=rows.map(function(r){return r[key];}),max=Math.max.apply(null,vals.filter(function(v){return v!==null;}).concat(refLine||0))*1.18||1;
+  var bw=(W-L-4)/rows.length,y=function(v){return H-B-(H-B-top)*v/max;};
+  var o='<svg viewBox="0 0 '+W+' '+H+'" height="'+H+'" role="img" aria-label="'+plSvgEsc(title)+' by year">';
+  plTicks(max,3).forEach(function(t){o+='<line x1="'+L+'" x2="'+(W-4)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="rgba(255,255,255,.10)"/><text x="'+(L-5)+'" y="'+(y(t)+4)+'" text-anchor="end" font-size="10" fill="#898781">'+fmt(t)+'</text>';});
+  if(refLine)o+='<line x1="'+L+'" x2="'+(W-4)+'" y1="'+y(refLine)+'" y2="'+y(refLine)+'" stroke="#F0F0F0" stroke-width="1.2" stroke-dasharray="4 4"/>';
+  rows.forEach(function(r,i){var v=r[key],x=L+i*bw+bw*0.18,w=bw*0.64;
+    if(v!==null)o+='<rect x="'+x+'" y="'+y(v)+'" width="'+w+'" height="'+(y(0)-y(v))+'" rx="2" fill="'+(r.live?'#338CED':'#5E5E5A')+'"/>'+
+      '<text x="'+(x+w/2)+'" y="'+(y(v)-4)+'" text-anchor="middle" font-size="10" font-weight="'+(r.live?'700':'400')+'" fill="'+(r.live?'#F0F0F0':'#898781')+'">'+fmt(v)+(r.est&&key!=='ofLimit'?'*':'')+'</text>';
+    o+='<text x="'+(x+w/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" fill="'+(r.live?'#F0F0F0':'#898781')+'">'+r.y+'</text>'+
+      '<rect class="pl-hit" data-tip="'+plSvgEsc(JSON.stringify({t:r.y+(r.live?' (so far)':''),l:[['','Hunters',r.hunters===null?'—':r.hunters],['#5E5E5A','Released'+(r.est?' (birds bought)':''),r.rel===null?'—':r.rel],['#338CED','Harvested',r.har===null?'—':r.har],['','Of limit',plPct(r.ofLimit)],['','Per bird released',plFmt(r.perBird,2)],['','Released per hunter',plFmt(r.perHunter,1)]].concat(r.notes&&!r.live?[['',r.notes,'']]:[])}))+'" x="'+(L+i*bw)+'" y="0" width="'+bw+'" height="'+H+'" fill="transparent"/>';});
+  return o+'</svg>';
+}
+function plHistoryPanel(H){
+  var rows=plHist(H);if(rows.length<2)return '';
+  var past=rows.filter(function(r){return !r.live&&r.perBird!==null;}),avg=function(k){var v=past.map(function(r){return r[k];}).filter(function(v){return v!==null;});return v.length?v.reduce(function(a,b){return a+b;},0)/v.length:null;};
+  var cur=rows.filter(function(r){return r.live;})[0],aB=avg('perBird'),aH=avg('perHunter');
+  return '<div class="pl-panel"><h3>Year over year</h3>'+
+    '<div class="pl-sub">'+(cur&&aB?'This season: <b>'+plFmt(cur.perBird,2)+'</b> harvested per bird released, against a <b>'+plFmt(aB,2)+'</b> average for '+past[0].y+'&ndash;'+past[past.length-1].y+'. Released per hunter: <b>'+plFmt(cur.perHunter,1)+'</b> against <b>'+plFmt(aH,1)+'</b>. ':'')+'Tap a bar for that year.</div>'+
+    '<div class="pl-yoy" id="pl-yoy"></div><div class="pl-legend"><span><i class="r"></i>Past seasons</span><span><i class="h"></i>This season so far</span></div>'+
+    '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Season</th><th>Hunters</th><th>Released</th><th>Harvested</th><th>Limit</th><th>Of limit</th><th>Per bird released</th><th>Per hunter</th><th>Cost per bird</th></tr></thead><tbody>'+
+    rows.map(function(r){return '<tr'+(r.live?' class="best"':'')+'><td class="l">'+r.y+(r.live?' so far':'')+'</td><td>'+(r.hunters===null?'—':r.hunters)+'</td><td>'+(r.rel===null?'—':r.rel+(r.est?'*':''))+'</td><td>'+(r.har===null?'—':r.har)+'</td><td>'+(r.lim===null?'—':r.lim)+'</td><td>'+(r.ofLimit===null?'—':plMeter(r.ofLimit))+'</td><td>'+plFmt(r.perBird,2)+'</td><td>'+plFmt(r.perHunter,1)+'</td><td>'+(r.cost===null?'—':'$'+plFmt(r.cost,2))+'</td></tr>';}).join('')+
+    '</tbody></table></div>'+
+    (rows.some(function(r){return r.est;})?'<div class="pl-sub">* Released wasn&rsquo;t logged that year, so birds bought is shown instead.</div>':'')+
+    (rows.some(function(r){return r.notes&&!r.live;})?'<div class="pl-sub">'+rows.filter(function(r){return r.notes&&!r.live;}).map(function(r){return '<b>'+r.y+':</b> '+esc(r.notes);}).join(' &middot; ')+'</div>':'')+
+  '</div>';
+}
+function plDrawYoy(){
+  var c=document.getElementById('pl-yoy');if(!c||!planData)return;var rows=plHist(planData.history);if(rows.length<2)return;
+  c.innerHTML='<div class="pl-smalls">'+
+    '<div><h4>Harvest per bird released</h4><div class="pl-chart" id="pl-yoy1"></div></div>'+
+    '<div><h4>Birds released per hunter</h4><div class="pl-chart" id="pl-yoy2"></div></div>'+
+    '<div><h4>Of the limit harvested</h4><div class="pl-chart" id="pl-yoy3"></div></div></div>';
+  [['pl-yoy1','perBird',function(v){return plFmt(v,2);},null],['pl-yoy2','perHunter',function(v){return plFmt(v,1);},null],['pl-yoy3','ofLimit',function(v){return Math.round(v*100)+'%';},1]].forEach(function(a){
+    var el=document.getElementById(a[0]);el.innerHTML=plYearBars(rows,a[1],a[2],Math.max(220,el.clientWidth||300),a[0],a[3]);plTipOn(el);});
+}
 function plMeter(v){return '<span class="pl-meter'+(v<1?' low':'')+'"><i><em style="width:'+Math.min(100,Math.round((v||0)*100))+'%"></em></i>'+plPct(v)+'</span>';}
 function renderPlanning(){
   var P=planData,S=P.season,body=document.getElementById('pl-body');
@@ -1779,6 +1818,7 @@ function renderPlanning(){
     '<div class="pl-panel"><h3>Day by day</h3><div class="pl-sub">The dashed line is the day&rsquo;s limit. Days with no release run on birds left in the field and wild birds.</div>'+
       '<div class="pl-legend"><span><i class="r"></i>Released</span><span><i class="h"></i>Harvested</span><span><i class="l"></i>Day limit</span></div><div class="pl-smalls" id="pl-dcharts"></div></div>'+
   '</div>'+
+  plHistoryPanel(P.history)+
   '<div class="pl-panel"><h3>Group comparison</h3><div class="pl-sub">Released per limit bird: birds released for every bird the group was allowed. Lower is cheaper.</div>'+
   '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Group</th><th>Hunters</th><th>Days</th><th>Released</th><th>Harvested</th><th>Limit</th><th>Of limit</th><th>Per limit bird</th><th>Per hunter</th></tr></thead><tbody>'+
   P.groups.map(function(g){return '<tr><td class="l">'+esc(g.group)+'</td><td>'+g.hunters+'</td><td>'+g.days+'</td><td>'+g.released+'</td><td>'+g.harvested+'</td><td>'+g.limit+'</td><td>'+plMeter(g.filled)+'</td><td>'+plFmt(g.perLimit,2)+'</td><td>'+plFmt(g.perHunter,1)+'</td></tr>';}).join('')+
@@ -1800,7 +1840,7 @@ function renderPlanning(){
     '<p><b>Plan</b> = hunters × '+S.dailyLimit+' × days × what the groups that filled their limit needed per limit bird, rounded up to the next full box of 5.</p>'+
     '<p>Wild and released birds aren&rsquo;t told apart in the harvest log, and purchases aren&rsquo;t tied to a group.</p></details>'+
   '</div>';
-  planCalc();plDrawCharts();
+  planCalc();plDrawCharts();plDrawYoy();
 }
 function loadSummary(){
   var date=document.getElementById('ds-date').value||localToday();
