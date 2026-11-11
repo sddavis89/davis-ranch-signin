@@ -1040,6 +1040,23 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .gic-m.err{color:#F17778;flex:1 0 100%}
 .gd-pick{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .gd-pick input,.gd-pick select{width:100%;min-width:0;box-sizing:border-box}
+/* heads up + weather */
+.wx{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:12px 16px;margin-bottom:12px}
+.wx-now{display:flex;flex-direction:column;align-items:center;min-width:72px}.wx-now b{font:500 2.2rem/1 var(--font-display);color:#fff}.wx-now span{font-size:.72rem;color:var(--fg-soft);text-align:center;max-width:90px}
+.wx-d{display:flex;flex-direction:column;gap:2px;font-size:.86rem;color:var(--fg-mid)}.wx-d b{color:#fff}
+.wx-src{grid-column:1/-1;font-size:.66rem;color:var(--fg-soft);opacity:.7}
+.hu{background:linear-gradient(160deg,rgba(224,168,74,.14),rgba(224,168,74,.04));border:1px solid rgba(224,168,74,.35);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.hu-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.hu-h .eyebrow{color:var(--gold-light)}
+.hu-undo,.hu-more{background:none;border:0;color:var(--gold-light);font:600 .8rem var(--font-body);cursor:pointer;padding:6px 0}
+.hu-i{display:grid;grid-template-columns:28px minmax(0,1fr) 40px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid rgba(255,255,255,.06)}
+.hu-i:first-of-type{border-top:0}
+.hu-ic{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:rgba(224,168,74,.18);color:var(--gold-light)}.hu-ic svg{width:16px;height:16px}
+.hu-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);justify-self:center}
+.hu-t b{display:block;font-weight:600;font-size:.95rem;color:#fff}.hu-t small{display:block;font-size:.8rem;color:var(--fg-soft);margin-top:1px;line-height:1.35}
+.hu-i.big .hu-t b{font-size:1.02rem}
+.hu-ok{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(224,168,74,.6);background:transparent;color:var(--gold-light);font-size:1.05rem;cursor:pointer}
+.hu-ok:hover{background:var(--gold);color:#1A1207}
+.hu-all{color:var(--success);font-weight:600;font-size:.9rem;padding:6px 0}
 </style>
 </head>
 <body>
@@ -1089,6 +1106,8 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   </header>
   <div class="hbody">
     <div class="col-a">
+      <div id="wx-slot"></div>
+      <div id="heads-slot"></div>
       <div id="camp-slot"></div>
       <div id="check-slot"></div>
       <div class="sec-h">Today</div>
@@ -5336,6 +5355,123 @@ window.addEventListener('DOMContentLoaded',function(){
     d.innerHTML='<div class="card-title">Guides in Camp</div><div id="gd-body"></div>';inner.appendChild(d);
   }
 });
+
+/* ═══ HEADS UP: a few reminders for the kind of day and time of day, weather at the lodge, bird pickup suggestion ═══ */
+var HEADS={st:null,wx:null,open:false};
+var WX_LAT=44.00,WX_LON=-98.03;   // the lodge, 40510 230th St
+function headsSlot(){var h=new Date().getHours();return h<11?'Morning':h<16?'Midday':'Evening';}
+function headsDone(){try{return JSON.parse(localStorage.getItem('dr_heads_'+localToday())||'{}');}catch(e){return {};}}
+function headsMark(id){var d=headsDone();d[id]=1;try{localStorage.setItem('dr_heads_'+localToday(),JSON.stringify(d));}catch(e){}headsRender();}
+function headsUndo(){try{localStorage.removeItem('dr_heads_'+localToday());}catch(e){}headsRender();}
+function ceil5(n){return Math.max(0,Math.ceil(n/5)*5);}
+// what kind of day today is, for each group on the calendar
+function headsDay(today){
+  var out={types:{},rows:[]};
+  faceSchedule().forEach(function(r){
+    var days=r.days||Math.max(1,daysApart(r.depart,r.arrive)-1),hn=daysApart(today,r.arrive);
+    var add=function(t,x){out.types[t]=1;out.rows.push({type:t,r:r,days:days,hn:x||0});};
+    if(today===r.arrive)add('Arrival day');
+    if(hn>=1&&hn<=days&&today<r.depart)add('Hunt day',hn);
+    if(today===r.depart){add('Checkout day');add('Clean day');}
+    if(today===addDays(r.arrive,-1))add('Day before arrival');
+  });
+  if(!out.types['Hunt day']&&!out.types['Arrival day']&&!out.types['Checkout day']&&!out.types['Clean day'])out.types['Off day']=1;
+  return out;
+}
+function headsBirds(r,days,dayCount){
+  var b=(HEADS.st&&HEADS.st.birds)||{},per=b.perHunterDay||3,hunters=r.booked||faceSigned(r);
+  if(!hunters)return null;
+  var total=ceil5(hunters*dayCount*per),pens=b.inPens||0;
+  return {hunters:hunters,per:per,total:total,pens:pens,get:Math.max(0,ceil5(hunters*dayCount*per-pens)),fromSeason:!!b.perHunterDay};
+}
+function headsList(){
+  var st=HEADS.st||{},today=localToday(),slot=headsSlot(),D=headsDay(today),out=[];
+  var gname=function(r){return faceName(r);};
+  // smart ones first
+  D.rows.forEach(function(x){
+    var r=x.r,k=r.group.replace(/\W/g,'');
+    if(x.type==='Arrival day'&&slot!=='Evening'){
+      var B=headsBirds(r,x.days,x.days);
+      if(!B)out.push({id:'birds-'+k,ic:'truck',big:1,t:'Bird pickup today for '+gname(r),s:'Fill in Hunters Booked on the Schedule tab and I’ll suggest how many.'});
+      else{var two=x.days>=3?headsBirds(r,x.days,x.days-1):null;
+        out.push({id:'birds-'+k,ic:'truck',big:1,t:B.get?'Bird pickup today: about '+B.get+' birds for '+gname(r):'Bird pickup today for '+gname(r)+'? The pens may already have enough',
+          s:B.hunters+' hunters × '+x.days+' days × '+B.per+' a hunter a day'+(B.fromSeason?' (this season)':'')+' = '+B.total+(B.pens?', and the records show '+B.pens+' still in the pens':'')+'.'+
+            (two&&two.get&&B.get?' Or about '+two.get+' now for days 1–'+(x.days-1)+' and a second load on day '+(x.days-1)+'.':'')});}
+    }
+    if(x.type==='Day before arrival'){var B2=headsBirds(r,x.days,x.days);
+      out.push({id:'tmrw-'+k,ic:'cal',big:1,t:gname(r)+' arrives tomorrow',s:B2?(B2.get?'Bird pickup tomorrow: about '+B2.get+' birds.':'Bird pickup tomorrow. The pens may already have enough ('+B2.pens+' by the records).'):'Bird pickup tomorrow. Add Hunters Booked on the Schedule tab for a bird count.'});}
+    if(x.type==='Hunt day'&&x.days>=3&&x.hn===x.days-1&&slot!=='Evening'){var B3=headsBirds(r,x.days,1);
+      out.push({id:'load2-'+k,ic:'truck',big:1,t:'Second bird load for tomorrow?',s:B3?(B3.get?'About '+B3.get+' birds covers '+gname(r)+'’s last day'+(B3.pens?' ('+B3.pens+' in the pens by the records)':'')+'.':'The pens may already have enough for '+gname(r)+'’s last day ('+B3.pens+' by the records).'):'For '+gname(r)+'’s last day.'});}
+    if((x.type==='Arrival day'||(x.type==='Hunt day'&&x.hn===1))&&r.booked){var sg=faceSigned(r);
+      if(sg<r.booked)out.push({id:'waiv-'+k,ic:'alert',t:(r.booked-sg)+' of '+gname(r)+' still need to sign a waiver',s:sg+' of '+r.booked+' signed in so far.'});}
+  });
+  var w=HEADS.wx;
+  if(w){
+    if(w.low!==null&&w.low<=28)out.push({id:'wx-cold',ic:'alert',t:'Down to '+w.low+'° tonight',s:'Check the dog waters for ice.'});
+    if(w.gust>=25)out.push({id:'wx-wind',ic:'alert',t:'Windy today, up to '+w.gust+' mph',s:w.windDir?'Out of the '+w.windDir+'.':''});
+    if(w.rain>=60)out.push({id:'wx-rain',ic:'alert',t:'Rain likely today ('+w.rain+'%)',s:'Keep the shells and gear dry.'});
+  }
+  if((st.guideNoCid||[]).length)out.push({id:'cid',ic:'shield',t:st.guideNoCid.join(', ')+(st.guideNoCid.length===1?' has':' have')+' no license # on file',s:'Add it on the Guides tab so the GFP report is clean.'});
+  // plain ones from the Reminders tab
+  var R=st.reminders||[],grp=D.rows.length?D.rows[0].r:null;
+  var fill=function(t,r){return t.replace(/\{group\}/g,r?gname(r):'the group');};
+  D.rows.forEach(function(x){R.forEach(function(m){if(m.when===x.type&&(m.time==='Any'||m.time===slot))out.push({id:m.id+'-'+x.r.group.replace(/\W/g,''),t:fill(m.text,x.r)});});});
+  R.forEach(function(m){if(m.when==='Every day'&&(m.time==='Any'||m.time===slot))out.push({id:m.id,t:fill(m.text,grp)});});
+  if(D.types['Off day']){var off=R.filter(function(m){return m.when==='Off day';});
+    if(off.length){var n=Math.floor(new Date(today+'T12:00:00').getTime()/864e5);out.push({id:off[n%off.length].id,ic:'more',t:off[n%off.length].text,s:'Today’s off-day job.'});}}
+  var seen={},rank=function(x){return x.big?0:x.ic&&x.ic!=='more'?2:1;};   // pickups first, then the day's own reminders, then weather & notes
+  return out.filter(function(x){if(seen[x.id])return false;seen[x.id]=1;return true;}).map(function(x,i){x.i=i;return x;}).sort(function(a,b){return rank(a)-rank(b)||a.i-b.i;});
+}
+function headsRender(){
+  var el=document.getElementById('heads-slot');if(!el)return;
+  var done=headsDone(),all=headsList(),left=all.filter(function(x){return !done[x.id];}),show=HEADS.open?left:left.slice(0,3);
+  var g={Morning:'Good morning',Midday:'Afternoon check',Evening:'This evening'}[headsSlot()];
+  if(!all.length){el.innerHTML='';return;}
+  el.innerHTML='<div class="hu"><div class="hu-h"><span class="eyebrow">'+g+' · heads up</span>'+(Object.keys(done).length?'<button type="button" class="hu-undo" onclick="headsUndo()">Show cleared</button>':'')+'</div>'+
+    (show.length?show.map(function(x){return '<div class="hu-i'+(x.big?' big':'')+'">'+(x.ic?'<span class="hu-ic" data-ic="'+x.ic+'"></span>':'<span class="hu-dot"></span>')+'<span class="hu-t"><b>'+esc(x.t)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+'</span>'+
+      '<button type="button" class="hu-ok" aria-label="Done" onclick="headsMark(\''+x.id+'\')">✓</button></div>';}).join(''):'<div class="hu-all">✓ All caught up for now.</div>')+
+    (left.length>3?'<button type="button" class="hu-more" onclick="HEADS.open=!HEADS.open;headsRender()">'+(HEADS.open?'Show less':'+'+(left.length-3)+' more today')+'</button>':'')+'</div>';
+  faceIcons(el);
+}
+// weather from the National Weather Service (free, no account)
+function wxDirWord(d){return {N:'north',NNE:'north',NE:'northeast',ENE:'east',E:'east',ESE:'east',SE:'southeast',SSE:'south',S:'south',SSW:'south',SW:'southwest',WSW:'west',W:'west',WNW:'west',NW:'northwest',NNW:'north'}[d]||d||'';}
+function wxMax(s){var m=String(s||'').match(/\d+/g);return m?Math.max.apply(null,m.map(Number)):0;}
+function wxSun(date){   // sunset, local time
+  var d=new Date(date+'T12:00:00'),n=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5),lat=WX_LAT*Math.PI/180;
+  var decl=23.44*Math.PI/180*Math.sin(2*Math.PI*(284+n)/365),ha=Math.acos((Math.sin(-0.833*Math.PI/180)-Math.sin(lat)*Math.sin(decl))/(Math.cos(lat)*Math.cos(decl)));
+  var B=2*Math.PI*(n-81)/364,eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);
+  var utcMin=720-4*WX_LON-eot+ha*180/Math.PI*4,t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),0,0)+utcMin*60000);
+  return t.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/Chicago'});
+}
+async function wxLoad(){
+  try{var c=JSON.parse(localStorage.getItem('dr_wx')||'null');if(c&&Date.now()-c.at<30*60000&&c.day===localToday()){HEADS.wx=c.w;wxRender();headsRender();return;}}catch(e){}
+  try{
+    var pt=null;try{pt=JSON.parse(localStorage.getItem('dr_wxpt')||'null');}catch(e){}
+    if(!pt){var p=await (await fetch('https://api.weather.gov/points/'+WX_LAT+','+WX_LON,{headers:{Accept:'application/geo+json'}})).json();pt={f:p.properties.forecast,h:p.properties.forecastHourly};try{localStorage.setItem('dr_wxpt',JSON.stringify(pt));}catch(e){}}
+    var f=await (await fetch(pt.f,{headers:{Accept:'application/geo+json'}})).json(),h=await (await fetch(pt.h,{headers:{Accept:'application/geo+json'}})).json();
+    var P=f.properties.periods,H=h.properties.periods,now=H[0]||{},day=P.filter(function(x){return x.isDaytime;})[0],night=P.filter(function(x){return !x.isDaytime;})[0];
+    var todayP=P[0],w={now:now.temperature,nowTxt:now.shortForecast,high:day?day.temperature:null,low:night?night.temperature:null,
+      txt:todayP.shortForecast,name:todayP.name,wind:todayP.windSpeed,windDir:wxDirWord(todayP.windDirection),gust:wxMax(todayP.windSpeed),
+      rain:(todayP.probabilityOfPrecipitation&&todayP.probabilityOfPrecipitation.value)||0,
+      next:P.slice(1,4).filter(function(x){return x.isDaytime;})[0]||null};
+    if(w.next)w.next={name:w.next.name,t:w.next.temperature,txt:w.next.shortForecast};
+    HEADS.wx=w;try{localStorage.setItem('dr_wx',JSON.stringify({at:Date.now(),day:localToday(),w:w}));}catch(e){}
+  }catch(e){HEADS.wx=null;}
+  wxRender();headsRender();
+}
+function wxRender(){
+  var el=document.getElementById('wx-slot');if(!el)return;var w=HEADS.wx;
+  if(!w){el.innerHTML='';return;}
+  el.innerHTML='<div class="wx"><div class="wx-now"><b>'+(w.now!=null?w.now+'°':'')+'</b><span>'+esc(w.nowTxt||w.txt||'')+'</span></div>'+
+    '<div class="wx-d"><span>'+(w.high!=null?'High <b>'+w.high+'°</b>':'')+(w.low!=null?' · Low <b>'+w.low+'°</b>':'')+'</span>'+
+    '<span>Wind '+esc(w.windDir)+' '+esc(w.wind||'')+(w.rain?' · Rain '+w.rain+'%':'')+'</span>'+
+    '<span>Sunset '+esc(wxSun(localToday()))+(w.next?' · '+esc(w.next.name)+' '+w.next.t+'° '+esc(w.next.txt):'')+'</span></div>'+
+    '<small class="wx-src">National Weather Service · at the lodge</small></div>';
+}
+var _renderChecklistH=renderChecklist;
+renderChecklist=function(st){var r=_renderChecklistH.apply(this,arguments);if(st&&st.ok){HEADS.st=st;headsRender();}return r;};
+window.addEventListener('DOMContentLoaded',function(){headsRender();wxLoad();});
+setInterval(function(){if(!faceCur){headsRender();}},10*60*1000);   // the list changes as the day goes on
 
 </script>
 </body>
