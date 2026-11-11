@@ -2845,7 +2845,9 @@ function tripStart(g){
 }
 function tripInvoices(g){var from=tripStart(g);return procInvoices.filter(function(v){return v.group===g&&v.date>=from&&v.type!=='Void';});}
 function knownLeader(g){var v=tripInvoices(g).filter(function(x){return x.leader||x.type!=='Individual';})[0];return v?(v.leader||v.billTo.name):'';}
-function invoicedByName(g){var m={};tripInvoices(g).forEach(function(v){if(v.type==='Individual'){var k=String(v.billTo.name||'').toLowerCase();if(!m[k])m[k]=v;}});return m;}
+function ivKey(n,a){return String(n||'').trim().toLowerCase()+'|'+String(a||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+function invoicedByName(g){var m={};tripInvoices(g).forEach(function(v){if(v.type==='Individual'){var k=ivKey(v.billTo.name,v.billTo.address);if(!m[k])m[k]=v;}});return m;}
+function ivOf(m,h){return h?m[ivKey(h.name,h.address)]:undefined;}
 
 /* ── final receipts ── */
 function money(n){n=Number(n||0);return (n<0?'\u2212':'')+'$'+Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
@@ -2904,7 +2906,7 @@ function finRender(){
   finalList.forEach(function(o){if(!names[o.key])names[o.key]={name:o.owner,address:o.ownerAddress,cityStateZip:o.ownerCityStateZip,phone:o.phone,license:o.license};});
   finRows=Object.keys(names).sort(function(a,b){return names[a].name.localeCompare(names[b].name);}).map(function(k){
     var tc=procTrip[k],h=names[k];
-    return {k:k,h:h,tot:tc?tc.total:0,done:!!(procRecent[k]&&!procOpen[k]),iv:done[h.name.toLowerCase()]};
+    return {k:k,h:h,tot:tc?tc.total:0,done:!!(procRecent[k]&&!procOpen[k]),iv:ivOf(done,h)};
   });
   var html='<div class="fs-top" id="fs-top"></div>'+finRows.map(function(r,i){
     var body=r.done?'<b>'+r.tot+'</b>':'<span class="fs-n"><button type="button" class="stp" onclick="finStep('+i+',-1)">\u2212</button><input type="number" min="0" max="'+lim+'" inputmode="numeric" id="fsn-'+i+'" value="'+r.tot+'" oninput="finChanged()"><button type="button" class="stp" onclick="finStep('+i+',1)">+</button></span>';
@@ -2932,14 +2934,14 @@ function finSummary(){
     var inv='';
     if(wantInv&&ind){
       if(r.iv)inv='invoiced #'+r.iv.invoiceNo;
-      else{nInv++;var isLead=r.h.name===leadName,amt=p.price*(1+(isLead&&!done[leadName.toLowerCase()]?extra:0))+extrasTotal(readExtras('ex-f-'+i));
+      else{nInv++;var isLead=r.h.name===leadName,amt=p.price*(1+(isLead&&!ivOf(done,lead)?extra:0))+extrasTotal(readExtras('ex-f-'+i));
         inv=money(isLead?amt-dep:amt)+(isLead?' (leader'+(extra?', +'+extra+' spots':'')+')':'');}
     }
     am.textContent=inv;
   });
   if(wantInv&&!ind)nInv=1;
   top.textContent=(nInv?nInv+' invoice'+(nInv===1?'':'s')+(ind?'':' (group)')+' + ':'')+nRec+' receipt'+(nRec===1?'':'s')+' \u00b7 released '+usDate(val('c-final-date'));
-  document.getElementById('fin-dep-wrap').style.display=wantInv&&(!ind||(leadName&&!done[leadName.toLowerCase()]))?'flex':'none';
+  document.getElementById('fin-dep-wrap').style.display=wantInv&&(!ind||(leadName&&!ivOf(done,lead)))?'flex':'none';
 }
 // birds left in the pool and someone short → offer to even it out
 function finShortOffer(){
@@ -2994,9 +2996,9 @@ function invPreview(){
   var g=document.getElementById('c-group').value,done=invoicedByName(g);
   var doneCount=Object.keys(done).length;
   if(ind){
-    var extra=Math.max(0,p.minHunters-n),todo=invBillList.filter(function(h){return !done[h.name.toLowerCase()];}),k=todo.length;
+    var extra=Math.max(0,p.minHunters-n),todo=invBillList.filter(function(h){return !ivOf(done,h);}),k=todo.length;
     var lead=invBillList[parseInt(document.getElementById('inv-bill').value,10)];
-    var leadDone=lead&&done[lead.name.toLowerCase()];
+    var leadDone=lead&&ivOf(done,lead);
     var leadTotal=p.price*(1+extra);
     if(!k){el.innerHTML='Everyone on the list already has an invoice for this trip.';finSummary();return;}
     el.innerHTML=esc(p.package)+' (taxes included)<br><b>'+k+' invoice'+(k===1?'':'s')+' \u00d7 '+money(p.price)+'</b>'+
@@ -3201,7 +3203,7 @@ function printPaymentList(){
   var dates=hunters.map(function(h){return h.huntDate;}).filter(Boolean).sort();
   var rows=[],total=0;
   hunters.forEach(function(h,i){
-    var iv=indByName[h.name.toLowerCase()],amt,no='';
+    var iv=ivOf(indByName,h),amt,no='';
     if(iv){amt=iv.total;no=iv.invoiceNo;}
     else{amt=p.price;no=groupInv?groupInv.invoiceNo:'';}
     if(groupInv&&groupInv.billTo.name===h.name)no+=' (leader)';
@@ -3446,7 +3448,7 @@ function openEarly(){
   document.getElementById('e-count').value=groupHunters(g).length||earlyList.length||'';
   document.getElementById('e-dep').value='';
   document.getElementById('e-list').innerHTML=earlyList.length?earlyList.map(function(h,i){
-    var o=procOpen[h.key],iv=done[h.name.toLowerCase()],rc=procRecent[h.key],tc=procTrip[h.key];
+    var o=procOpen[h.key],iv=ivOf(done,h),rc=procRecent[h.key],tc=procTrip[h.key];
     var missing=!h.address||!h.cityStateZip;
     var notes=[];
     if(tc&&tc.total)notes.push(tc.total+' of '+tripLimit()+' so far ('+dayList(tc)+')');
@@ -3487,7 +3489,7 @@ function earlyPlan(){
   document.getElementById('e-inv-fields').style.display=wantInv?'block':'none';
   document.querySelectorAll('#e-list .eh-count').forEach(function(x){x.style.display=blank?'none':'grid';});
   var leadI=earlyList[parseInt(document.getElementById('e-lead').value,10)],leadN=leadI?leadI.name:'';
-  var leadLeaving=picked.some(function(x){return x.h.name===leadN;})&&!invoicedByName(g)[leadN.toLowerCase()];
+  var leadLeaving=picked.some(function(x){return x.h.name===leadN;})&&!ivOf(invoicedByName(g),leadI);
   document.getElementById('e-dep-wrap').style.display=wantInv&&leadLeaving?'flex':'none';
   document.getElementById('btn-early-go').textContent=blank?'Check Out & Print Blank':'Check Out';
   if(!picked.length){el.innerHTML='Tap each hunter who is leaving.';document.getElementById('e-harvest-wrap').style.display='none';return;}
@@ -3509,14 +3511,14 @@ function earlyPlan(){
     var lead=earlyList[parseInt(document.getElementById('e-lead').value,10)];
     var leadName=lead?lead.name:'';
     picked.forEach(function(x){
-      var iv=done[x.h.name.toLowerCase()];
+      var iv=ivOf(done,x.h);
       if(iv){lines.push(esc(x.h.name)+': already invoiced #'+esc(iv.invoiceNo));return;}
       var isLead=x.h.name===leadName;
       var tot=p.price*(1+(isLead?extra:0))+extrasTotal(readExtras('ex-e-'+x.i));
       lines.push('Invoice '+esc(x.h.name)+(isLead?' (leader'+(extra?', +'+extra+' unfilled spot'+(extra===1?'':'s'):'')+')':'')+': <b>'+money(isLead?tot-dep:tot)+'</b>'+(isLead&&dep?' after '+money(dep)+' deposit':''));
       if(x.h.name===leadN&&!dep&&!blank)lines.push('<span style="opacity:.8">Deposit paid? Enter it below.</span>');
     });
-    if(leadName&&!done[leadName.toLowerCase()]&&!picked.some(function(x){return x.h.name===leadName;})&&(extra||dep))lines.push('Unfilled spots and the deposit stay on '+esc(leadName)+'’s invoice at the end of the trip.');
+    if(leadName&&!ivOf(done,lead)&&!picked.some(function(x){return x.h.name===leadName;})&&(extra||dep))lines.push('Unfilled spots and the deposit stay on '+esc(leadName)+'’s invoice at the end of the trip.');
   }
   el.innerHTML=lines.join('<br>');
 }
@@ -4375,9 +4377,16 @@ renderReceiptList=function(){
   if(!nAll){box.innerHTML='<div class="report-hint" style="padding:8px 0">Nothing found. Try a last name, receipt # or invoice #.</div>';return;}
   var groups=[],G={};
   var grp=function(g){g=g||'';if(!G[g]){G[g]={name:g,hunters:{},order:[],ginv:[]};groups.push(G[g]);}return G[g];};
-  var hunter=function(g,name){var x=grp(g),k=rxOwner(name);if(!x.hunters[k]){x.hunters[k]={name:name,r:null,ri:-1,invs:[]};x.order.push(k);}return x.hunters[k];};
-  R.forEach(function(r,ri){var h=hunter(r.group,r.owner);if(!h.r){h.r=r;h.ri=ri;}else{var h2=hunter(r.group,r.owner+' #'+r.receiptNo);h2.name=r.owner;h2.r=r;h2.ri=ri;}});
-  I.forEach(function(v,i){if(rxIsGroupInv(v))grp(v.group).ginv.push({v:v,i:i});else hunter(v.group,v.billTo.name).invs.push({v:v,i:i});});
+  // a hunter is name + address: two hunters can share a name (two Tim Verbekes)
+  var ak=function(a){return String(a||'').toLowerCase().replace(/[^a-z0-9]/g,'');};
+  var hunter=function(g,name,addr){var x=grp(g),k=rxOwner(name)+'|'+ak(addr);if(!x.hunters[k]){x.hunters[k]={name:name,r:null,ri:-1,invs:[]};x.order.push(k);}return x.hunters[k];};
+  R.forEach(function(r,ri){var h=hunter(r.group,r.owner,r.ownerAddress);if(!h.r){h.r=r;h.ri=ri;}else{var h2=hunter(r.group,r.owner+' #'+r.receiptNo,r.ownerAddress);h2.name=r.owner;h2.r=r;h2.ri=ri;}});
+  I.forEach(function(v,i){
+    if(rxIsGroupInv(v)){grp(v.group).ginv.push({v:v,i:i});return;}
+    var x=grp(v.group),k=rxOwner(v.billTo.name)+'|'+ak(v.billTo.address);
+    if(!x.hunters[k]){var same=x.order.filter(function(q){return q.split('|')[0]===rxOwner(v.billTo.name);});if(same.length===1)k=same[0];}   // address typed differently, only one with that name
+    (x.hunters[k]?x.hunters[k]:hunter(v.group,v.billTo.name,v.billTo.address)).invs.push({v:v,i:i});
+  });
   box.innerHTML=groups.map(function(x){
     var keys=x.order.slice().sort(function(a,b){return rxLast(x.hunters[a].name).localeCompare(rxLast(x.hunters[b].name))||a.localeCompare(b);});
     var hasG=x.ginv.some(function(g){return g.v.type!=='Void';});
