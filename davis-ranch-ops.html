@@ -1030,6 +1030,16 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 #h-guides .gd-in{text-transform:none;letter-spacing:0;font:600 .98rem var(--font-body);color:var(--fg);margin:0}
 #h-guides .gd-in input[type=checkbox]{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;min-height:0;flex:0 0 24px;padding:0;margin:0;border-radius:6px;background:none;box-shadow:none}
 #h-guides .gd-in small{text-transform:none;letter-spacing:0}
+/* guides page */
+.gd-grp{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:4px 0 8px}.gd-grp b{font-size:1.05rem}.gd-grp small{color:var(--gold-light);font-weight:600}
+.gd-gic{margin:0 0 12px}
+.gd-none{display:flex;flex-direction:column;gap:4px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:14px 16px}.gd-none span{color:var(--fg-soft);font-size:.9rem}
+.gd-pick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.gd-pick input,.gd-pick select{min-height:46px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;font:500 1rem var(--font-body)}
+.gd-role{font:600 .7rem var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:#1A1207;background:var(--gold);padding:3px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.gic-m.err{color:#F17778;flex:1 0 100%}
+.gd-pick{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.gd-pick input,.gd-pick select{width:100%;min-width:0;box-sizing:border-box}
 </style>
 </head>
 <body>
@@ -1046,6 +1056,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="sh">Groups</div>
   <button type="button" data-nav="receipts" onclick="navTo('receipts')"><i data-ic="receipt"></i>Check out &amp; receipts</button>
   <button type="button" data-nav="schedule" onclick="navTo('schedule')"><i data-ic="cal"></i>Season calendar</button>
+  <button type="button" data-nav="guides" onclick="navTo('guides')"><i data-ic="users"></i>Guides in camp</button>
   <button type="button" onclick="openSearch()"><i data-ic="search"></i>Find a hunter</button>
   <div class="sh">Records</div>
   <button type="button" data-nav="gfp" onclick="navTo('gfp')"><i data-ic="shield"></i>GFP inspection</button>
@@ -1099,6 +1110,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
         <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<span>Password locked</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<span>Report in seconds</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<span>Who's here, who's next</span><i class="chev" data-ic="chev"></i></button>
+        <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<span>Check in, roster, season</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('planning')"><i class="ri" data-ic="chart"></i>Dashboard<span>Season at a glance</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="trend"></i>Daily summary<span id="r-sum"></span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
@@ -1461,6 +1473,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
+    <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('print')"><i class="ri" data-ic="print"></i>Print reports<i class="chev" data-ic="chev"></i></button>
@@ -5231,7 +5244,7 @@ async function guideKeepStep(g){
 // Home: "Guides in camp today" under each group in camp. Tap a name to check him in or out.
 var gicCache={};
 function gicLoad(){
-  var slots=document.querySelectorAll('.gic[data-group]');if(!slots.length)return;
+  var slots=document.querySelectorAll('#camp-slot .gic[data-group]');if(!slots.length)return;
   var day=localToday();
   opsGet({action:'opsday',date:day}).then(function(r){
     if(!r||!r.ok)return;gicCache={r:r,day:day};
@@ -5239,10 +5252,11 @@ function gicLoad(){
   }).catch(function(){});
 }
 function gicRender(el,r){
-  var g=el.getAttribute('data-group'),names=r.guideNames||[];
+  el._r=r;var g=el.getAttribute('data-group'),names=r.guideNames||[];
   if(!names.length){el.innerHTML='<span class="gic-l">Guides in camp</span><span class="gic-none">Add guides on the Guides tab in the sheet</span>';return;}
   var camp=guideDefaultCamp(r,g);Object.keys((r.guideShot||{})[g]||{}).forEach(function(n){if(camp.indexOf(n)<0&&r.guideShot[g][n])camp.push(n);});
-  el.innerHTML='<span class="gic-l">Guides in camp today</span><span class="gic-c">'+names.map(function(n){var on=camp.indexOf(n)>=0;
+  var dd=el.getAttribute('data-date');
+  el.innerHTML='<span class="gic-l">'+(dd&&dd!==localToday()?'Guides in camp '+esc(faceDow(dd))+' '+esc(faceMD(dd)):'Guides in camp today')+'</span><span class="gic-c">'+names.map(function(n){var on=camp.indexOf(n)>=0;
     return '<button type="button" class="gic-b'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="gicTap(this)" data-name="'+esc(n)+'">'+(on?'✓ ':'')+esc(n.split(' ')[0])+'</button>';}).join('')+'</span><span class="gic-m" id="gicm-'+esc(g).replace(/\W/g,'')+'"></span>';
 }
 function gicTap(btn){
@@ -5250,9 +5264,10 @@ function gicTap(btn){
   btn.classList.toggle('on');var on=btn.classList.contains('on');btn.setAttribute('aria-pressed',on);btn.textContent=(on?'✓ ':'')+btn.getAttribute('data-name').split(' ')[0];
   var names=Array.prototype.slice.call(el.querySelectorAll('.gic-b.on')).map(function(b){return b.getAttribute('data-name');});
   var m=el.querySelector('.gic-m');m.textContent='Saving…';
-  opsPost({task:'guideday',submissionId:newId(),date:localToday(),group:g,names:names}).then(function(res){
-    if(res&&res.ok){m.textContent='✓ Saved';setTimeout(function(){m.textContent='';},2500);if(gicCache.r){gicCache.r.guideDays=gicCache.r.guideDays||{};gicCache.r.guideDays[g]=names;}}
-    else{m.textContent='✗ '+(res?opsError(res,true):'Not saved');btn.classList.toggle('on');gicRender(el,gicCache.r||{});}
+  var day=el.getAttribute('data-date')||localToday();
+  opsPost({task:'guideday',submissionId:newId(),date:day,group:g,names:names}).then(function(res){
+    if(res&&res.ok){m.textContent='✓ Saved';setTimeout(function(){m.textContent='';},2500);var c=el._r||gicCache.r;if(c){c.guideDays=c.guideDays||{};c.guideDays[g]=names;}if(faceCur==='guides')gdSeason();}
+    else{var msg='✗ '+(res?opsError(res,true):'Not saved');gicRender(el,el._r||gicCache.r||{});var m2=el.querySelector('.gic-m');if(m2){m2.textContent=msg;m2.classList.add('err');}}
   }).catch(function(){m.textContent='✗ No signal — not saved';});
 }
 var _faceCheckinCardG=faceCheckinCard;
@@ -5263,6 +5278,64 @@ faceCheckinCard=function(r,today,kind){
 var _faceRenderCampG=faceRenderCamp;
 faceRenderCamp=function(){var c=_faceRenderCampG.apply(this,arguments);setTimeout(gicLoad,0);return c;};
 window.addEventListener('DOMContentLoaded',function(){var q=document.getElementById('h-qty');if(q)q.addEventListener('input',function(){if(document.querySelector('#h-guides input'))guideNote();});});
+
+/* ═══ GUIDES PAGE: who's in camp today, check in for any day, the roster and their season ═══ */
+FACE_IC.users='<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>';
+FACE_BANNER.guides=['dogs','Guides in Camp','Who hunted with each group, every day'];
+var gdSeasonData=null;
+function gdOpen(){
+  var b=document.getElementById('gd-body');if(!b)return;
+  var c=faceCamp(),t=c.today,html='<h3 class="gf-sec">Today · '+esc(faceDow(t))+' '+esc(faceMD(t))+'</h3>';
+  if(c.inCamp.length)html+=c.inCamp.map(function(r){return '<div class="gd-grp"><b>'+esc(faceName(r))+'</b><small>'+esc(faceStay(r,t))+'</small></div><div class="gic gd-gic" data-group="'+esc(r.group)+'" data-date="'+t+'"></div>';}).join('');
+  else html+='<div class="gd-none"><b>No guides in camp today</b><span>No group is in camp'+(c.next?'. Next: <b>'+esc(faceName(c.next))+'</b> arrives '+esc(faceDow(c.next.arrive))+' '+esc(faceMD(c.next.arrive))+'.':'.')+'</span></div>';
+  var groups=faceSchedule().map(function(r){return r.group;});
+  var cur=c.inCamp.length?c.inCamp[0].group:(c.recent?c.recent.group:(c.next?c.next.group:groups[0]));
+  var pd=c.inCamp.length?t:(c.recent?(c.recent.depart<t?c.recent.depart:t):(c.next?c.next.arrive:t));
+  html+='<h3 class="gf-sec">Check in for another day</h3><p class="fin-p">Forgot a day, or logging late? Pick the day and group, then tap who was there.</p>'+
+    '<div class="gd-pick"><input type="date" id="gd-date" value="'+pd+'" onchange="gdPick()"><select id="gd-group" onchange="gdPick()">'+groups.map(function(g){return '<option'+(g===cur?' selected':'')+'>'+esc(g)+'</option>';}).join('')+'</select></div>'+
+    '<div class="gic gd-gic" id="gd-other"></div>'+
+    '<h3 class="gf-sec">Your guides</h3><div id="gd-roster"><div class="report-hint">Loading…</div></div>'+
+    '<p class="fin-p" style="margin-top:10px">Add or change guides on the <b>Guides</b> tab in the sheet (the gold tab): name, CID, address, phone, Active Y/N, and Role (Owner, Guide or Family).</p>';
+  b.innerHTML=html;
+  opsGet({action:'opsday',date:t}).then(function(r){if(r&&r.ok)b.querySelectorAll('.gd-gic[data-date="'+t+'"]').forEach(function(el){if(el.id!=='gd-other')gicRender(el,r);});}).catch(function(){});
+  gdPick();gdSeason();
+}
+function gdPick(){
+  var el=document.getElementById('gd-other');if(!el)return;
+  var d=val('gd-date'),g=val('gd-group');if(!d||!g){el.innerHTML='';return;}
+  el.setAttribute('data-group',g);el.setAttribute('data-date',d);el.innerHTML='<span class="gic-m">Loading…</span>';
+  opsGet({action:'opsday',date:d}).then(function(r){if(r&&r.ok&&el.getAttribute('data-date')===d&&el.getAttribute('data-group')===g)gicRender(el,r);}).catch(function(){el.innerHTML='<span class="gic-m">No signal</span>';});
+}
+function gdSeason(){
+  var box=document.getElementById('gd-roster');if(!box)return;
+  if(!getPin()){box.innerHTML='<div class="report-hint">Enter the records PIN (on Check Out) to see license numbers and each guide&rsquo;s season.</div>';return;}
+  procGet({action:'report',from:seasonStartIso(),to:localToday(),group:'',sections:'guests,harvest'}).then(function(r){
+    if(!r||!r.ok){box.innerHTML='<div class="proc-msg err">'+esc(r?handleProcError(r):'Could not load.')+'</div>';return;}
+    gdSeasonData=r;var G=r.guides||[];
+    if(!G.length){box.innerHTML='<div class="gd-none"><b>No guides yet</b><span>Add them on the Guides tab in the sheet.</span></div>';return;}
+    var st={};G.forEach(function(g){st[g.name.toLowerCase()]={days:{},shot:0,gave:0,kept:0};});
+    var S=function(n){return st[String(n||'').trim().toLowerCase()];};
+    Object.keys(r.guideCamp||{}).forEach(function(k){(r.guideCamp[k]||[]).forEach(function(n){var x=S(n);if(x)x.days[k]=1;});});
+    (r.harvest||[]).forEach(function(h){Object.keys(h.guides||{}).forEach(function(n){var x=S(n);if(x)x.shot+=h.guides[n];});});
+    (r.guests||[]).forEach(function(p){(p.gifts||[]).forEach(function(gf){var x=S(gf.guide);if(x)x.gave+=gf.count;});if(p.guide){var x=S(p.name);if(x)x.kept+=p.total;}});
+    box.innerHTML=G.map(function(g){var x=S(g.name),days=Object.keys(x.days).length;
+      return '<div class="gf-h'+(g.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(g.name)+' <span class="gd-role">'+esc(g.role||'Guide')+'</span></b><span class="gf-lic">'+(g.license?'CID '+esc(g.license):'No license # — add it')+'</span></div>'+
+        '<div class="gf-h2">'+esc([g.address,g.csz].filter(Boolean).join(', '))+(g.phone?' · '+esc(g.phone):'')+'</div>'+
+        '<div class="gf-h3"><span>This season: <b>'+days+'</b> day'+(days===1?'':'s')+' in camp</span><span><b>'+x.shot+'</b> shot</span><span><b>'+x.gave+'</b> given to hunters</span><span><b>'+x.kept+'</b> on his own receipt</span></div></div>';}).join('');
+  }).catch(function(){box.innerHTML='<div class="proc-msg err">Could not reach the records sheet.</div>';});
+}
+var _faceViewG=faceView;
+faceView=function(val){
+  var was=faceCur;_faceViewG(val);
+  var c=document.getElementById('card-guides');if(c){c.style.display=val==='guides'?'block':'none';c.classList.toggle('active',val==='guides');if(val==='guides'&&was!=='guides')gdOpen();}
+};
+window.addEventListener('DOMContentLoaded',function(){
+  var inner=document.querySelector('.content-inner');
+  if(inner&&!document.getElementById('card-guides')){
+    var d=document.createElement('div');d.className='form-card sc-card gd-card';d.id='card-guides';
+    d.innerHTML='<div class="card-title">Guides in Camp</div><div id="gd-body"></div>';inner.appendChild(d);
+  }
+});
 
 </script>
 </body>
