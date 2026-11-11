@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Davis Hunting Co. Widget</title>
+<meta name="theme-color" content="#0B0B0B">
+<meta name="apple-mobile-web-app-title" content="DHC Widget">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest-widget.json">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<link rel="icon" href="img/icon-32.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#0B0B0B;--card:#151412;--card2:#1C1A17;--line:rgba(255,255,255,.09);--fg:#F3EEE6;--mid:#CBC3B6;--soft:#958D80;--gold:#E0A84A;--gold2:#F5C978;--ok:#53C556;--warn:#E9A23B;--red:#F17778;
+  --display:'Fraunces',Georgia,serif;--body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+.w{padding:14px 14px 16px;display:flex;flex-direction:column;gap:10px;max-width:520px;margin:0 auto}
+.hd{position:relative;border-radius:18px;overflow:hidden;padding:14px 14px 12px;isolation:isolate;min-height:128px;display:flex;flex-direction:column;justify-content:flex-end}
+.hd::before{content:'';position:absolute;inset:0;background:url(img/hero-s.webp) 78% 38%/cover;z-index:-2}
+.hd::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(11,11,11,.92),rgba(11,11,11,.45) 70%,rgba(11,11,11,.15)),linear-gradient(180deg,transparent 40%,rgba(11,11,11,.6))}
+.br{position:absolute;top:12px;left:14px;font:700 .62rem/1 var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--gold2)}
+.upd{position:absolute;top:10px;right:10px;font-size:.66rem;color:var(--soft);background:rgba(11,11,11,.5);border:1px solid var(--line);border-radius:20px;padding:3px 8px;cursor:pointer}
+.hd h1{font:500 1.45rem/1.1 var(--display);margin:0;color:#fff}
+.hd h1 em{font-style:normal;color:var(--gold2);font-weight:600}
+.hd p{margin:3px 0 0;color:#D8D1C5;font-size:.84rem}
+.k{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.k div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 10px}
+.k span{display:block;font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--soft);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k b{display:block;font:500 1.6rem/1.1 var(--display);color:#fff;font-variant-numeric:tabular-nums}
+.k em{display:block;font-style:normal;font-size:.7rem;color:var(--soft);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k em.ok{color:var(--ok)}.k em.warn{color:var(--warn)}.k em.bad{color:var(--red)}
+.ci{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(224,168,74,.14),var(--card) 65%);border:1px solid rgba(224,168,74,.4);border-radius:16px;padding:11px 12px}
+.ci .t{flex:1;min-width:0}
+.ci .t small{display:block;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);font-weight:700}
+.ci .t b{display:block;font:600 1.1rem/1.2 var(--display)}
+.ci .t span{display:block;color:var(--soft);font-size:.8rem}
+.ring{width:64px;height:64px;position:relative;flex:0 0 auto}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6}
+.ring .bg{stroke:rgba(255,255,255,.08)}.ring .fg{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.ring .fg.full{stroke:var(--ok)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:500 1.05rem var(--display)}
+.al{border-radius:14px;padding:10px 12px;border:1px solid rgba(224,168,74,.38);background:rgba(224,168,74,.07);display:flex;flex-direction:column;gap:3px}
+.al.bad{border-color:rgba(241,119,120,.45);background:rgba(241,119,120,.08)}.al.ok{border-color:rgba(83,197,86,.35);background:rgba(83,197,86,.07)}
+.al b{font-size:.9rem}.al span{font-size:.8rem;color:var(--mid)}
+.go{display:block;text-align:center;text-decoration:none;font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.82rem;padding:12px;border-radius:14px;background:linear-gradient(145deg,var(--gold2),var(--gold));color:#1A1207}
+.err{color:var(--soft);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="hd"><div class="br">Davis Hunting Co.</div><button type="button" class="upd" id="upd" onclick="load()">updating&hellip;</button>
+    <h1 id="t">Loading&hellip;</h1><p id="s">&nbsp;</p></div>
+  <div class="k">
+    <div><span id="l1">Shot today</span><b id="v1">&ndash;</b><em id="n1">&nbsp;</em></div>
+    <div><span id="l2">Cleaned</span><b id="v2">&ndash;</b><em id="n2">&nbsp;</em></div>
+    <div><span>Bags left</span><b id="v3">&ndash;</b><em id="n3">&nbsp;</em></div>
+  </div>
+  <div id="ci"></div>
+  <div id="al"></div>
+  <a class="go" href="davis-ranch-ops.html">Open Davis Hunting Co.</a>
+  <div class="err" id="err"></div>
+</div>
+<script>
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbxO7jxD1rlHKQ74UdjwabSaReG906-0Fuzysu1amrQEkWQJdgrUz3-XZ9tN9TOnfBFihw/exec';
+var SIGNIN_URL='https://script.google.com/macros/s/AKfycbykbCf8ZwLFso7ObUhu6q3mf-7zToHQGmfpJAJeScws2xDc3_U64kkJc-SUR5E0-Ymu/exec';
+var FALLBACK=[
+  {group:'Texas',arrive:'2026-10-16',depart:'2026-10-20',days:3,booked:10},{group:'Michigan',arrive:'2026-10-21',depart:'2026-10-25',days:3,booked:11},
+  {group:'Edwards',arrive:'2026-10-28',depart:'2026-11-01',days:3,booked:8},{group:'Verbeke',arrive:'2026-11-04',depart:'2026-11-08',days:3,booked:13},
+  {group:'FarmHouse',arrive:'2026-11-12',depart:'2026-11-15',days:2,booked:null},{group:'Hendrik',arrive:'2026-11-15',depart:'2026-11-19',days:3,booked:null},
+  {group:'Jared Hendrickson',lead:'Jimi',arrive:'2026-11-19',depart:'2026-11-22',days:2,booked:null}];
+var $=function(id){return document.getElementById(id);};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function add(s,n){var d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d);}
+function apart(a,b){return Math.round((new Date(a+'T12:00:00')-new Date(b+'T12:00:00'))/864e5);}
+function md(s){return (+s.slice(5,7))+'/'+(+s.slice(8,10));}
+function dow(s){return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(s+'T12:00:00').getDay()];}
+function getJ(u){return fetch(u).then(function(r){return r.json();});}
+function signed(counts,r){var n=0,lo=add(r.arrive,-14);Object.keys(counts||{}).forEach(function(k){var m=k.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m)return;
+  var d=m[3]+'-'+String(m[1]).padStart(2,'0')+'-'+String(m[2]).padStart(2,'0');if(d>=lo&&d<=r.depart){var v=counts[k][r.group];n+=+v||0;}});return n;}
+function out(r,co){var s=0,b=0;(co||[]).forEach(function(x){if(x.group===r.group&&x.date>=add(r.arrive,-1)&&x.date<=r.depart){b+=x.billed;s=Math.max(s,x.signedIn);}});return s>0&&b>=s;}
+function ring(p,label){var c=2*Math.PI*26,full=p>=1;return '<div class="ring"><svg viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="26"/><circle class="fg'+(full?' full':'')+'" cx="32" cy="32" r="26" stroke-dasharray="'+c+'" stroke-dashoffset="'+(c*(1-Math.min(1,p)))+'"/></svg><b>'+label+'</b></div>';}
+function load(){
+  $('upd').textContent='updating…';
+  var t=iso(new Date());
+  Promise.all([getJ(SCRIPT_URL+'?action=status&today='+t+'&days=8').catch(function(){return null;}),getJ(SIGNIN_URL).catch(function(){return null;}),getJ(SCRIPT_URL+'?action=planning').catch(function(){return null;})]).then(function(res){
+    var st=res[0],counts=res[1]||{},pl=res[2];
+    if(!st||!st.ok){$('err').textContent='Can’t reach the records sheet right now. It will try again in a few minutes.';$('upd').textContent='offline';return;}
+    $('err').textContent='';
+    var rows=((st.schedule&&st.schedule.length)?st.schedule:FALLBACK).slice().sort(function(a,b){return a.arrive.localeCompare(b.arrive);});
+    var here=rows.filter(function(r){return t>=r.arrive&&t<=r.depart&&!out(r,st.checkouts);});
+    var next=rows.filter(function(r){return r.arrive>t;})[0]||null;
+    var h=new Date().getHours(),greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+    var g=here.length?here[here.length-1]:null,td=(st.days||{})[t]||{release:{},harvest:{},cleaning:{},discarded:{}};
+    if(g){
+      var d=apart(t,g.arrive),hd=g.days||Math.max(1,apart(g.depart,g.arrive)-1),stay=t===g.depart?'Checkout day':d===0?'Arrival night':'Hunt day '+Math.min(d,hd)+' of '+hd;
+      $('t').innerHTML=greet+',<br><em>'+esc(here.map(function(r){return r.group;}).join(' & '))+'</em> '+(here.length>1?'are':'is')+' in camp';
+      $('s').textContent=stay+' · leaves '+dow(g.depart)+' '+md(g.depart);
+      var shot=td.harvest[g.group]||0,cl=td.cleaning[g.group]||0,ds=(td.discarded||{})[g.group]||0,n=g.booked||signed(counts,g),lim=n?n*3:0;
+      $('l1').textContent='Shot today';$('v1').textContent=shot;$('n1').textContent=lim?(shot>=lim?'✓ limit '+lim:'of '+lim+' limit'):'today';$('n1').className=lim&&shot>=lim?'ok':'';
+      $('l2').textContent='Cleaned';$('v2').textContent=cl;
+      $('n2').textContent=!shot&&!cl?'none yet':shot===cl+ds?'✓ matches':(shot-cl-ds>0?(shot-cl-ds)+' to clean':'more than shot');$('n2').className=shot===cl+ds&&shot?'ok':(shot||cl)?'warn':'';
+    } else {
+      $('t').innerHTML=greet+'.<br><em>No one</em> in camp';
+      $('s').textContent=next?'Next up: '+next.group+' arrives '+dow(next.arrive)+' '+md(next.arrive):'No more groups booked';
+      $('l1').textContent='Next group';$('v1').textContent=next?apart(next.arrive,t)+(apart(next.arrive,t)===1?' day':' days'):'–';$('n1').textContent=next?next.group:'';$('n1').className='';
+      $('l2').textContent='Booked';$('v2').textContent=next&&next.booked?next.booked:'–';$('n2').textContent=next?signed(counts,next)+' signed in':'';$('n2').className='';
+    }
+    var B=pl&&pl.ok?pl.bags:null;
+    $('v3').textContent=B?B.onHand:'–';$('n3').textContent=B?(B.onHand<=0?'out of bags':B.low?'order soon':'stocked'):'';$('n3').className=B?(B.onHand<=0?'bad':B.low?'warn':'ok'):'';
+    // check-in ring: the group here, or one arriving within 3 days
+    var ci=g||(next&&apart(next.arrive,t)<=3?next:null);
+    if(ci){var sg=signed(counts,ci),bk=ci.booked;
+      $('ci').innerHTML='<div class="ci"><div class="t"><small>'+(ci===g?'In camp':'Checking in')+'</small><b>'+esc(ci.group)+'</b><span>'+(bk?(sg>=bk?'Everyone signed in':(bk-sg)+' still to sign'):(sg?sg+' signed in':'No waivers yet'))+'</span></div>'+ring(bk?sg/bk:(sg?1:0),sg+(bk?'/'+bk:''))+'</div>';
+    } else $('ci').innerHTML='';
+    // things to fix: today's logs for the group here, and any day this week where harvest and cleaning don't match
+    var todo=[],bad=[];
+    if(g&&t!==g.arrive){if(!td.release[g.group])todo.push('Release not logged');if(!td.harvest[g.group])todo.push('Harvest not logged');if(!td.cleaning[g.group])todo.push('Cleaning not logged');}
+    for(var i=1;i<=7;i++){var dd=add(t,-i),x=(st.days||{})[dd];if(!x)continue;Object.keys(x.harvest||{}).forEach(function(k){var hv=x.harvest[k]||0,c=(x.cleaning||{})[k]||0,dc=(x.discarded||{})[k]||0;if(hv&&hv!==c+dc)bad.push(md(dd)+' '+k+': shot '+hv+', cleaned '+(c+dc));});}
+    if(B&&B.low)todo.push('Order vacuum bags');
+    if(pl&&pl.ok&&pl.honey&&pl.honey.low)todo.push('Order honey jars');
+    var n=bad.length+todo.length;
+    $('al').innerHTML='<div class="al '+(bad.length?'bad':n?'':'ok')+'"><b>'+(n?n+(n===1?' thing needs':' things need')+' you':'✓ All caught up')+'</b>'+bad.concat(todo).slice(0,3).map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>';
+    $('upd').textContent='updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  });
+}
+load();
+setInterval(load,5*60*1000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)load();});
+</script>
+</body>
+</html>
