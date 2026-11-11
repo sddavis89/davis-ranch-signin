@@ -996,6 +996,20 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 #h-guides-note,.fin-guides .hint{font-size:.8rem;opacity:.75;margin-top:6px;line-height:1.4}
 .fin-guides{margin:12px 0;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line)}
 .fin-guides .check-line{display:flex;gap:8px;align-items:flex-start;line-height:1.4}
+/* financials: budget areas */
+.fin-bh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fin-bh .gf-sec{margin-bottom:6px}
+.fin-buds{margin:6px 0 4px}
+.fin-bud{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;background:none;border:0;padding:7px 2px;color:var(--fg);font:500 .9rem var(--font-body);text-align:left;cursor:pointer;border-radius:8px}
+.fin-bud:hover{background:rgba(255,255,255,.03)}
+.fin-bud .fb-s{grid-column:1/-1;font-size:.76rem;color:var(--fg-soft)}
+.fin-bud.over .fb-s{color:#F17778;font-weight:600}
+.fb-f.warn{background:linear-gradient(90deg,#E9A23B,#F0C36A)}.fb-f.bad{background:#F17778}
+.fin-bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:8px 0 12px}
+.fin-pl tr.ar td{padding-top:10px}.fin-pl tr.sub td{font-size:.84rem;color:var(--fg-soft);padding-top:2px;padding-bottom:2px}.fin-pl .ind{padding-left:14px;display:inline-block}
+.fin-rev{margin:10px 0}.fin-rev summary{cursor:pointer;font-weight:600;color:var(--gold-light);padding:6px 0}
+.fin-rev .gf-tw{max-height:420px;overflow:auto}.fin-rev td small{display:block;font-size:.74rem;color:var(--fg-soft);max-width:340px}
+.fin-rev tr.unc td{color:#F0C36A}.fin-rev tr.grp td{font-weight:700;color:var(--gold-light);padding-top:12px}
 </style>
 </head>
 <body>
@@ -4376,23 +4390,55 @@ renderReceiptList=function(){
 
 /* ═══ FINANCIALS: own password, encrypted on this device, accounts, CSV import, reports ═══ */
 var MNY={key:null,salt:null,iter:310000,version:0,data:null,view:'over',range:'season',biz:'Hunting',acct:'',idle:null,hideT:null,plan:null,imp:null,edit:null,busy:false};
+// [category, kind, budget area]. kind: in = income, out = expense, xfer = moves money between your own accounts
+var MNY_AREAS=['Lodge','Birds','Dogs','Cleaning / Processing','Field & Habitat','Vehicles','Marketing','Office & Admin'];
 var MNY_CATS=[
-  ['Hunt packages','in'],['Deposits','in'],['Tips','in'],['Merchandise','in'],['Other income','in'],
-  ['Birds','out'],['Feed & grain','out'],['Processing supplies','out'],['Fuel','out'],['Lodge & food','out'],['Utilities','out'],['Repairs & maintenance','out'],
-  ['Equipment','out'],['Labor','out'],['Advertising','out'],['Insurance','out'],['Licenses & fees','out'],['Bank & card fees','out'],['Taxes','out'],['Office & phone','out'],['Other expense','out'],
-  ['Transfer / card payment','xfer'],['Owner draw / contribution','xfer'],['Uncategorized','none']];
+  ['Hunt packages','in','Income'],['Deposits','in','Income'],['Tips','in','Income'],['Merchandise','in','Income'],['Other income','in','Income'],
+  ['Groceries & food','out','Lodge'],['Kitchen & cooking supplies','out','Lodge'],['Lodge supplies','out','Lodge'],['Cleaning & household','out','Lodge'],['Linens & bedding','out','Lodge'],
+  ['Furniture & appliances','out','Lodge'],['Utilities','out','Lodge'],['Repairs & maintenance','out','Lodge'],['Building materials','out','Lodge'],['Pest control','out','Lodge'],
+  ['Bird purchases','out','Birds'],['Feed & grain','out','Birds'],['Pens & flight pens','out','Birds'],
+  ['Dog food','out','Dogs'],['Vet','out','Dogs'],['Kennel & gear','out','Dogs'],['Training','out','Dogs'],
+  ['Processing supplies','out','Cleaning / Processing'],['Labor','out','Cleaning / Processing'],['Processing equipment','out','Cleaning / Processing'],
+  ['Food plots & seed','out','Field & Habitat'],['Field equipment & repairs','out','Field & Habitat'],['Hunting gear & ammo','out','Field & Habitat'],
+  ['Fuel','out','Vehicles'],['Vehicle repairs','out','Vehicles'],
+  ['Advertising','out','Marketing'],['Website','out','Marketing'],['Shows & events','out','Marketing'],['Honey & merchandise','out','Marketing'],
+  ['Insurance','out','Office & Admin'],['Licenses & fees','out','Office & Admin'],['Taxes','out','Office & Admin'],['Professional fees','out','Office & Admin'],['Office & phone','out','Office & Admin'],
+  ['Postage & shipping','out','Office & Admin'],['Bank & card fees','out','Office & Admin'],['Meals','out','Office & Admin'],['Other expense','out','Office & Admin'],
+  ['Personal','out','Personal'],
+  ['Transfer / card payment','xfer','Transfers'],['Owner draw / contribution','xfer','Transfers'],['Uncategorized','none','Uncategorized']];
+// older category names (before budget areas)
+var MNY_RENAME={'Birds':'Bird purchases','Lodge & food':'Groceries & food','Equipment':'Field equipment & repairs'};
 var MNY_RULES=[
-  ['THANK YOU','Transfer / card payment'],['E-PAYMENT','Transfer / card payment'],['INTERNET PAYMENT','Transfer / card payment'],['PAYMENT RECEIVED','Transfer / card payment'],['ULINE','Processing supplies'],['VAC BAG','Processing supplies'],['VACUUM','Processing supplies'],['ONLINE PAYMENT','Transfer / card payment'],['AUTOPAY','Transfer / card payment'],['TRANSFER','Transfer / card payment'],
+  ['THANK YOU','Transfer / card payment'],['E-PAYMENT','Transfer / card payment'],['INTERNET PAYMENT','Transfer / card payment'],['PAYMENT RECEIVED','Transfer / card payment'],['ULINE','Processing supplies'],['VAC BAG','Processing supplies'],['VACUUM SEAL','Processing supplies'],['ONLINE PAYMENT','Transfer / card payment'],['AUTOPAY','Transfer / card payment'],['TRANSFER','Transfer / card payment'],
   ['CENEX','Fuel'],['CASEY','Fuel'],['SHELL OIL','Fuel'],['SINCLAIR','Fuel'],['PHILLIPS 66','Fuel'],['CONOCO','Fuel'],['EXXON','Fuel'],['HOLIDAY STATION','Fuel'],['KUM & GO','Fuel'],['PILOT','Fuel'],["LOVE'S",'Fuel'],
-  ['HY-VEE','Lodge & food'],['WALMART','Lodge & food'],['WAL-MART','Lodge & food'],['SAMS CLUB',"Lodge & food"],["SAM'S CLUB",'Lodge & food'],['COSTCO','Lodge & food'],['DOLLAR GENERAL','Lodge & food'],['COUNTY MARKET','Lodge & food'],['FAREWAY','Lodge & food'],['SUNSHINE FOODS','Lodge & food'],
-  ['TRACTOR SUPPLY','Equipment'],['RUNNINGS','Equipment'],['FLEET FARM','Equipment'],['SCHEELS','Equipment'],['CABELA','Equipment'],
+  ['HY-VEE','Groceries & food'],['WALMART','Groceries & food'],['WAL-MART','Groceries & food'],['WM SUPERCENTER','Groceries & food'],['SAMS CLUB',"Groceries & food"],["SAM'S CLUB",'Groceries & food'],['COSTCO','Groceries & food'],['DOLLAR GENERAL','Groceries & food'],['COUNTY MARKET','Groceries & food'],['FAREWAY','Groceries & food'],['SUNSHINE FOODS','Groceries & food'],['WOONY FOODS','Groceries & food'],['COBORN','Groceries & food'],
+  ['VETERINARY','Vet'],['ANIMAL HOSPITAL','Vet'],['TRACTOR SUPPLY','Field equipment & repairs'],['RUNNINGS','Repairs & maintenance'],['FLEET FARM','Field equipment & repairs'],['MENARDS','Repairs & maintenance'],['ACE HARDWARE','Repairs & maintenance'],['TRUE VALUE','Repairs & maintenance'],['CARQUEST','Vehicle repairs'],['NAPA','Vehicle repairs'],['CAR WASH','Vehicle repairs'],
+  ['SCHEELS','Hunting gear & ammo'],['CABELA','Hunting gear & ammo'],['KUIU','Hunting gear & ammo'],['EXPRESS 2','Fuel'],['EXPRESS STOP','Fuel'],
+  ['MCDONALD','Meals'],['CULVER','Meals'],['RESTAURANT','Meals'],['USPS','Postage & shipping'],['SEC OF STATE','Licenses & fees'],['DEPT REVENUE','Taxes'],['STAX','Taxes'],['OVERDRAFT TRANSFER','Transfer / card payment'],
   ['SANTEL','Utilities'],['XCEL','Utilities'],['NORTHWESTERN ENERGY','Utilities'],['VERIZON','Office & phone'],
   ['FACEBK','Advertising'],['META ADS','Advertising'],['GOOGLE ADS','Advertising'],
   ['INSURANCE','Insurance'],['FARM BUREAU','Insurance'],['STATE FARM','Insurance'],
   ['SERVICE CHARGE','Bank & card fees'],['INTEREST CHARGE','Bank & card fees'],['LATE FEE','Bank & card fees'],['ANNUAL FEE','Bank & card fees'],
   ['VENMO','Deposits'],['MOBILE DEPOSIT','Deposits'],['DEPOSIT','Deposits']];
-function mnyKind(c){var x=MNY_CATS.filter(function(k){return k[0]===c;})[0];return x?x[1]:((MNY.data&&MNY.data.cats||[]).filter(function(k){return k[0]===c;})[0]||[c,'out'])[1];}
+function mnyCat(c){return MNY_CATS.filter(function(k){return k[0]===c;})[0]||((MNY.data&&MNY.data.cats)||[]).filter(function(k){return k[0]===c;})[0]||null;}
+function mnyKind(c){var x=mnyCat(c);return x?x[1]:'out';}
+function mnyArea(c){var x=mnyCat(c);return x?(x[2]||(x[1]==='in'?'Income':'Office & Admin')):'Office & Admin';}
 function mnyAllCats(){return MNY_CATS.concat((MNY.data&&MNY.data.cats)||[]);}
+// <select> options grouped by budget area
+function mnyCatOptions(sel,opts){
+  opts=opts||{};var groups={},order=[];
+  mnyAllCats().forEach(function(c){if(opts.noNone&&c[1]==='none')return;var a=mnyArea(c[0]);if(!groups[a]){groups[a]=[];order.push(a);}groups[a].push(c[0]);});
+  return order.map(function(a){return '<optgroup label="'+esc(a)+'">'+(opts.areas&&a!=='Uncategorized'?'<option value="area:'+esc(a)+'"'+(sel==='area:'+a?' selected':'')+'>All of '+esc(a)+'</option>':'')+
+    groups[a].map(function(c){return '<option value="'+esc(c)+'"'+(sel===c?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</optgroup>';}).join('');
+}
+function mnyCatMatch(x,cat){return !cat||(cat.indexOf('area:')===0?mnyArea(x.cat)===cat.slice(5):x.cat===cat);}
+// data from before budget areas: rename the old categories, add a place for budgets
+function mnyMigrate(d){
+  if(d.v>=2)return d;
+  (d.txns||[]).forEach(function(t){if(MNY_RENAME[t.cat])t.cat=MNY_RENAME[t.cat];});
+  (d.rules||[]).forEach(function(r){if(MNY_RENAME[r.cat])r.cat=MNY_RENAME[r.cat];});
+  d.budgets=d.budgets||{};d.v=2;return d;
+}
 // ── crypto: PBKDF2 → AES-GCM, all on this device ──
 function b64(u){var s='';u=new Uint8Array(u);for(var i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s);}
 function unb64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
@@ -4454,7 +4500,7 @@ async function mnySetup(){
   if(!document.getElementById('fin-ack').checked){m.className='re-msg err';m.textContent='Check the box once you\u2019ve written it down.';return;}
   m.className='re-msg';m.textContent='Setting up\u2026';
   MNY.salt=crypto.getRandomValues(new Uint8Array(16));MNY.key=await mnyDerive(a,MNY.salt,MNY.iter);
-  MNY.data={v:1,accounts:[{id:'a1',name:'Davis Ranch Hunting LLC \u2014 main',type:'Checking',added:localToday()}],txns:[],rules:[],cats:[],imports:[]};
+  MNY.data={v:2,accounts:[{id:'a1',name:'Davis Ranch Hunting LLC \u2014 main',type:'Checking',added:localToday()}],txns:[],rules:[],cats:[],imports:[],budgets:{}};
   var ok=await mnySave('Set up');if(!ok){MNY.key=null;return;}
   mnyTouch();MNY.view='add';mnyRender();
 }
@@ -4463,7 +4509,7 @@ async function mnyUnlock(){
   m.className='re-msg';m.textContent='Unlocking\u2026';
   try{
     var e=JSON.parse(MNY.env),salt=unb64(e.salt),k=await mnyDerive(pw,salt,e.iter||310000),d=await mnyOpen(MNY.env,k);
-    MNY.key=k;MNY.salt=salt;MNY.iter=e.iter||310000;MNY.data=d;MNY.env=null;mnyTouch();mnyRender();
+    MNY.key=k;MNY.salt=salt;MNY.iter=e.iter||310000;MNY.data=mnyMigrate(d);MNY.env=null;mnyTouch();mnyRender();
   }catch(err){m.className='re-msg err';m.textContent='That password didn\u2019t unlock it. Try again.';var p=document.getElementById('fin-pw');if(p){p.value='';p.focus();}}
 }
 async function mnySave(what){
@@ -4516,7 +4562,7 @@ function mnyFilters(){
 }
 // ── overview / reports ──
 function mnyTotals(rows){
-  var t={inn:0,out:0,byIn:{},byOut:{},months:{},n:rows.length};
+  var t={inn:0,out:0,byIn:{},byOut:{},byArea:{},months:{},n:rows.length};
   rows.forEach(function(x){
     var k=mnyKind(x.cat),m=x.date.slice(0,7);if(!t.months[m])t.months[m]={inn:0,out:0};
     if(k==='xfer')return;
@@ -4524,6 +4570,7 @@ function mnyTotals(rows){
     else if(x.amt<0){t.out+=-x.amt;t.byOut[x.cat]=(t.byOut[x.cat]||0)-x.amt;t.months[m].out+=-x.amt;}
     else{t.out-=x.amt;t.byOut[x.cat]=(t.byOut[x.cat]||0)-x.amt;t.months[m].out-=x.amt;}   // refunds on an expense category reduce it
   });
+  Object.keys(t.byOut).forEach(function(c){var a=mnyArea(c);t.byArea[a]=(t.byArea[a]||0)+t.byOut[c];});
   return t;
 }
 function mnyOverview(v){
@@ -4535,7 +4582,8 @@ function mnyOverview(v){
     '<div class="'+(net<0?'warn':'')+'"><span>Net</span><b class="'+(net>=0?'pos':'neg')+'">'+mnyMoney0(net)+'</b><small>'+(T.inn?Math.round(net/T.inn*100)+'% margin':'')+'</small></div><div><span>Lines</span><b>'+rows.length+'</b><small>'+(unc.length?unc.length+' need a category':'all sorted')+'</small></div></div>';
   if(unc.length)html+='<button type="button" class="fin-nudge" onclick="MNY.view=\'txn\';MNY.q=\'\';MNY.cat=\'Uncategorized\';mnyRender()">'+unc.length+' line'+(unc.length===1?'':'s')+' need a category \u203a</button>';
   html+='<h3 class="gf-sec">Month by month</h3>'+mnyMonthSvg(T.months)+
-    '<div class="fin-2"><div><h3 class="gf-sec">Where the money went</h3>'+mnyBars(T.byOut,T.out,'out')+'</div><div><h3 class="gf-sec">Where it came from</h3>'+mnyBars(T.byIn,T.inn,'in')+'</div></div>'+
+    mnyBudget(T)+
+    '<div class="fin-2"><div><h3 class="gf-sec">Where the money went</h3>'+mnyBars(T.byArea,T.out,'out',true)+'</div><div><h3 class="gf-sec">Where it came from</h3>'+mnyBars(T.byIn,T.inn,'in')+'</div></div>'+
     '<div id="fin-unit"></div>'+
     '<h3 class="gf-sec">Profit &amp; loss</h3>'+mnyPL(T)+
     '<div class="gf-act" style="margin-top:14px"><button type="button" class="btn-small btn-gold" onclick="mnyPrint()"><span data-ic="print"></span>Print P&amp;L</button><button type="button" class="btn-small" onclick="mnyCsv()"><span data-ic="drive"></span>Copy as CSV</button></div>';
@@ -4560,24 +4608,65 @@ function mnyMonthSvg(months){
   s+='<polyline class="fin-cum" points="'+pts.map(function(p){return p[0]+','+cy(p[1]);}).join(' ')+'"/>'+pts.map(function(p){return '<circle cx="'+p[0]+'" cy="'+cy(p[1])+'" r="3.5" class="fin-cumdot"><title>Running net '+money(p[1])+'</title></circle>';}).join('');
   return '<div class="fin-legend"><span class="li in">Money in</span><span class="li out">Money out</span><span class="li cum">Running net</span></div><div class="gf-tw"><svg class="fin-svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="Money in and out by month">'+s+'</svg></div>';
 }
-function mnyBars(by,tot,kind){
+function mnyBars(by,tot,kind,areas){
   var k=Object.keys(by).sort(function(a,b){return by[b]-by[a];});
   if(!k.length)return '<div class="report-hint">Nothing here yet.</div>';
-  return '<div class="fin-bars">'+k.map(function(c){var p=tot?by[c]/tot:0;return '<button type="button" class="fin-bar" onclick="MNY.view=\'txn\';MNY.cat=\''+esc(c).replace(/'/g,"\\'")+'\';mnyRender()"><span class="fb-l">'+esc(c)+'</span><span class="fb-v">'+mnyMoney0(by[c])+' <i>'+Math.round(p*100)+'%</i></span><span class="fb-t"><span class="fb-f '+kind+'" style="width:'+Math.max(2,p*100)+'%"></span></span></button>';}).join('')+'</div>';
+  return '<div class="fin-bars">'+k.map(function(c){var p=tot?by[c]/tot:0;return '<button type="button" class="fin-bar" onclick="MNY.view=\'txn\';MNY.cat=\''+(areas?'area:':'')+esc(c).replace(/'/g,"\\'")+'\';mnyRender()"><span class="fb-l">'+esc(c)+'</span><span class="fb-v">'+mnyMoney0(by[c])+' <i>'+Math.round(p*100)+'%</i></span><span class="fb-t"><span class="fb-f '+kind+'" style="width:'+Math.max(2,p*100)+'%"></span></span></button>';}).join('')+'</div>';
+}
+function mnyAreaOrder(T){
+  var a=MNY_AREAS.filter(function(x){return T.byArea[x];});
+  Object.keys(T.byArea).forEach(function(x){if(a.indexOf(x)<0)a.push(x);});return a;
+}
+function mnyPLRows(T,tr){
+  var rowsIn=Object.keys(T.byIn).sort(function(a,b){return T.byIn[b]-T.byIn[a];});
+  var out=mnyAreaOrder(T).map(function(a){
+    var cs=Object.keys(T.byOut).filter(function(c){return mnyArea(c)===a;}).sort(function(x,y){return T.byOut[y]-T.byOut[x];});
+    return tr('<b>'+esc(a)+'</b>','<b>'+money(T.byArea[a])+'</b>','ar')+cs.map(function(c){return tr('<span class="ind">'+esc(c)+'</span>',money(T.byOut[c]),'sub');}).join('');
+  }).join('');
+  return tr('<b>Income</b>','','hd')+rowsIn.map(function(c){return tr(esc(c),money(T.byIn[c]));}).join('')+tr('Total income',money(T.inn),'tot')+
+    tr('<b>Expenses</b>','','hd')+out+tr('Total expenses',money(T.out),'tot')+tr('<b>Net profit</b>','<b>'+money(T.inn-T.out)+'</b>','net');
 }
 function mnyPL(T){
-  var rowsIn=Object.keys(T.byIn).sort(function(a,b){return T.byIn[b]-T.byIn[a];}),rowsOut=Object.keys(T.byOut).sort(function(a,b){return T.byOut[b]-T.byOut[a];});
   var tr=function(a,b,c){return '<tr'+(c?' class="'+c+'"':'')+'><td>'+a+'</td><td class="n">'+b+'</td></tr>';};
-  return '<div class="gf-tw"><table class="gf-t fin-pl"><tbody>'+tr('<b>Income</b>','','hd')+rowsIn.map(function(c){return tr(esc(c),money(T.byIn[c]));}).join('')+tr('Total income',money(T.inn),'tot')+
-    tr('<b>Expenses</b>','','hd')+rowsOut.map(function(c){return tr(esc(c),money(T.byOut[c]));}).join('')+tr('Total expenses',money(T.out),'tot')+
-    tr('<b>Net profit</b>','<b>'+money(T.inn-T.out)+'</b>','net')+'</tbody></table></div>';
+  return '<div class="gf-tw"><table class="gf-t fin-pl"><tbody>'+mnyPLRows(T,tr)+'</tbody></table></div>';
+}
+// ── budgets: a season budget for each area, spent vs. budget ──
+function mnyBudget(T){
+  var on=MNY.range==='season'||MNY.range==='year';
+  if(!on||MNY.biz==='Personal')return '';
+  var B=MNY.data.budgets||{},any=MNY_AREAS.some(function(a){return B[a]>0;});
+  var hd='<div class="fin-bh"><h3 class="gf-sec">Budget by area</h3><button type="button" class="btn-small" onclick="mnyBudgetEdit()">'+(any?'Change budgets':'Set budgets')+'</button></div>';
+  var rows=MNY_AREAS.map(function(a){
+    var sp=T.byArea[a]||0,bu=B[a]||0;if(!sp&&!bu)return '';
+    var p=bu?sp/bu:0,over=bu&&sp>bu;
+    return '<button type="button" class="fin-bud'+(over?' over':'')+'" onclick="MNY.view=\'txn\';MNY.cat=\'area:'+esc(a)+'\';mnyRender()"><span class="fb-l">'+esc(a)+'</span>'+
+      '<span class="fb-v">'+mnyMoney0(sp)+(bu?' <i>of '+mnyMoney0(bu)+'</i>':' <i>no budget</i>')+'</span>'+
+      '<span class="fb-t">'+(bu?'<span class="fb-f '+(over?'bad':p>.85?'warn':'out')+'" style="width:'+Math.max(2,Math.min(100,p*100))+'%"></span>':'')+'</span>'+
+      (bu?'<small class="fb-s">'+(over?mnyMoney0(sp-bu)+' over':mnyMoney0(bu-sp)+' left')+' \u00b7 '+Math.round(p*100)+'%</small>':'')+'</button>';
+  }).join('');
+  var tb=MNY_AREAS.reduce(function(s,a){return s+(B[a]||0);},0),ts=MNY_AREAS.reduce(function(s,a){return s+(T.byArea[a]||0);},0);
+  return hd+(any?'<div class="fin-sub">Season budgets (Aug 1 \u2013 Jul 31). Spent '+mnyMoney0(ts)+' of '+mnyMoney0(tb)+'.</div>':'<div class="fin-sub">Set a season budget for each area to see spent vs. budget here.</div>')+
+    '<div class="fin-bars fin-buds" id="fin-buds">'+rows+'</div><div id="fin-bed"></div>';
+}
+function mnyBudgetEdit(){
+  var box=document.getElementById('fin-bed');if(!box)return;
+  if(box.innerHTML){box.innerHTML='';return;}
+  var B=MNY.data.budgets||{},T=mnyTotals(mnyRows());
+  box.innerHTML='<div class="fin-panel"><p class="fin-p">Season budget for each area (Aug 1 \u2013 Jul 31). Leave blank for no budget. Spent so far this season is shown to help.</p><div class="fin-bgrid">'+
+    MNY_AREAS.map(function(a,i){return '<label>'+esc(a)+'<input type="number" min="0" step="50" inputmode="numeric" id="fb-'+i+'" value="'+(B[a]||'')+'" placeholder="spent '+mnyMoney0(T.byArea[a]||0)+'"></label>';}).join('')+
+    '</div><div class="fin-ed-b"><button type="button" class="btn-small" onclick="document.getElementById(\'fin-bed\').innerHTML=\'\'">Cancel</button><button type="button" class="btn-small btn-gold" onclick="mnyBudgetSave()">Save budgets</button></div></div>';
+}
+async function mnyBudgetSave(){
+  var B={};MNY_AREAS.forEach(function(a,i){var n=parseFloat(val('fb-'+i));if(n>0)B[a]=Math.round(n);});
+  var keep=MNY.data.budgets;MNY.data.budgets=B;
+  if(await mnySave('Budgets saved'))mnyRender();else MNY.data.budgets=keep;
 }
 function mnyUnit(){
   var box=document.getElementById('fin-unit');if(!box)return;
   if(MNY.range!=='season'||MNY.biz!=='Hunting'){box.innerHTML='';return;}
   var show=function(p){
     var S=p.season||{},hunters=(p.groups||[]).reduce(function(a,g){return a+(g.hunters||0);},0),rows=mnyRows(),T=mnyTotals(rows);
-    var birdsCost=T.byOut['Birds']||0,bought=S.purchased||0,shot=S.harvested||0,hist=(p.history||[]).filter(function(h){return h.live;})[0]||(p.history||[]).slice(-1)[0]||{};
+    var birdsCost=T.byOut['Bird purchases']||0,bought=S.purchased||0,shot=S.harvested||0,hist=(p.history||[]).filter(function(h){return h.live;})[0]||(p.history||[]).slice(-1)[0]||{};
     var billed=hist.billed||0,hunt=(T.byIn['Hunt packages']||0)+(T.byIn['Deposits']||0);
     var c=function(l,v,s){return '<div><span>'+l+'</span><b>'+v+'</b><small>'+s+'</small></div>';};
     box.innerHTML='<h3 class="gf-sec">Per bird &amp; per hunter (this season)</h3><div class="gf-tiles fin-tiles">'+
@@ -4595,44 +4684,46 @@ function mnyPrint(){
   var rows=mnyRows(),T=mnyTotals(rows),R=mnyRange(),f=procFacility||{name:'Davis Ranch Hunting LLC'};
   var tr=function(a,b,c){return '<tr'+(c?' class="'+c+'"':'')+'><td>'+a+'</td><td class="n">'+b+'</td></tr>';};
   var mk=Object.keys(T.months).sort();
-  var html='<style>'+GF_CSS+'</style><div class="g"><h1>'+esc(f.name)+' \u2014 Profit &amp; Loss</h1><div class="sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'Hunting + personal':MNY.biz)+' \u00b7 '+esc(MNY.acct?mnyAcctName(MNY.acct):'All accounts')+' \u00b7 Printed '+esc(usDate(localToday()))+'</div>'+
+  var html='<style>'+GF_CSS+'.g tr.sub td{font-size:8.5pt;color:#333}.g .ind{padding-left:12pt;display:inline-block}.g tr.hd td{padding-top:8pt}.g tr.tot td,.g tr.net td{border-top:1px solid #000;font-weight:bold}</style><div class="g"><h1>'+esc(f.name)+' \u2014 Profit &amp; Loss</h1><div class="sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'Hunting + personal':MNY.biz)+' \u00b7 '+esc(MNY.acct?mnyAcctName(MNY.acct):'All accounts')+' \u00b7 Printed '+esc(usDate(localToday()))+'</div>'+
     '<table class="kv"><tr><td>Income<br><b>'+money(T.inn)+'</b></td><td>Expenses<br><b>'+money(T.out)+'</b></td><td>Net profit<br><b>'+money(T.inn-T.out)+'</b></td></tr></table>'+
-    '<h2>Income</h2><table>'+Object.keys(T.byIn).sort(function(a,b){return T.byIn[b]-T.byIn[a];}).map(function(c){return tr(esc(c),money(T.byIn[c]));}).join('')+tr('Total income',money(T.inn),'tot')+'</table>'+
-    '<h2>Expenses</h2><table>'+Object.keys(T.byOut).sort(function(a,b){return T.byOut[b]-T.byOut[a];}).map(function(c){return tr(esc(c),money(T.byOut[c]));}).join('')+tr('Total expenses',money(T.out),'tot')+'</table>'+
+    '<h2>Profit &amp; loss</h2><table class="pl">'+mnyPLRows(T,tr)+'</table>'+
+    (MNY.range==='season'||MNY.range==='year'?mnyBudgetPrint(T):'')+
     '<h2>By month</h2><table><tr><th>Month</th><th class="n">In</th><th class="n">Out</th><th class="n">Net</th></tr>'+mk.map(function(k){var m=T.months[k];return '<tr><td>'+mnyMon(k+'-01')+'</td><td class="n">'+money(m.inn)+'</td><td class="n">'+money(m.out)+'</td><td class="n">'+money(m.inn-m.out)+'</td></tr>';}).join('')+'</table></div>';
   var area=document.getElementById('print-area');if(!area){area=document.createElement('div');area.id='print-area';document.body.appendChild(area);}
   area.innerHTML=html;setTimeout(function(){window.print();},60);
 }
+function mnyBudgetPrint(T){
+  var B=MNY.data.budgets||{};if(!MNY_AREAS.some(function(a){return B[a]>0;}))return '';
+  return '<h2>Budget by area</h2><table><tr><th>Area</th><th class="n">Budget</th><th class="n">Spent</th><th class="n">Left</th></tr>'+MNY_AREAS.filter(function(a){return B[a]||T.byArea[a];}).map(function(a){var b=B[a]||0,s=T.byArea[a]||0;
+    return '<tr><td>'+esc(a)+'</td><td class="n">'+(b?money(b):'\u2013')+'</td><td class="n">'+money(s)+'</td><td class="n">'+(b?money(b-s):'\u2013')+'</td></tr>';}).join('')+'</table>';
+}
 function mnyCsv(){
   var rows=mnyRows().slice().sort(function(a,b){return a.date.localeCompare(b.date);});
   var q=function(s){s=String(s==null?'':s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
-  var txt=['Date,Account,Description,Amount,Category,Business,Note'].concat(rows.map(function(x){return [x.date,mnyAcctName(x.acct),x.desc,x.amt.toFixed(2),x.cat,x.biz||'Hunting',x.note||''].map(q).join(',');})).join('\n');
+  var txt=['Date,Account,Description,Amount,Area,Category,Business,Note'].concat(rows.map(function(x){return [x.date,mnyAcctName(x.acct),x.desc,x.amt.toFixed(2),mnyArea(x.cat),x.cat,x.biz||'Hunting',x.note||''].map(q).join(',');})).join('\n');
   navigator.clipboard.writeText(txt).then(function(){toast('\u2713 Copied '+rows.length+' lines. Paste into a spreadsheet.');},function(){toast('Copy didn\u2019t work on this device.',true);});
 }
 // ── transactions ──
 function mnyTxns(v){
   var q=(MNY.q||'').toLowerCase(),cat=MNY.cat||'';
-  var rows=mnyRows().filter(function(x){return (!cat||x.cat===cat)&&(!q||(x.desc+' '+(x.note||'')+' '+x.cat+' '+x.amt.toFixed(2)).toLowerCase().indexOf(q)>=0);}).sort(function(a,b){return b.date.localeCompare(a.date)||(b.seq||0)-(a.seq||0);});
-  var cats=mnyAllCats().map(function(c){return c[0];});
-  var html='<div class="fin-flt2"><input type="search" id="fin-q" placeholder="Search store, note or amount" value="'+esc(MNY.q||'')+'" oninput="MNY.q=this.value;mnyTxnList()"><select id="fin-cat" aria-label="Category" onchange="MNY.cat=this.value;mnyTxnList()"><option value="">All categories</option>'+cats.map(function(c){return '<option'+(cat===c?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select></div><div id="fin-list"></div>';
+  var html='<div class="fin-flt2"><input type="search" id="fin-q" placeholder="Search store, note or amount" value="'+esc(MNY.q||'')+'" oninput="MNY.q=this.value;mnyTxnList()"><select id="fin-cat" aria-label="Area or category" onchange="MNY.cat=this.value;mnyTxnList()"><option value="">All areas &amp; categories</option>'+mnyCatOptions(cat,{areas:true})+'</select></div><div id="fin-list"></div>';
   v.innerHTML=html;mnyTxnList();
 }
 function mnyTxnList(){
   var q=(MNY.q||'').toLowerCase(),cat=MNY.cat||'',box=document.getElementById('fin-list');if(!box)return;
-  var rows=mnyRows().filter(function(x){return (!cat||x.cat===cat)&&(!q||(x.desc+' '+(x.note||'')+' '+x.cat+' '+x.amt.toFixed(2)).toLowerCase().indexOf(q)>=0);}).sort(function(a,b){return b.date.localeCompare(a.date)||(b.seq||0)-(a.seq||0);});
+  var rows=mnyRows().filter(function(x){return mnyCatMatch(x,cat)&&(!q||(x.desc+' '+(x.note||'')+' '+x.cat+' '+mnyArea(x.cat)+' '+x.amt.toFixed(2)).toLowerCase().indexOf(q)>=0);}).sort(function(a,b){return b.date.localeCompare(a.date)||(b.seq||0)-(a.seq||0);});
   if(!rows.length){box.innerHTML='<div class="report-hint">No lines match.</div>';return;}
   var sum=rows.reduce(function(a,x){return mnyKind(x.cat)==='xfer'?a:a+x.amt;},0),mon='';
   box.innerHTML='<div class="fin-sub">'+rows.length+' line'+(rows.length===1?'':'s')+' \u00b7 net '+money(sum)+'</div>'+rows.slice(0,400).map(function(x){
     var m=x.date.slice(0,7),h='';if(m!==mon){mon=m;h='<div class="rx-gh">'+mnyMon(m+'-01')+'</div>';}
     var k=mnyKind(x.cat);
-    return h+'<div class="fin-t'+(x.cat==='Uncategorized'?' unc':'')+'" id="ft-'+x.id+'"><button type="button" class="fin-t-row" onclick="mnyEdit(\''+x.id+'\')"><span class="ft-d">'+esc(usDate(x.date).slice(0,5))+'</span><span class="ft-m"><b>'+esc(x.desc)+'</b><small><i class="ft-cat '+k+'">'+esc(x.cat)+'</i>'+esc(mnyAcctName(x.acct))+((x.biz||'Hunting')!=='Hunting'?' \u00b7 '+esc(x.biz):'')+(x.rid?' \u00b7 \ud83d\udcce receipt':'')+(x.note?' \u00b7 '+esc(x.note):'')+'</small></span><span class="ft-a '+(x.amt>=0?'pos':'')+'">'+(x.amt>=0?'+':'\u2212')+money(Math.abs(x.amt)).slice(0)+'</span></button>'+(MNY.edit===x.id?mnyEditor(x):'')+'</div>';
+    return h+'<div class="fin-t'+(x.cat==='Uncategorized'?' unc':'')+'" id="ft-'+x.id+'"><button type="button" class="fin-t-row" onclick="mnyEdit(\''+x.id+'\')"><span class="ft-d">'+esc(usDate(x.date).slice(0,5))+'</span><span class="ft-m"><b>'+esc(x.desc)+'</b><small><i class="ft-cat '+k+'">'+(k==='out'&&x.cat!=='Personal'?esc(mnyArea(x.cat))+' \u203a ':'')+esc(x.cat)+'</i>'+esc(mnyAcctName(x.acct))+((x.biz||'Hunting')!=='Hunting'?' \u00b7 '+esc(x.biz):'')+(x.rid?' \u00b7 \ud83d\udcce receipt':'')+(x.note?' \u00b7 '+esc(x.note):'')+'</small></span><span class="ft-a '+(x.amt>=0?'pos':'')+'">'+(x.amt>=0?'+':'\u2212')+money(Math.abs(x.amt)).slice(0)+'</span></button>'+(MNY.edit===x.id?mnyEditor(x):'')+'</div>';
   }).join('')+(rows.length>400?'<div class="report-hint">Showing the newest 400. Search or filter to narrow it down.</div>':'');
 }
 function mnyEdit(id){MNY.edit=MNY.edit===id?null:id;mnyTxnList();}
 function mnyVendor(d){return String(d||'').toUpperCase().replace(/[#*]+\s*\d+.*$/,'').replace(/\d{3,}/g,' ').replace(/\s+/g,' ').trim().split(' ').slice(0,3).join(' ');}
 function mnyEditor(x){
-  var cats=mnyAllCats().map(function(c){return c[0];});
-  return '<div class="fin-ed"><div class="fin-ed-g"><label>Category<select id="fe-cat">'+cats.map(function(c){return '<option'+(x.cat===c?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'<option value="__new">+ New category\u2026</option></select></label>'+
+  return '<div class="fin-ed"><div class="fin-ed-g"><label>Category<select id="fe-cat">'+mnyCatOptions(x.cat)+'<option value="__new">+ New category\u2026</option></select></label>'+
     '<label>Business<select id="fe-biz">'+['Hunting','Personal'].map(function(b){return '<option'+((x.biz||'Hunting')===b?' selected':'')+'>'+b+'</option>';}).join('')+'</select></label></div>'+
     '<label>Note<input id="fe-note" value="'+esc(x.note||'')+'" placeholder="What was it for?"></label>'+
     '<label class="check-line"><input type="checkbox" id="fe-rule" checked> <span>Always put <b>'+esc(mnyVendor(x.desc))+'</b> in this category</span></label>'+
@@ -4655,9 +4746,9 @@ async function mnySaveEdit(id){
 }
 function mnyNewCat(){
   var el=document.getElementById('fe-newcat');
-  if(!el){document.querySelector('.fin-ed').insertAdjacentHTML('afterbegin','<label>New category name<input id="fe-newcat" placeholder="e.g. Dog food"></label><div class="fin-ed-g"><label>It is<select id="fe-newkind"><option value="out">an expense</option><option value="in">income</option></select></label></div>');return null;}
+  if(!el){document.querySelector('.fin-ed').insertAdjacentHTML('afterbegin','<label>New category name<input id="fe-newcat" placeholder="e.g. Decoys"></label><div class="fin-ed-g"><label>It is<select id="fe-newkind"><option value="out">an expense</option><option value="in">income</option></select></label><label>Budget area<select id="fe-newarea">'+MNY_AREAS.map(function(a){return '<option>'+esc(a)+'</option>';}).join('')+'</select></label></div>');return null;}
   var nm=el.value.trim();if(!nm){toast('Type a name for the new category.',true);return null;}
-  if(!mnyAllCats().some(function(c){return c[0]===nm;}))MNY.data.cats.push([nm,val('fe-newkind')]);
+  if(!mnyAllCats().some(function(c){return c[0]===nm;}))MNY.data.cats.push([nm,val('fe-newkind'),val('fe-newkind')==='in'?'Income':val('fe-newarea')]);
   return nm;
 }
 async function mnyDelete(id){
@@ -4698,7 +4789,6 @@ async function mnyViewReceipt(id){
 // ── add / import ──
 function mnyAcctOptions(sel){return MNY.data.accounts.map(function(a){return '<option value="'+a.id+'"'+(sel===a.id?' selected':'')+'>'+esc(a.name)+'</option>';}).join('');}
 function mnyAdd(v){
-  var cats=mnyAllCats().filter(function(c){return c[1]!=='none';}).map(function(c){return c[0];});
   v.innerHTML='<div class="fin-2"><div class="fin-panel"><h3 class="gf-sec">Import a CSV</h3><p class="fin-p">Download a CSV from your bank or card website, then pick it here. Nothing is saved until you check the preview and tap Import.</p>'+
     '<label>Into account<select id="fi-acct">'+mnyAcctOptions(MNY.lastAcct)+'</select></label>'+
     '<label class="btn-submit fin-file big">Choose CSV file<input type="file" id="fi-file" accept=".csv,text/csv,.txt" onchange="mnyReadCsv(this)"></label><div id="fi-prev"></div></div>'+
@@ -4707,7 +4797,7 @@ function mnyAdd(v){
     '<div class="fin-ed-g"><label>Date<input type="date" id="fm-date" value="'+localToday()+'"></label><label>Amount<input type="number" id="fm-amt" step="0.01" min="0" inputmode="decimal" placeholder="0.00"></label></div>'+
     '<div class="gf-seg fin-io"><button type="button" class="on" id="fm-out" onclick="mnyIO(\'out\')">Money out</button><button type="button" id="fm-in" onclick="mnyIO(\'in\')">Money in</button><button type="button" id="fm-ref" onclick="mnyIO(\'ref\')">Refund</button></div>'+
     '<label>Store / description<input id="fm-desc" placeholder="e.g. Tractor Supply"></label>'+
-    '<div class="fin-ed-g"><label>Category<select id="fm-cat">'+cats.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select></label><label>Business<select id="fm-biz"><option>Hunting</option><option>Personal</option></select></label></div>'+
+    '<div class="fin-ed-g"><label>Category<select id="fm-cat">'+mnyCatOptions('Groceries & food',{noNone:true})+'</select></label><label>Business<select id="fm-biz"><option>Hunting</option><option>Personal</option></select></label></div>'+
     '<label>Note<input id="fm-note" placeholder="Optional"></label>'+
     '<label class="btn-small fin-file">\ud83d\udcf7 Receipt photo (optional)<input type="file" id="fm-photo" accept="image/*" onchange="document.getElementById(\'fm-ph\').textContent=this.files[0]?this.files[0].name:\'\'"></label><span class="fin-p" id="fm-ph"></span>'+
     '<button type="button" class="btn-submit" onclick="mnyAddManual()">Save purchase</button></div></div>';
@@ -4754,7 +4844,10 @@ function mnyGuess(head){
   var H=head.map(function(h){return h.toLowerCase().trim();}),find=function(re,not){for(var i=0;i<H.length;i++)if(re.test(H[i])&&!(not&&not.test(H[i])))return i;return -1;};
   var date=find(/^(trans(action)?\.?\s*date|date)$/);if(date<0)date=find(/date/,/post/);if(date<0)date=find(/date/);
   var amount=find(/^(amount|amt|transaction amount)$/);if(amount<0)amount=find(/amount/,/balance/);
-  return {date:date,desc:find(/(description|payee|merchant|name|memo|details)/),amount:amount,debit:find(/(debit|withdraw|charge)/),credit:find(/(credit|deposit)/,/card/)};
+  var m={date:date,desc:find(/(description|payee|merchant|name|memo|details)/),amount:amount,debit:find(/(debit|withdraw|charge)/),credit:find(/(credit|deposit)/,/card/),
+    area:find(/^(budget )?area$/),cat:find(/^category$/),biz:find(/^business$/),note:find(/^notes?$/),acct:find(/^account$/),type:find(/^account type$/),src:find(/^source$/),orig:find(/^bank amount$/),split:find(/^split$/)};
+  m.clean=m.area>=0&&m.cat>=0;   // a sorted file (Area + Category columns): rows go to the account named on each row
+  return m;
 }
 function mnyReadCsv(inp){
   var f=inp.files&&inp.files[0];if(!f)return;
@@ -4776,38 +4869,104 @@ function mnyImpRows(){
     if(m.amount>=0)amt=mnyNum(r[m.amount]);
     else{var db=mnyNum(r[m.debit]),cr=mnyNum(r[m.credit]);if(db)amt=-Math.abs(db);else if(cr)amt=Math.abs(cr);}
     if(amt===null||!d||!desc)return;
-    if(I.flip)amt=-amt;
-    out.push({date:d,desc:desc,amt:Math.round(amt*100)/100});
+    if(I.flip&&!m.clean)amt=-amt;
+    var o={date:d,desc:desc,amt:Math.round(amt*100)/100};
+    if(m.clean){
+      var g=function(k){return m[k]>=0?String(r[m[k]]||'').trim():'';};
+      o.cat=mnyCat(g('cat'))?g('cat'):'Uncategorized';o.biz=/^personal$/i.test(g('biz'))?'Personal':'Hunting';o.note=g('note');
+      o.acctName=g('acct');o.acctType=g('type')||'Checking';o.src=/receipt/i.test(g('src'))?'receipt':'bank';
+      var ob=mnyNum(g('orig'));if(ob!==null&&Math.abs(ob-o.amt)>0.004)o.orig=Math.round(ob*100)/100;if(/^part/i.test(g('split')))o.split='p';
+    }
+    out.push(o);
   });
   return out;
 }
+// which account a sorted-file row goes to: same name, else the only account of that type
+function mnyFindAcct(name,type){
+  var n=String(name||'').toLowerCase().trim(),A=MNY.data.accounts;
+  var a=A.filter(function(x){return x.name.toLowerCase().trim()===n;})[0];if(a)return a;
+  var t=A.filter(function(x){return (x.type||'')===type;});
+  if(type==='Checking'&&t.length===1&&/checking|main|llc/i.test(name))return t[0];
+  return null;
+}
+// split lines from one bank line count once; a receipt entered by hand matches the bank line when it shows up later
+function mnyDupKey(t){return t.date+'|'+(t.orig!==undefined?t.orig:t.amt).toFixed(2)+'|'+t.desc.toUpperCase();}
+function mnyDedupe(rows,acctOf){
+  var have={},seen={},claimed={},fresh=[],dup=0,fuzzy=[];
+  MNY.data.txns.forEach(function(t){if(t.split==='p')return;var k=t.acct+'#'+mnyDupKey(t);have[k]=(have[k]||0)+1;});
+  rows.forEach(function(r){
+    var a=acctOf(r),k=a+'#'+mnyDupKey(r);
+    if(r.split==='p'){if(seen[k+'#p']===undefined)seen[k+'#p']=(seen[k]||0)<(have[k]||0)?1:0;if(seen[k+'#p'])dup++;else fresh.push(r);return;}
+    seen[k]=(seen[k]||0)+1;
+    if(seen[k]<=(have[k]||0)){seen[k+'#p']=1;dup++;return;}
+    seen[k+'#p']=0;
+    if(r.src!=='receipt'){   // a bank line for something already entered from a receipt (not cleared yet)
+      var m=MNY.data.txns.filter(function(t){return t.acct===a&&t.src==='receipt'&&!t.cleared&&!claimed[t.id]&&Math.abs((t.orig!==undefined?t.orig:t.amt)-r.amt)<0.005&&
+        (new Date(r.date)-new Date(t.date))/864e5>=-3&&(new Date(r.date)-new Date(t.date))/864e5<=45;})[0];
+      if(m){claimed[m.id]=1;fuzzy.push({t:m,r:r});dup++;return;}
+    }
+    fresh.push(r);
+  });
+  return {fresh:fresh,dup:dup,fuzzy:fuzzy};
+}
 function mnyImpPreview(){
   var I=MNY.imp,box=document.getElementById('fi-prev');if(!I||!box)return;
+  if(I.map.clean)return mnyImpPreviewClean();
   var cols=I.head.map(function(h,i){return '<option value="'+i+'">'+esc(h||('Column '+(i+1)))+'</option>';}).join('');
   var sel=function(k,lbl,none){return '<label>'+lbl+'<select onchange="MNY.imp.map.'+k+'=+this.value;mnyImpPreview()">'+(none?'<option value="-1">(none)</option>':'')+cols.replace('value="'+I.map[k]+'"','value="'+I.map[k]+'" selected')+'</select></label>';};
-  var rows=mnyImpRows(),acct=val('fi-acct'),seen={},have={};
-  MNY.data.txns.forEach(function(t){if(t.acct===acct){var k=t.date+'|'+t.amt.toFixed(2)+'|'+t.desc.toUpperCase();have[k]=(have[k]||0)+1;}});
-  var fresh=[],dup=0;
-  rows.forEach(function(r){var k=r.date+'|'+r.amt.toFixed(2)+'|'+r.desc.toUpperCase();seen[k]=(seen[k]||0)+1;if(seen[k]<=(have[k]||0))dup++;else fresh.push(r);});
-  MNY.imp.fresh=fresh;
+  var rows=mnyImpRows(),acct=val('fi-acct'),D=mnyDedupe(rows,function(){return acct;}),fresh=D.fresh,dup=D.dup;
+  MNY.imp.fresh=fresh;MNY.imp.fuzzy=D.fuzzy;
   var spend=fresh.filter(function(r){return r.amt<0;}).reduce(function(a,r){return a-r.amt;},0),inc=fresh.filter(function(r){return r.amt>0;}).reduce(function(a,r){return a+r.amt;},0);
   var dates=fresh.map(function(r){return r.date;}).sort();
   box.innerHTML='<div class="fin-imp"><div class="fin-sub">'+esc(I.name)+' \u00b7 '+I.body.length+' rows read</div>'+
     '<div class="fin-ed-g">'+sel('date','Date column')+sel('desc','Description column')+'</div>'+
     '<div class="fin-ed-g">'+sel('amount','Amount column',true)+(I.map.amount<0?sel('debit','Money out column',true)+sel('credit','Money in column',true):'')+'</div>'+
     '<label class="check-line"><input type="checkbox" '+(I.flip?'checked':'')+' onchange="MNY.imp.flip=this.checked;mnyImpPreview()"> <span>Purchases show as <b>positive</b> numbers in this file (most credit cards, like Discover)</span></label>'+
-    '<div class="fin-imp-sum"><b>'+fresh.length+' new line'+(fresh.length===1?'':'s')+'</b>'+(dup?' \u00b7 '+dup+' already imported, skipped':'')+(dates.length?' \u00b7 '+esc(usDate(dates[0]))+' to '+esc(usDate(dates[dates.length-1])):'')+'<br>Money out '+money(spend)+' \u00b7 Money in '+money(inc)+'</div>'+
+    '<div class="fin-imp-sum"><b>'+fresh.length+' new line'+(fresh.length===1?'':'s')+'</b>'+(dup?' \u00b7 '+dup+' already imported, skipped'+(D.fuzzy.length?' ('+D.fuzzy.length+' match receipts you entered earlier)':''):'')+(dates.length?' \u00b7 '+esc(usDate(dates[0]))+' to '+esc(usDate(dates[dates.length-1])):'')+'<br>Money out '+money(spend)+' \u00b7 Money in '+money(inc)+'</div>'+
     (fresh.length?'<div class="gf-tw"><table class="gf-t"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>'+fresh.slice(0,8).map(function(r){var c=mnyAutoCat(r.desc,r.amt);return '<tr><td>'+esc(usDate(r.date).slice(0,5))+'</td><td>'+esc(r.desc)+'</td><td class="'+(r.amt>=0?'pos':'')+'">'+money(r.amt)+'</td><td>'+esc(c.cat)+'</td></tr>';}).join('')+'</tbody></table></div>'+(fresh.length>8?'<div class="fin-p">\u2026and '+(fresh.length-8)+' more</div>':''):'<div class="report-hint">Nothing new to import from this file. Check the columns above if that looks wrong.</div>')+
     (fresh.length?'<button type="button" class="btn-submit" onclick="mnyImport()">Import '+fresh.length+' line'+(fresh.length===1?'':'s')+'</button>':'')+'</div>';
 }
+function mnyImpPreviewClean(){
+  var I=MNY.imp,box=document.getElementById('fi-prev'),rows=mnyImpRows();
+  var keyOf=function(r){var a=mnyFindAcct(r.acctName,r.acctType);return a?a.id:'new:'+r.acctName;};
+  var D=mnyDedupe(rows,keyOf);I.fresh=D.fresh;I.fuzzy=D.fuzzy;
+  var by={},order=[];D.fresh.forEach(function(r){var k=r.acctName;if(!by[k]){by[k]={n:0,out:0,inn:0,isNew:!mnyFindAcct(r.acctName,r.acctType),type:r.acctType};order.push(k);}var x=by[k];x.n++;if(mnyKind(r.cat)==='xfer')return;if(r.biz==='Personal')return;if(r.amt<0)x.out-=r.amt;else x.inn+=r.amt;});
+  var ar={};D.fresh.forEach(function(r){if(r.biz==='Personal'||mnyKind(r.cat)!=='out')return;var a=mnyArea(r.cat);ar[a]=(ar[a]||0)-r.amt;});
+  var unc=D.fresh.filter(function(r){return r.cat==='Uncategorized';}).length,pers=D.fresh.filter(function(r){return r.biz==='Personal';}).length;
+  var list=D.fresh.slice().sort(function(a,b){return a.acctName.localeCompare(b.acctName)||a.date.localeCompare(b.date);}),cur='';
+  box.innerHTML='<div class="fin-imp"><div class="fin-sub">'+esc(I.name)+' \u00b7 sorted file \u00b7 '+rows.length+' lines</div>'+
+    '<div class="fin-imp-sum"><b>'+D.fresh.length+' new line'+(D.fresh.length===1?'':'s')+'</b>'+(D.dup?' \u00b7 '+D.dup+' already imported, skipped':'')+(unc?' \u00b7 '+unc+' need a category':'')+(pers?' \u00b7 '+pers+' personal (kept out of the business numbers)':'')+'</div>'+
+    '<div class="fin-accts">'+order.map(function(k){var x=by[k];return '<div class="fin-acct"><div class="rx-top"><b>'+esc(k)+'</b><span class="rx-chip">'+(x.isNew?'new account':'existing')+'</span></div><div class="rx-ln">'+x.n+' lines \u00b7 business out '+money(x.out)+(x.inn?' \u00b7 in '+money(x.inn):'')+'</div></div>';}).join('')+'</div>'+
+    '<div class="fin-bars" style="margin:10px 0">'+MNY_AREAS.filter(function(a){return ar[a];}).map(function(a){return '<div class="fin-bar"><span class="fb-l">'+esc(a)+'</span><span class="fb-v">'+money(ar[a])+'</span></div>';}).join('')+'</div>'+
+    (D.fresh.length?'<details class="fin-rev"><summary>See every line before importing</summary><div class="gf-tw"><table class="gf-t"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Area \u203a Category</th></tr></thead><tbody>'+
+      list.map(function(r){var h='';if(r.acctName!==cur){cur=r.acctName;h='<tr class="grp"><td colspan="4">'+esc(cur)+'</td></tr>';}
+        return h+'<tr class="'+(r.cat==='Uncategorized'?'unc':'')+'"><td>'+esc(usDate(r.date).slice(0,5))+'</td><td>'+esc(r.desc)+(r.note?'<small>'+esc(r.note)+'</small>':'')+'</td><td class="'+(r.amt>=0?'pos':'')+'">'+money(r.amt)+'</td><td>'+(r.biz==='Personal'?'Personal':esc(mnyArea(r.cat))+' \u203a '+esc(r.cat))+'</td></tr>';}).join('')+
+      '</tbody></table></div></details><button type="button" class="btn-submit" onclick="mnyImport()">Import '+D.fresh.length+' line'+(D.fresh.length===1?'':'s')+'</button>':'<div class="report-hint">Everything in this file is already imported.</div>')+'</div>';
+}
 async function mnyImport(){
   var I=MNY.imp,acct=val('fi-acct');if(!I||!I.fresh||!I.fresh.length)return;
+  if(I.map.clean)return mnyImportClean();
   var base=Date.now(),added=I.fresh.map(function(r,i){var c=mnyAutoCat(r.desc,r.amt);return {id:mnyId()+i,acct:acct,date:r.date,desc:r.desc,amt:r.amt,cat:c.cat,biz:c.biz,src:'csv',seq:base+i};});
   MNY.data.txns=MNY.data.txns.concat(added);
+  (I.fuzzy||[]).forEach(function(f){f.t.cleared=f.r.date;f.t.bankDesc=f.r.desc;});
   MNY.data.imports.push({acct:acct,file:I.name,when:localToday(),n:added.length});
   var unc=added.filter(function(x){return x.cat==='Uncategorized';}).length;
   if(await mnySave('Imported '+added.length+' lines'+(unc?' \u00b7 '+unc+' need a category':''))){MNY.imp=null;MNY.lastAcct=acct;MNY.view=unc?'txn':'over';MNY.cat=unc?'Uncategorized':'';MNY.q='';mnyRender();}
   else{MNY.data.txns=MNY.data.txns.slice(0,MNY.data.txns.length-added.length);MNY.data.imports.pop();}
+}
+async function mnyImportClean(){
+  var I=MNY.imp,base=Date.now(),madeA=[],keepA=MNY.data.accounts.slice(),keepT=MNY.data.txns.length;
+  var added=I.fresh.map(function(r,i){
+    var a=mnyFindAcct(r.acctName,r.acctType);
+    if(!a){a={id:'a'+base.toString(36)+madeA.length,name:r.acctName,type:r.acctType,added:localToday()};MNY.data.accounts.push(a);madeA.push(a.name);}
+    var x={id:mnyId()+i,acct:a.id,date:r.date,desc:r.desc,amt:r.amt,cat:r.cat,biz:r.biz,note:r.note,src:r.src==='receipt'?'receipt':'csv',seq:base+i};
+    if(r.orig!==undefined)x.orig=r.orig;if(r.split)x.split=r.split;return x;
+  });
+  MNY.data.txns=MNY.data.txns.concat(added);
+  MNY.data.imports.push({acct:'(sorted file)',file:I.name,when:localToday(),n:added.length});
+  var unc=added.filter(function(x){return x.cat==='Uncategorized';}).length;
+  if(await mnySave('Imported '+added.length+' lines'+(madeA.length?' \u00b7 new accounts: '+madeA.join(', '):'')+(unc?' \u00b7 '+unc+' need a category':''))){MNY.imp=null;MNY.view='over';MNY.cat='';MNY.q='';mnyRender();}
+  else{MNY.data.txns=MNY.data.txns.slice(0,keepT);MNY.data.accounts=keepA;MNY.data.imports.pop();}
 }
 // ── accounts ──
 function mnyAccounts(v){
@@ -4819,7 +4978,7 @@ function mnyAccounts(v){
       '<div class="rx-ln">'+t.length+' lines \u00b7 this season in '+money(T.inn)+', out '+money(T.out)+(last?' \u00b7 last import '+esc(usDate(last.when))+' ('+last.n+')':' \u00b7 no imports yet')+'</div>'+
       '<div class="fin-ed-b"><button type="button" class="btn-small" onclick="MNY.acct=\''+a.id+'\';MNY.view=\'txn\';mnyRender()">See lines</button><button type="button" class="btn-small" onclick="mnyRename(\''+a.id+'\',this)">Rename</button>'+(t.length?'':'<button type="button" class="btn-small del" onclick="mnyRemoveAcct(\''+a.id+'\',this)">Remove</button>')+'</div></div>';
   }).join('')+'</div>'+
-  '<div class="fin-panel"><h3 class="gf-sec">Add an account</h3><div class="fin-ed-g"><label>Name<input id="fa-name" placeholder="e.g. Discover card"></label><label>Type<select id="fa-type"><option>Checking</option><option>Savings</option><option>Credit card</option><option>Cash</option></select></label></div>'+
+  '<div class="fin-panel"><h3 class="gf-sec">Add an account</h3><div class="fin-ed-g"><label>Name<input id="fa-name" placeholder="e.g. Discover card"></label><label>Type<select id="fa-type"><option>Checking</option><option>Savings</option><option>Credit card</option><option>Cash</option><option>Paid by someone else</option></select></label></div>'+
   '<button type="button" class="btn-submit" onclick="mnyAddAcct()">Add account</button></div>'+
   '<p class="fin-p" style="margin-top:14px">Change your Financials password: <button type="button" class="btn-small" onclick="mnyChangePw()">Change password</button></p><div id="fin-pwbox"></div>';
 }
