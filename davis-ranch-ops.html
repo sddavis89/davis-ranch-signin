@@ -990,6 +990,12 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 
 .fin-lockbtn em{font-style:normal}
 @media(max-width:620px){.fin-lockbtn em{display:none}.fin-lockbtn{padding:10px}}
+/* guides */
+#h-guides .gd-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+#h-guides .gd-row span:first-child{font-weight:600}
+#h-guides-note,.fin-guides .hint{font-size:.8rem;opacity:.75;margin-top:6px;line-height:1.4}
+.fin-guides{margin:12px 0;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line)}
+.fin-guides .check-line{display:flex;gap:8px;align-items:flex-start;line-height:1.4}
 </style>
 </head>
 <body>
@@ -1155,6 +1161,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
         <div class="day-preview" id="h-day-prev"></div>
       </div>
       <div class="field"><label id="h-qty-label">Birds Harvested <span class="req">*</span></label><input type="number" id="h-qty" placeholder="0" min="0" inputmode="numeric" oninput="dayPreview('h')"></div>
+      <div class="field" id="h-guides-wrap" style="display:none"><label>Shot by guides <span class="opt">(included in the total above)</span></label><div id="h-guides"></div><div class="hint" id="h-guides-note"></div></div>
       <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="h-notes" placeholder="Any additional notes..."></textarea></div>
       <button class="btn-submit" data-label="Log Harvest" onclick="submitHarvest()">Log Harvest</button>
       <div class="submit-status" id="h-status"></div>
@@ -3015,6 +3022,9 @@ async function makeFinalReceipts(){
     if(!res||!res.ok)return fail('Nothing was checked out: '+(res?handleProcError(res):'could not reach the records sheet.'));
     procTrip=res.trip||procTrip;setOpen(g,res.open);setPool(res.pool);
   }
+  // 1b. guide birds nobody took go on the guides' own receipts
+  var guideOwners=[];
+  try{guideOwners=await guideKeepStep(g);}catch(e){return fail('Nothing was checked out: '+e.message);}
   // 2. a receipt for every hunter still here (0 birds is a receipt too)
   var byKey={};finalList.forEach(function(o,i){byKey[o.key]=i;});
   var owners=[];
@@ -3026,6 +3036,7 @@ async function makeFinalReceipts(){
     owners.push({key:r.k,zero:true,owner:h.name,ownerAddress:h.address||o.ownerAddress,ownerCityStateZip:h.cityStateZip||o.ownerCityStateZip,phone:h.phone||o.phone,license:h.license||o.license,
       deliveredTo:i===undefined?'':val('fl-del-'+i),combineWith:(comb&&comb.checked&&procRecent[r.k])?procRecent[r.k].receiptNo:''});
   });
+  guideOwners.forEach(function(o){if(!owners.some(function(x){return x.key===o.key;}))owners.push(o);});
   if(!owners.length&&!wantInv)return fail('Nobody left to check out.');
   if(owners.length){
     try{res=await procPost({action:'release',submissionId:finalSubmissionId,group:g,dateReleased:date,owners:owners});}
@@ -3071,6 +3082,7 @@ function receiptText(r){
     (r.ownerAddress?r.ownerAddress+', '+r.ownerCityStateZip+'\n':'')+
     (r.license?'License / Authorization #: '+r.license+'\n':'')+
     'Birds: '+speciesText(r)+'\n'+
+    ((r.gifts||[]).length?'Given by guide: '+r.gifts.map(giftLine).join('; ')+'\n':'')+
     'Received '+datesText(r)+'\nReleased '+((r.datesReleased&&r.datesReleased.length)?r.datesReleased:[r.dateReleased]).map(usDate).join(', ')+'\n\n'+RECEIPT_RULE;
 }
 function smsHref(r){
@@ -3109,6 +3121,7 @@ function receiptHtml(r){
       row('License / Authorization #',r.license||'')+
       '<tr><td>Number &amp; Species</td><td>'+sp+'<br><b>Total: '+esc(r.total)+'</b></td></tr>'+
       row('Date(s) Received',datesText(r))+
+      ((r.gifts||[]).length?'<tr><td>Given by Guide</td><td>'+r.gifts.map(function(x){return esc(giftLine(x));}).join('<br>')+'</td></tr>':'')+
       row((r.datesReleased&&r.datesReleased.length>1)?'Dates Released':'Date Released',((r.datesReleased&&r.datesReleased.length)?r.datesReleased:[r.dateReleased]).map(usDate).join(', '))+
       row('Delivered To',r.deliveredTo||r.owner)+
     '</table>'+
@@ -4167,7 +4180,7 @@ function gfSpan(days){if(!days.length)return '';return days.length===1?gfMD(days
 function gfBirds(x){var k=Object.keys(x.days).sort();return k.length?k.map(function(d){return gfMD(d)+': '+x.days[d];}).join(' · '):'';}
 function gfStats(r){
   var g=r.guests,s=r.season||{};
-  return {hunters:g.length,noLic:g.filter(function(x){return !x.license;}),noWaiver:g.filter(function(x){return !x.waiver;}),
+  return {hunters:g.length,noLic:g.filter(function(x){return !x.license;}),noWaiver:g.filter(function(x){return !x.waiver&&!x.guide;}),
     released:s.released||0,harvested:s.harvested||0,cleaned:s.cleaned||0,discarded:s.discarded||0,given:g.reduce(function(a,x){return a+x.total;},0),
     bad:(r.daily||[]).filter(function(d){return !d.match&&(d.harvested||d.cleaned);})};
 }
@@ -4186,10 +4199,11 @@ function gfScreen(r){
   var grp='',reg='';
   r.guests.forEach(function(x,i){
     if(x.group!==grp){grp=x.group;reg+='<div class="sec-h">'+esc(grp)+' · '+r.guests.filter(function(y){return y.group===grp;}).length+' hunters</div>';}
-    reg+='<div class="gf-h'+(x.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(x.name)+'</b><span class="gf-lic">'+(x.license?'License / CID '+esc(x.license):'No license #')+'</span></div>'+
+    reg+='<div class="gf-h'+(x.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(x.name)+(x.guide?' (guide)':'')+'</b><span class="gf-lic">'+(x.license?'License / CID '+esc(x.license):'No license #')+'</span></div>'+
       '<div class="gf-h2">'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</div>'+
       '<div class="gf-h3"><span>'+(x.huntDays.length?'Hunted '+esc(gfSpan(x.huntDays)):(x.signed?'Signed in '+esc(gfMD(x.signed)):''))+'</span><span>'+(x.total?esc(gfBirds(x))+' · <b>'+x.total+' birds</b>':'No birds taken')+'</span>'+
-      (x.receipts.length?'<span>Receipt #'+esc(x.receipts.join(', #'))+(x.released?' · released '+esc(gfMD(x.released)):'')+'</span>':'')+'</div></div>';
+      (x.receipts.length?'<span>Receipt #'+esc(x.receipts.join(', #'))+(x.released?' · released '+esc(gfMD(x.released)):'')+'</span>':'')+'</div>'+
+      ((x.gifts||[]).length?'<div class="gf-h2">Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</div>':'')+'</div>';
   });
   var rel=r.releases||[],pur=r.purchases||[],sum=function(a,k){return a.reduce(function(t,x){return t+(+x[k]||0);},0);};
   var T=function(h,rows,tot){return rows.length?'<div class="gf-tw"><table class="gf-t"><thead><tr>'+h.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+
@@ -4210,7 +4224,7 @@ function gfDoc(r){
   var rows='',grp='',n=0;
   r.guests.forEach(function(x){
     if(x.group!==grp){grp=x.group;rows+='<tr class="grp"><td colspan="8">'+esc(grp)+'</td></tr>';}
-    rows+='<tr><td class="n">'+(++n)+'</td><td>'+esc(x.name)+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on waiver</i>')+'</td><td>'+esc(gfSpan(x.huntDays))+'</td><td>'+esc(gfBirds(x)||'—')+'</td><td class="n">'+x.total+'</td><td>'+esc(x.receipts.join(', '))+'</td></tr>';
+    rows+='<tr><td class="n">'+(++n)+'</td><td>'+esc(x.name)+(x.guide?' (guide)':'')+((x.gifts||[]).length?'<br><small>Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</small>':'')+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on waiver</i>')+'</td><td>'+esc(gfSpan(x.huntDays))+'</td><td>'+esc(gfBirds(x)||'—')+'</td><td class="n">'+x.total+'</td><td>'+esc(x.receipts.join(', '))+'</td></tr>';
   });
   var rel=r.releases||[],pur=r.purchases||[],sum=function(a,k){return a.reduce(function(t,x){return t+(+x[k]||0);},0);};
   var tb=function(h,rws,tot){return rws.length?'<table><tr>'+h.map(function(c){return '<th'+(/^(Birds|Qty|Released|Harvested|Cleaned|Given)/.test(c)?' class="n"':'')+'>'+c+'</th>';}).join('')+'</tr>'+rws.join('')+(tot||'')+'</table>':'<div class="sub"><i>None in these dates.</i></div>';};
@@ -4842,6 +4856,88 @@ window.addEventListener('DOMContentLoaded',function(){
     inner.appendChild(d);
   }
 });
+
+/* ═══ GUIDES: birds shot by the guides, given to short hunters, leftovers on the guides' receipts ═══ */
+var procGuides=[],procGuideBirds=[],guideNamesDay=[];
+function isGuideName(n){n=String(n||'').toLowerCase();return procGuides.some(function(g){return g.name.toLowerCase()===n;})||guideNamesDay.some(function(g){return g.toLowerCase()===n;});}
+function giftLine(g){return g.count+' shot by '+g.guide+' (guide, CID '+(g.license||'not on file')+') on '+usDate(g.shot)+', given '+usDate(g.given);}
+// Harvest screen: one box per guide, prefilled with the day's numbers
+function guideHarvestBox(){
+  var wrap=document.getElementById('h-guides-wrap');if(!wrap)return;
+  var date=val('h-date'),group=val('h-group');
+  if(!date||!group){wrap.style.display='none';return;}
+  var token=date+'|'+group;wrap.dataset.token=token;
+  opsGet({action:'opsday',date:date}).then(function(r){
+    if(wrap.dataset.token!==token||!r||!r.ok)return;
+    guideNamesDay=r.guideNames||[];
+    var have=(r.guideShot||{})[group]||{},names=guideNamesDay.slice();
+    Object.keys(have).forEach(function(n){if(names.indexOf(n)<0)names.push(n);});
+    if(!names.length){wrap.style.display='block';document.getElementById('h-guides').innerHTML='';
+      document.getElementById('h-guides-note').innerHTML='No guides yet. Add them on the <b>Guides</b> tab in the sheet (name, CID, address) to log their birds here.';return;}
+    document.getElementById('h-guides').innerHTML=names.map(function(n,i){
+      return '<div class="gd-row"><span>'+esc(n)+'</span><span class="fs-n"><button type="button" class="stp" onclick="guideStep('+i+',-1)">\u2212</button>'+
+        '<input type="number" min="0" max="3" inputmode="numeric" id="hg-'+i+'" data-name="'+esc(n)+'" value="'+(have[n]||0)+'" oninput="guideNote()"><button type="button" class="stp" onclick="guideStep('+i+',1)">+</button></span></div>';}).join('');
+    wrap.style.display='block';guideNote();
+  }).catch(function(){});
+}
+function guideStep(i,d){var el=document.getElementById('hg-'+i);el.value=Math.min(3,Math.max(0,(parseInt(el.value,10)||0)+d));guideNote();}
+function guideInputs(){return Array.prototype.slice.call(document.querySelectorAll('#h-guides input')).map(function(el){return {name:el.getAttribute('data-name'),count:Math.max(0,parseInt(el.value,10)||0)};});}
+function guideNote(){
+  var t=guideInputs().reduce(function(a,g){return a+g.count;},0),el=document.getElementById('h-guides-note');
+  el.innerHTML='Part of the day&rsquo;s total, not extra. Up to 3 each on their own license.'+(t?' <b>'+t+' by guides</b> \u2014 they can go to short hunters at check out; the rest go on the guides&rsquo; own receipts.':'');
+}
+var _refreshDayNoteG=refreshDayNote;
+refreshDayNote=function(k){_refreshDayNoteG(k);if(k==='h')guideHarvestBox();};
+var _saveOpsG=saveOps;
+saveOps=function(key,data,statusId,btn,okMsg,clearFn){
+  if(data&&data.task==='harvest'&&document.querySelector('#h-guides input')){data.guides=guideInputs();data.guidesSet=true;}
+  return _saveOpsG(key,data,statusId,btn,okMsg,clearFn);
+};
+// guides & their birds come with the group's running totals; checkout gifts are dated the checkout day
+var _procGetG=procGet;
+procGet=function(params){
+  var p=_procGetG(params);
+  if(params&&params.action==='open')p.then(function(r){if(r&&r.ok){procGuides=r.guides||[];procGuideBirds=r.guideBirds||[];}}).catch(function(){});
+  return p;
+};
+var _procPostG=procPost;
+procPost=function(body){
+  if(body&&body.action==='setTotals'&&!body.giftDate)body.giftDate=(document.getElementById('c-final-date')&&val('c-final-date'))||localToday();
+  return _procPostG(body);
+};
+// checkout card: what the guides still hold
+function guideLeft(){
+  var left={};procGuideBirds.forEach(function(x){left[x.guide]=(left[x.guide]||0)+x.count;});
+  ((finDry&&finDry.gifts)||[]).forEach(function(x){left[x.guide]=Math.max(0,(left[x.guide]||0)-x.count);});
+  return left;
+}
+function guideFinBox(){
+  var box=document.getElementById('fin-guides');
+  if(!box){var s=document.getElementById('fin-sum');if(!s)return;box=document.createElement('div');box.id='fin-guides';box.className='fin-guides';s.parentNode.insertBefore(box,s.nextSibling);}
+  var left=guideLeft(),names=Object.keys(left).filter(function(n){return left[n]>0;});
+  if(!names.length){box.style.display='none';box.innerHTML='';return;}
+  var on=!document.getElementById('fg-keep')||document.getElementById('fg-keep').checked;
+  box.style.display='block';
+  box.innerHTML='<label class="check-line"><input type="checkbox" id="fg-keep"'+(on?' checked':'')+'><span>Guide birds nobody took go on the guides&rsquo; own receipts: '+
+    names.map(function(n){return esc(n)+' <b>'+left[n]+'</b>';}).join(' \u00b7 ')+'</span></label>'+
+    '<div class="hint">Short hunters get guide birds first (tap Give to Short Hunters). Each gift counts on today for that hunter and is written on his receipt.</div>';
+}
+var _finSummaryG=finSummary;
+finSummary=function(){
+  _finSummaryG();
+  (finRows||[]).forEach(function(r,i){if(isGuideName(r.h.name)){var a=document.getElementById('fsa-'+i),st=document.getElementById('fss-'+i);if(a)a.textContent='guide \u2014 no invoice';}});
+  guideFinBox();
+};
+// at check out, after the bird changes: leftovers → guides' receipts
+async function guideKeepStep(g){
+  var cb=document.getElementById('fg-keep');
+  if(!cb||!cb.checked)return [];
+  var res;
+  try{res=await procPost({action:'guideKeep',submissionId:finalSubmissionId+'-g',group:g,tripFrom:tripStart(g)});}catch(e){res=null;}
+  if(!res||!res.ok)throw new Error(res?handleProcError(res):'could not reach the records sheet.');
+  setOpen(g,res.open);if(res.pool)setPool(res.pool);procTrip=res.trip||procTrip;
+  var seen={};return (res.kept||[]).filter(function(k){if(seen[k.key])return false;seen[k.key]=1;return true;}).map(function(k){return {key:k.key};});
+}
 
 </script>
 </body>
