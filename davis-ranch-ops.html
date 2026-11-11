@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0B0B0B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap">
-<link rel="preload" as="image" href="img/hero.webp">
+<link rel="preload" as="image" href="img/hero-s.webp" media="(max-width:979px)"><link rel="preload" as="image" href="img/hero.webp" media="(min-width:980px)">
 <style>
 :root {
   --gold:#C8963E; --gold-light:#E8B86D; --earth:#2C2416;
@@ -764,6 +764,14 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 @media(min-width:980px){#dr-toast{bottom:24px!important;}}
 .side button i{display:grid;place-items:center;flex:0 0 auto;}
 .tabbar button span{display:grid;}
+/* new full-size photos */
+.hx::before{background-position:74% 38%;}
+.big::before{background-position:78% 40%;}
+@media(min-width:980px){.hx::before{background-image:url(img/hero.webp);background-position:80% 35%;}}
+/* slow gold sheen across the check-out tile */
+.big .sheen{position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(245,201,120,.16) 50%,transparent 65%);background-size:250% 100%;animation:sheen 5.5s ease-in-out infinite;}
+.big > span:not(.sheen){position:relative;z-index:1;}
+@keyframes sheen{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}
 </style>
 </head>
 <body>
@@ -791,7 +799,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 <div class="main">
 
 <section class="home" id="home">
-  <header class="hx" style="--img:url(img/hero.webp)">
+  <header class="hx" style="--img:url(img/hero-s.webp)">
     <div class="hx-top">
       <div class="brand"><span class="mk" data-ic="feather"></span>Davis Ranch &middot; Ops</div>
       <button type="button" class="icon-btn" onclick="openSearch()" aria-label="Find a hunter" data-ic="search"></button>
@@ -811,16 +819,16 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <div class="col-a">
       <div id="check-slot"></div>
       <div class="sec-h">Today</div>
-      <button type="button" class="big" style="--img:url(img/lodge.webp)" onclick="navTo('receipts')">
+      <button type="button" class="big" style="--img:url(img/lodge-s.webp)" onclick="navTo('receipts')"><span class="sheen"></span>
         <span class="bi" data-ic="receipt"></span>
         <span><b id="big-title">Check out</b><small>Give birds, receipts &amp; invoices</small></span>
         <span class="arr" data-ic="chev"></span>
       </button>
       <div class="tiles">
-        <button type="button" class="tile" style="--img:url(img/release.webp);--pos:70% 40%" onclick="navTo('release')"><span class="ti" data-ic="bird"></span><b>Release</b><small id="t-release">&nbsp;</small></button>
-        <button type="button" class="tile" style="--img:url(img/harvest.webp);--pos:60% 40%" onclick="navTo('harvest')"><span class="ti" data-ic="crosshair"></span><b>Harvest</b><small id="t-harvest">&nbsp;</small></button>
-        <button type="button" class="tile" style="--img:url(img/cleaning.webp);--pos:55% 60%" onclick="navTo('cleaning')"><span class="ti" data-ic="slice"></span><b>Cleaning</b><small id="t-cleaning">&nbsp;</small></button>
-        <button type="button" class="tile" style="--img:url(img/dogs.webp);--pos:60% 50%" onclick="navTo('purchase')"><span class="ti" data-ic="truck"></span><b>Buy birds</b><small id="t-purchase">&nbsp;</small></button>
+        <button type="button" class="tile" style="--img:url(img/release-s.webp);--pos:72% 35%" onclick="navTo('release')"><span class="ti" data-ic="bird"></span><b>Release</b><small id="t-release">&nbsp;</small></button>
+        <button type="button" class="tile" style="--img:url(img/harvest-s.webp);--pos:68% 50%" onclick="navTo('harvest')"><span class="ti" data-ic="crosshair"></span><b>Harvest</b><small id="t-harvest">&nbsp;</small></button>
+        <button type="button" class="tile" style="--img:url(img/cleaning-s.webp);--pos:35% 60%" onclick="navTo('cleaning')"><span class="ti" data-ic="slice"></span><b>Cleaning</b><small id="t-cleaning">&nbsp;</small></button>
+        <button type="button" class="tile" style="--img:url(img/dogs-s.webp);--pos:62% 45%" onclick="navTo('purchase')"><span class="ti" data-ic="truck"></span><b>Buy birds</b><small id="t-purchase">&nbsp;</small></button>
       </div>
     </div>
     <div class="col-b">
@@ -1174,10 +1182,10 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="grab"></div>
   <h3>Log something</h3>
   <div class="sheet-grid">
-    <button type="button" class="tile" style="--img:url(img/release.webp);--pos:70% 40%" onclick="navTo('release')"><span class="ti" data-ic="bird"></span><b>Release</b><small>Birds put out</small></button>
-    <button type="button" class="tile" style="--img:url(img/harvest.webp);--pos:60% 40%" onclick="navTo('harvest')"><span class="ti" data-ic="crosshair"></span><b>Harvest</b><small>Birds shot</small></button>
-    <button type="button" class="tile" style="--img:url(img/cleaning.webp);--pos:55% 60%" onclick="navTo('cleaning')"><span class="ti" data-ic="slice"></span><b>Cleaning</b><small>Birds cleaned</small></button>
-    <button type="button" class="tile" style="--img:url(img/dogs.webp);--pos:60% 50%" onclick="navTo('purchase')"><span class="ti" data-ic="truck"></span><b>Buy birds</b><small>Purchase / pickup</small></button>
+    <button type="button" class="tile" style="--img:url(img/release-s.webp);--pos:72% 35%" onclick="navTo('release')"><span class="ti" data-ic="bird"></span><b>Release</b><small>Birds put out</small></button>
+    <button type="button" class="tile" style="--img:url(img/harvest-s.webp);--pos:68% 50%" onclick="navTo('harvest')"><span class="ti" data-ic="crosshair"></span><b>Harvest</b><small>Birds shot</small></button>
+    <button type="button" class="tile" style="--img:url(img/cleaning-s.webp);--pos:35% 60%" onclick="navTo('cleaning')"><span class="ti" data-ic="slice"></span><b>Cleaning</b><small>Birds cleaned</small></button>
+    <button type="button" class="tile" style="--img:url(img/dogs-s.webp);--pos:62% 45%" onclick="navTo('purchase')"><span class="ti" data-ic="truck"></span><b>Buy birds</b><small>Purchase / pickup</small></button>
   </div>
 </div>
 <div class="sheet" id="sheet-more" role="dialog" aria-label="More">
@@ -3524,7 +3532,7 @@ function faceView(val){
   var tb=document.getElementById('tb');
   if(val){
     var b=FACE_BANNER[val]||['hero',val,''];
-    tb.style.setProperty('--img','url(img/'+b[0]+'.webp)');
+    tb.style.setProperty('--img','url(img/'+b[0]+(window.innerWidth>=980?'':'-s')+'.webp)');
     document.getElementById('tb-title').textContent=b[1];
     document.getElementById('tb-desc').textContent=b[2];
     tb.classList.add('show');
