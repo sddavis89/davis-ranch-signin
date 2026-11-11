@@ -1057,6 +1057,8 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .hu-ok{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(224,168,74,.6);background:transparent;color:var(--gold-light);font-size:1.05rem;cursor:pointer}
 .hu-ok:hover{background:var(--gold);color:#1A1207}
 .hu-all{color:var(--success);font-weight:600;font-size:.9rem;padding:6px 0}
+.hu-ask{display:flex;gap:8px;margin-top:8px}.hu-ask input{width:96px;min-height:40px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;font:600 1rem var(--font-body)}
+.sc-ask{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:-4px 0 10px;font-size:.78rem;color:var(--fg-soft);letter-spacing:.08em;text-transform:uppercase}.sc-ask .hu-ask{margin:0}
 </style>
 </head>
 <body>
@@ -5378,11 +5380,18 @@ function headsDay(today){
   if(!out.types['Hunt day']&&!out.types['Arrival day']&&!out.types['Checkout day']&&!out.types['Clean day'])out.types['Off day']=1;
   return out;
 }
+// hunters for the bird count: the number arriving until they're here, then the check-in count (the real one)
+function headsHunters(r){
+  var signed=faceSigned(r),here=localToday()>r.arrive;
+  if(here&&signed)return {n:signed,how:'checked in'};
+  if(r.booked)return {n:Math.max(r.booked,signed),how:signed>r.booked?'checked in':'arriving'};
+  return signed?{n:signed,how:'signed so far'}:null;
+}
 function headsBirds(r,days,dayCount){
-  var b=(HEADS.st&&HEADS.st.birds)||{},per=b.perHunterDay||3,hunters=r.booked||faceSigned(r);
+  var b=(HEADS.st&&HEADS.st.birds)||{},per=b.perHunterDay||3,hh=headsHunters(r),hunters=hh?hh.n:0;
   if(!hunters)return null;
   var total=ceil5(hunters*dayCount*per),pens=b.inPens||0;
-  return {hunters:hunters,per:per,total:total,pens:pens,get:Math.max(0,ceil5(hunters*dayCount*per-pens)),fromSeason:!!b.perHunterDay};
+  return {hunters:hunters,how:hh.how,per:per,total:total,pens:pens,get:Math.max(0,ceil5(hunters*dayCount*per-pens)),fromSeason:!!b.perHunterDay};
 }
 function headsList(){
   var st=HEADS.st||{},today=localToday(),slot=headsSlot(),D=headsDay(today),out=[];
@@ -5392,14 +5401,14 @@ function headsList(){
     var r=x.r,k=r.group.replace(/\W/g,'');
     if(x.type==='Arrival day'&&slot!=='Evening'){
       var B=headsBirds(r,x.days,x.days);
-      if(!B)out.push({id:'birds-'+k,ic:'truck',big:1,t:'Bird pickup today for '+gname(r),s:'Fill in Hunters Booked on the Schedule tab and I’ll suggest how many.'});
+      if(!B)out.push({id:'birds-'+k,ic:'truck',big:1,t:'Bird pickup today for '+gname(r),s:'How many hunters are arriving? Enter it and I’ll suggest how many birds.',ask:r});
       else{var two=x.days>=3?headsBirds(r,x.days,x.days-1):null;
         out.push({id:'birds-'+k,ic:'truck',big:1,t:B.get?'Bird pickup today: about '+B.get+' birds for '+gname(r):'Bird pickup today for '+gname(r)+'? The pens may already have enough',
-          s:B.hunters+' hunters × '+x.days+' days × '+B.per+' a hunter a day'+(B.fromSeason?' (this season)':'')+' = '+B.total+(B.pens?', and the records show '+B.pens+' still in the pens':'')+'.'+
-            (two&&two.get&&B.get?' Or about '+two.get+' now for days 1–'+(x.days-1)+' and a second load on day '+(x.days-1)+'.':'')});}
+          s:B.hunters+' '+B.how+' × '+x.days+' days × '+B.per+' a hunter a day'+(B.fromSeason?' (this season)':'')+' = '+B.total+(B.pens?', and the records show '+B.pens+' still in the pens':'')+'.'+
+            (two&&two.get&&B.get?' Or about '+two.get+' now for days 1–'+(x.days-1)+' and a second load on day '+(x.days-1)+'.':'')+(r.booked?'':' How many are arriving?'),ask:r.booked?null:r});}
     }
     if(x.type==='Day before arrival'){var B2=headsBirds(r,x.days,x.days);
-      out.push({id:'tmrw-'+k,ic:'cal',big:1,t:gname(r)+' arrives tomorrow',s:B2?(B2.get?'Bird pickup tomorrow: about '+B2.get+' birds.':'Bird pickup tomorrow. The pens may already have enough ('+B2.pens+' by the records).'):'Bird pickup tomorrow. Add Hunters Booked on the Schedule tab for a bird count.'});}
+      out.push({id:'tmrw-'+k,ic:'cal',big:1,t:gname(r)+' arrives tomorrow',s:B2?(B2.get?'Bird pickup tomorrow: about '+B2.get+' birds.':'Bird pickup tomorrow. The pens may already have enough ('+B2.pens+' by the records).'):'Bird pickup tomorrow. How many hunters are arriving?',ask:r.booked?null:r});}
     if(x.type==='Hunt day'&&x.days>=3&&x.hn===x.days-1&&slot!=='Evening'){var B3=headsBirds(r,x.days,1);
       out.push({id:'load2-'+k,ic:'truck',big:1,t:'Second bird load for tomorrow?',s:B3?(B3.get?'About '+B3.get+' birds covers '+gname(r)+'’s last day'+(B3.pens?' ('+B3.pens+' in the pens by the records)':'')+'.':'The pens may already have enough for '+gname(r)+'’s last day ('+B3.pens+' by the records).'):'For '+gname(r)+'’s last day.'});}
     if((x.type==='Arrival day'||(x.type==='Hunt day'&&x.hn===1))&&r.booked){var sg=faceSigned(r);
@@ -5428,7 +5437,7 @@ function headsRender(){
   var g={Morning:'Good morning',Midday:'Afternoon check',Evening:'This evening'}[headsSlot()];
   if(!all.length){el.innerHTML='';return;}
   el.innerHTML='<div class="hu"><div class="hu-h"><span class="eyebrow">'+g+' · heads up</span>'+(Object.keys(done).length?'<button type="button" class="hu-undo" onclick="headsUndo()">Show cleared</button>':'')+'</div>'+
-    (show.length?show.map(function(x){return '<div class="hu-i'+(x.big?' big':'')+'">'+(x.ic?'<span class="hu-ic" data-ic="'+x.ic+'"></span>':'<span class="hu-dot"></span>')+'<span class="hu-t"><b>'+esc(x.t)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+'</span>'+
+    (show.length?show.map(function(x){return '<div class="hu-i'+(x.big?' big':'')+'">'+(x.ic?'<span class="hu-ic" data-ic="'+x.ic+'"></span>':'<span class="hu-dot"></span>')+'<span class="hu-t"><b>'+esc(x.t)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+(x.ask?headsAskBox(x.ask,'hk-'+x.id):'')+'</span>'+
       '<button type="button" class="hu-ok" aria-label="Done" onclick="headsMark(\''+x.id+'\')">✓</button></div>';}).join(''):'<div class="hu-all">✓ All caught up for now.</div>')+
     (left.length>3?'<button type="button" class="hu-more" onclick="HEADS.open=!HEADS.open;headsRender()">'+(HEADS.open?'Show less':'+'+(left.length-3)+' more today')+'</button>':'')+'</div>';
   faceIcons(el);
@@ -5472,6 +5481,33 @@ var _renderChecklistH=renderChecklist;
 renderChecklist=function(st){var r=_renderChecklistH.apply(this,arguments);if(st&&st.ok){HEADS.st=st;headsRender();}return r;};
 window.addEventListener('DOMContentLoaded',function(){headsRender();wxLoad();});
 setInterval(function(){if(!faceCur){headsRender();}},10*60*1000);   // the list changes as the day goes on
+
+// "How many arriving?" in the app (saves to the Schedule tab, Hunters Booked)
+function headsAskBox(r,id){
+  return '<span class="hu-ask"><input type="number" min="1" max="60" inputmode="numeric" id="'+id+'" placeholder="Hunters" value="'+(r.booked||'')+'"><button type="button" class="btn-small btn-gold" onclick="headsSaveBooked(\''+esc(r.group).replace(/'/g,"\\'")+'\',\''+r.arrive+'\',\''+id+'\',this)">Save</button></span>';
+}
+function headsSaveBooked(group,arrive,id,btn){
+  var n=parseInt(val(id),10);if(!(n>0)){toast('Enter how many hunters are arriving.',true);return;}
+  btn.disabled=true;btn.textContent='Saving\u2026';
+  opsPost({task:'booked',submissionId:newId(),group:group,arrive:arrive,booked:n}).then(function(res){
+    btn.disabled=false;btn.textContent='Save';
+    if(!res||!res.ok){toast('\u2717 Not saved: '+(res?opsError(res,true):'no signal'),true);return;}
+    if(res.schedule&&res.schedule.length){faceSchedLive={schedule:res.schedule,checkouts:(faceSchedLive&&faceSchedLive.checkouts)||[]};}
+    else faceSchedule().forEach(function(r){if(r.group===group&&r.arrive===arrive)r.booked=n;});
+    try{localStorage.setItem('dr_sched',JSON.stringify(faceSchedLive));}catch(e){}
+    toast('\u2713 '+group+': '+n+' arriving');headsRender();faceRenderCamp();if(faceCur==='schedule')faceRenderSchedule();
+  }).catch(function(){btn.disabled=false;btn.textContent='Save';toast('\u2717 No signal. Not saved.',true);});
+}
+// Season calendar: set the number arriving on any trip that isn't done
+var _faceRenderScheduleH=faceRenderSchedule;
+faceRenderSchedule=function(){
+  _faceRenderScheduleH();
+  var box=document.getElementById('sc-body');if(!box)return;
+  var rows=faceCamp().rows,trips=box.querySelectorAll('.trip');
+  trips.forEach(function(el,i){var r=rows[i];if(!r||r.state==='done')return;
+    var id='sca-'+i,d=document.createElement('div');d.className='sc-ask';
+    d.innerHTML='<span>Arriving</span>'+headsAskBox(r,id);el.parentNode.insertBefore(d,el.nextSibling);});
+};
 
 </script>
 </body>
