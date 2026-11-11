@@ -4234,6 +4234,8 @@ function gfFac(){
   return {name:f.name,biz:(f.address||'')+(f.phone?' · '+f.phone:''),clean:f.cleanAt||''};
 }
 var GF_DAILY=3,GF_POSS=15;
+function gfRole(g){return String((g&&g.role)||'Guide').toLowerCase();}
+function gfRoleOf(n){var g=((gfData&&gfData.guides)||[]).filter(function(x){return x.name.toLowerCase()===String(n||'').toLowerCase();})[0];return gfRole(g);}
 function gfPossLimit(days){return Math.min(GF_POSS,GF_DAILY*Math.max(1,days));}
 // ── FIELD CHECK: who's hunting today, their license, birds today, trip so far, possession ──
 function gfFieldData(r){
@@ -4256,7 +4258,7 @@ function gfFieldData(r){
 }
 function gfFieldFlags(F){
   var fl=[];
-  var nol=F.people.filter(function(p){return !p.x.license;}).map(function(p){return p.x.name;}).concat(F.guides.filter(function(g){return !g.license;}).map(function(g){return g.name+' (guide)';}));
+  var nol=F.people.filter(function(p){return !p.x.license;}).map(function(p){return p.x.name;}).concat(F.guides.filter(function(g){return !g.license;}).map(function(g){return g.name+' ('+gfRole(g)+')';}));
   if(nol.length)fl.push('No license # on file: '+nol.join(', '));
   if(F.shot>F.limit)fl.push('Shot today ('+F.shot+') is over the party limit ('+F.limit+').');
   F.people.forEach(function(p){if(p.today>GF_DAILY)fl.push(p.x.name+' shows '+p.today+' for today (limit '+GF_DAILY+').');if(p.sofar>p.poss)fl.push(p.x.name+' has '+p.sofar+', over possession '+p.poss+'.');});
@@ -4275,8 +4277,8 @@ function gfField(r){
       '<div class="gf-h2">'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</div>'+
       '<div class="gf-h3"><span>Today <b>'+(p.today||'–')+'</b></span><span>Trip so far <b>'+p.sofar+'</b> ('+esc(gfBirds({days:Object.keys(x.days).filter(function(d){return d<=F.day;}).reduce(function(o,d){o[d]=x.days[d];return o;},{})})||'none yet')+')</span><span>Possession limit <b>'+p.poss+'</b></span></div>'+
       ((x.gifts||[]).length?'<div class="gf-h2">Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</div>':'')+'</div>';}).join('');
-  var gr=F.guides.map(function(g){return '<div class="gf-h'+(g.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(g.name)+' (guide)</b><span class="gf-lic">'+(g.license?'License / CID '+esc(g.license):'No license #')+'</span></div>'+
-    '<div class="gf-h2">'+esc(g.address)+'</div><div class="gf-h3"><span>Shot today <b>'+g.shot+'</b></span><span>Birds go to short hunters or on his own receipt</span></div></div>';}).join('');
+  var gr=F.guides.map(function(g){return '<div class="gf-h'+(g.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(g.name)+' ('+gfRole(g)+')</b><span class="gf-lic">'+(g.license?'License / CID '+esc(g.license):'No license #')+'</span></div>'+
+    '<div class="gf-h2">'+esc(g.address)+'</div><div class="gf-h3"><span>Shot today <b>'+g.shot+'</b></span><span>Part of the party \u2014 birds go to short hunters or on his own receipt</span></div></div>';}).join('');
   return head+tiles+ok+
     '<h3 class="gf-sec">Hunters in the field</h3>'+(rows||'<div class="report-hint">No hunters signed in for this day.</div>')+
     (gr?'<h3 class="gf-sec">Guides in the field</h3>'+gr:'')+
@@ -4305,7 +4307,7 @@ function gfFacility(r){
   var grp='',reg='';
   X.people.forEach(function(x){
     if(x.group!==grp){grp=x.group;reg+='<div class="sec-h">'+esc(grp)+' · '+X.people.filter(function(y){return y.group===grp;}).length+'</div>';}
-    reg+='<div class="gf-h'+(x.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(x.name)+(x.guide?' (guide)':'')+'</b><span class="gf-lic">'+(x.license?'License / CID '+esc(x.license):'No license #')+'</span></div>'+
+    reg+='<div class="gf-h'+(x.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(x.name)+(x.guide?' ('+gfRoleOf(x.name)+')':'')+'</b><span class="gf-lic">'+(x.license?'License / CID '+esc(x.license):'No license #')+'</span></div>'+
       '<div class="gf-h2">'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</div>'+
       '<div class="gf-h3"><span>'+(x.total?'Cleaned '+esc(gfBirds(x))+' · <b>'+x.total+' birds</b>':'No birds taken')+'</span>'+
       (x.receipts.length?'<span>Receipt #'+esc(x.receipts.join(', #'))+(x.released?' · released '+esc(gfMD(x.released)):'')+(x.deliveredTo?' to '+esc(x.deliveredTo):'')+'</span>':(x.total?'<span>Held here — no receipt yet</span>':''))+'</div>'+
@@ -4334,7 +4336,7 @@ function gfDoc(r){
   if(r.mode==='field'){
     var F=gfFieldData(r),fl=gfFieldFlags(F),n=0;
     var rows=F.people.map(function(p){var x=p.x;return '<tr><td class="n">'+(++n)+'</td><td>'+esc(x.name)+((x.gifts||[]).length?'<br><small>Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</small>':'')+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on file</i>')+'</td><td class="n">'+(p.today||'–')+'</td><td class="n">'+p.sofar+'</td><td class="n">'+p.poss+'</td></tr>';}).join('');
-    var gr=F.guides.map(function(g){return '<tr><td class="n">'+(++n)+'</td><td>'+esc(g.name)+' (guide)</td><td>'+esc(g.address)+'</td><td>'+(g.license?esc(g.license):'<i>none on file</i>')+'</td><td class="n">'+g.shot+' shot</td><td class="n">–</td><td class="n">–</td></tr>';}).join('');
+    var gr=F.guides.map(function(g){return '<tr><td class="n">'+(++n)+'</td><td>'+esc(g.name)+' ('+gfRole(g)+')</td><td>'+esc(g.address)+'</td><td>'+(g.license?esc(g.license):'<i>none on file</i>')+'</td><td class="n">'+g.shot+' shot</td><td class="n">–</td><td class="n">–</td></tr>';}).join('');
     return '<div class="g">'+gfDocHead(r,'Field Check')+
       '<table class="kv"><tr><td>Hunters today<br><b>'+F.people.length+'</b></td><td>Guides today<br><b>'+F.guides.length+'</b></td><td>Shot today (party)<br><b>'+F.shot+'</b></td><td>Party limit<br><b>'+F.limit+'</b></td></tr></table>'+
       (fl.length?'<div class="flag">'+fl.map(esc).join('<br>')+'</div>':'')+
@@ -4344,7 +4346,7 @@ function gfDoc(r){
   var X=gfFacData(r),rws='',grp='',m=0;
   X.people.forEach(function(x){
     if(x.group!==grp){grp=x.group;rws+='<tr class="grp"><td colspan="8">'+esc(grp)+'</td></tr>';}
-    rws+='<tr><td class="n">'+(++m)+'</td><td>'+esc(x.name)+(x.guide?' (guide)':'')+((x.gifts||[]).length?'<br><small>Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</small>':'')+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on file</i>')+'</td><td>'+esc(gfBirds(x)||'—')+'</td><td class="n">'+x.total+'</td><td>'+esc(x.receipts.join(', ')||(x.total?'held':''))+'</td><td>'+esc(x.released?usDate(x.released)+(x.deliveredTo?' to '+x.deliveredTo:''):'')+'</td></tr>';
+    rws+='<tr><td class="n">'+(++m)+'</td><td>'+esc(x.name)+(x.guide?' ('+gfRoleOf(x.name)+')':'')+((x.gifts||[]).length?'<br><small>Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</small>':'')+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on file</i>')+'</td><td>'+esc(gfBirds(x)||'—')+'</td><td class="n">'+x.total+'</td><td>'+esc(x.receipts.join(', ')||(x.total?'held':''))+'</td><td>'+esc(x.released?usDate(x.released)+(x.deliveredTo?' to '+x.deliveredTo:''):'')+'</td></tr>';
   });
   var daily=r.daily||[],sm=function(k){return daily.reduce(function(a,d){return a+d[k];},0);};
   var fl=[];X.bad.forEach(function(d){fl.push(gfMD(d.date)+' '+d.group+': harvested '+d.harvested+', cleaned '+d.cleaned+(d.discarded?' + '+d.discarded+' discarded':''));});
