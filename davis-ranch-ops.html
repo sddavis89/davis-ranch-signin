@@ -772,6 +772,64 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .big .sheen{position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(245,201,120,.16) 50%,transparent 65%);background-size:250% 100%;animation:sheen 5.5s ease-in-out infinite;}
 .big > span:not(.sheen){position:relative;z-index:1;}
 @keyframes sheen{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}
+/* ── in camp / check-in / up next ── */
+#camp-slot{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+.ci{display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;background:linear-gradient(135deg,rgba(224,168,74,.16),rgba(21,20,18,.9) 60%);border:1px solid rgba(224,168,74,.4);box-shadow:0 14px 40px rgba(0,0,0,.35);}
+.ci-l{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.ci-l b{font:600 1.35rem/1.15 var(--font-display);color:#fff;}
+.ci-l small{color:var(--fg-soft);font-size:.82rem;}
+.ci-when{color:var(--gold-light);font-size:.85rem;font-weight:600;margin-top:4px;}
+.ci-line{color:var(--fg-mid);font-size:.82rem;}
+.ci-line.ok{color:var(--success);font-weight:600;}
+.ring{position:relative;flex:0 0 auto;}
+.ring svg{width:100%;height:100%;display:block;}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.08);stroke-width:7;}
+.ring-fg{fill:none;stroke:var(--gold);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 6px rgba(224,168,74,.45));}
+.ring-fg.full{stroke:var(--success);filter:drop-shadow(0 0 6px rgba(83,197,86,.45));}
+.ring-t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.ring-t b{font:500 1.5rem/1 var(--font-display);color:#fff;}
+.ring-t b i{font-style:normal;font-size:.9rem;color:var(--fg-soft);}
+.ring-t small{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);margin-top:3px;}
+.upnext{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--fg);font-family:var(--font-body);cursor:pointer;}
+.un-d{flex:0 0 64px;height:64px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(224,168,74,.12);border:1px solid rgba(224,168,74,.35);}
+.un-d b{font:500 1.7rem/1 var(--font-display);color:var(--gold-light);}
+.un-d small{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-soft);}
+.un-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.un-t b{font:600 1.15rem/1.2 var(--font-display);}
+.un-t small{color:var(--fg-soft);font-size:.82rem;}
+.upnext .chev{color:var(--fg-soft);display:grid;}.upnext .chev svg{width:18px;height:18px;}
+/* ── season calendar ── */
+.sc-card > .card-title{display:none;}
+.sc-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px;}
+.sc-sum div{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center;}
+.sc-sum b{display:block;font:500 1.6rem/1.1 var(--font-display);color:#fff;}
+.sc-sum span{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);font-weight:600;}
+.strip{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px;}
+.strip-cells{display:grid;gap:2px;height:34px;}
+.sd{border-radius:3px;background:rgba(255,255,255,.05);position:relative;}
+.sd.done{background:#4A4740;}.sd.camp{background:var(--gold);box-shadow:0 0 10px rgba(224,168,74,.5);}
+.sd.next{background:rgba(224,168,74,.45);}.sd.booked{background:rgba(224,168,74,.2);}
+.sd.today::after{content:'';position:absolute;left:50%;top:-7px;bottom:-7px;width:2px;margin-left:-1px;background:#fff;border-radius:2px;box-shadow:0 0 8px #fff;}
+.strip-l{display:flex;justify-content:space-between;font-size:.72rem;color:var(--fg-soft);margin-top:8px;}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:.74rem;color:var(--fg-mid);}
+.lg::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;}
+.lg.done::before{background:#4A4740;}.lg.camp::before{background:var(--gold);}.lg.next::before{background:rgba(224,168,74,.45);}.lg.booked::before{background:rgba(224,168,74,.2);}
+.trip{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:16px;background:var(--card2);border:1px solid var(--line);margin-bottom:8px;}
+.trip.camp{border-color:rgba(224,168,74,.6);background:linear-gradient(135deg,rgba(224,168,74,.14),var(--card2) 70%);}
+.trip.next{border-color:rgba(224,168,74,.35);}
+.trip.done{opacity:.72;}
+.trip-d{flex:0 0 78px;}
+.trip-d b{display:block;font:500 1.4rem/1 var(--font-display);color:#fff;}
+.trip-d small{display:block;font-size:.7rem;color:var(--fg-soft);margin-top:3px;line-height:1.25;}
+.trip-m{flex:1;min-width:0;}
+.trip-m b{display:block;font-weight:600;font-size:1rem;}
+.trip-m small{display:block;color:var(--fg-soft);font-size:.8rem;line-height:1.35;}
+.pill{flex:0 0 auto;font-size:.7rem;font-weight:700;letter-spacing:.04em;padding:4px 10px;border-radius:20px;border:1px solid var(--line);color:var(--fg-soft);}
+.pill.camp{background:var(--gold);color:#1A1207;border-color:transparent;}
+.pill.next{color:var(--gold-light);border-color:rgba(224,168,74,.5);}
+.pill.done{color:var(--success);border-color:rgba(83,197,86,.35);}
+.sc-note{font-size:.8rem;color:var(--fg-soft);margin-top:14px;line-height:1.45;}
+@media(min-width:980px){.sc-card{max-width:900px!important;}}
 </style>
 </head>
 <body>
@@ -787,6 +845,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <button type="button" data-nav="purchase" onclick="navTo('purchase')"><i data-ic="truck"></i>Buy birds</button>
   <div class="sh">Groups</div>
   <button type="button" data-nav="receipts" onclick="navTo('receipts')"><i data-ic="receipt"></i>Check out &amp; receipts</button>
+  <button type="button" data-nav="schedule" onclick="navTo('schedule')"><i data-ic="cal"></i>Season calendar</button>
   <button type="button" onclick="openSearch()"><i data-ic="search"></i>Find a hunter</button>
   <div class="sh">Records</div>
   <button type="button" data-nav="planning" onclick="navTo('planning')"><i data-ic="chart"></i>Dashboard</button>
@@ -810,13 +869,14 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
       <div class="hx-sub" id="hx-sub">Loading today&hellip;</div>
     </div>
     <div class="kpis">
-      <div class="kpi"><span>Shot today</span><b data-count id="k-shot">&ndash;</b><em id="k-shot-n">&nbsp;</em></div>
-      <div class="kpi"><span>Cleaned</span><b data-count id="k-clean">&ndash;</b><em id="k-clean-n">&nbsp;</em></div>
+      <div class="kpi"><span id="k1-l">Shot today</span><b data-count id="k-shot">&ndash;</b><em id="k-shot-n">&nbsp;</em></div>
+      <div class="kpi"><span id="k2-l">Cleaned</span><b data-count id="k-clean">&ndash;</b><em id="k-clean-n">&nbsp;</em></div>
       <div class="kpi"><span>Bags left</span><b data-count id="k-bags">&ndash;</b><em id="k-bags-n">&nbsp;</em></div>
     </div>
   </header>
   <div class="hbody">
     <div class="col-a">
+      <div id="camp-slot"></div>
       <div id="check-slot"></div>
       <div class="sec-h">Today</div>
       <button type="button" class="big" style="--img:url(img/lodge-s.webp)" onclick="navTo('receipts')"><span class="sheen"></span>
@@ -834,8 +894,9 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <div class="col-b">
       <div class="sec-h">Records</div>
       <div class="recs">
+        <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<span>Who's here, who's next</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('planning')"><i class="ri" data-ic="chart"></i>Dashboard<span>Season at a glance</span><i class="chev" data-ic="chev"></i></button>
-        <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<span id="r-sum"></span><i class="chev" data-ic="chev"></i></button>
+        <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="trend"></i>Daily summary<span id="r-sum"></span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('print')"><i class="ri" data-ic="print"></i>Print reports<i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('inventory')"><i class="ri" data-ic="box"></i>Lodge inventory<span id="r-inv"></span><i class="chev" data-ic="chev"></i></button>
@@ -1192,6 +1253,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="grab"></div>
   <h3>Records</h3>
   <div class="recs">
+    <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('print')"><i class="ri" data-ic="print"></i>Print reports<i class="chev" data-ic="chev"></i></button>
@@ -1813,7 +1875,7 @@ function loadWaiverGroups(){
     var groups=Object.keys(latest).sort(function(a,b){return latest[b].localeCompare(latest[a])||a.localeCompare(b);});
     if(!groups.length)return;
     // the group here now: signed in within the last 5 days (or up to 2 days ahead), most recent first
-    var now=groups.filter(function(g){var d=daysApart(today,latest[g]);return d>=-2&&d<=5;})[0]||'';
+    var now=groups.filter(function(g){var d=daysApart(today,latest[g]);return d>=-2&&d<=5;})[0]||'';if(typeof faceCampNow==='function'){waiverInfo.latest=latest;now=faceCampNow();}
     waiverInfo={latest:latest,now:now};
     fillGroupSelects(groups,latest,now);
     loadChecklist();
@@ -3522,13 +3584,15 @@ var FACE_BANNER={
   print:['lodge','Print Reports','Pick the reports and dates to print'],
   inventory:['cleaning','Lodge Inventory','What is on the shelf and what is low'],
   reports:['dogs','Season Reports','2026 season totals'],
-  planning:['hero','Dashboard','The season at a glance']
+  planning:['hero','Dashboard','The season at a glance'],
+  schedule:['lodge','Season Calendar','Who is here, who is next']
 };
 var faceCur=null;
 function faceView(val){
   val=val||'';
   var changed=val!==faceCur;faceCur=val;
   document.getElementById('home').style.display=val?'none':'';
+  var sc=document.getElementById('card-schedule');if(sc){sc.style.display=val==='schedule'?'block':'none';sc.classList.toggle('active',val==='schedule');if(val==='schedule')faceRenderSchedule();}
   var tb=document.getElementById('tb');
   if(val){
     var b=FACE_BANNER[val]||['hero',val,''];
@@ -3594,29 +3658,43 @@ function faceHeader(){
   var greet=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   faceSet('hx-date',days[now.getDay()]+' &middot; '+mons[now.getMonth()]+' '+now.getDate());
-  var g=waiverInfo.now;
-  faceSet('hx-title',g?greet+',<br><em>'+esc(g)+'</em> is in camp':greet+'.<br><em>No group</em> in camp');
-  if(g){
-    var n=faceHunters(g),d=waiverInfo.latest[g];
-    faceSet('hx-sub',(n?n+' hunters &middot; ':'')+'signed in '+esc(usDate(d).slice(0,5)));
-  } else faceSet('hx-sub','The next group shows up here when they sign their waivers.');
+  var c=faceCamp(),here=c.inCamp;
+  if(here.length){
+    var names=here.map(function(r){return '<em>'+esc(r.group)+'</em>';}).join(' &amp; ');
+    faceSet('hx-title',greet+',<br>'+names+(here.length>1?' are':' is')+' in camp');
+    var r=here[here.length-1],sg=faceSigned(r);
+    faceSet('hx-sub',esc(faceStay(r,c.today))+' &middot; '+sg+(r.booked?' of '+r.booked:'')+' signed in');
+  } else {
+    faceSet('hx-title',greet+'.<br><em>No one</em> in camp');
+    faceSet('hx-sub',c.next?'Next up: '+esc(faceName(c.next))+' arrives '+faceDow(c.next.arrive)+' '+faceMD(c.next.arrive):'No more groups booked this season');
+  }
+  var g=here.length?here[here.length-1].group:'';
   faceSet('big-title',g?'Check out '+esc(g):'Check out a group');
+  faceRenderCamp();
 }
 function faceFromStatus(st){
   faceHeader();
   if(!st||!st.ok||!st.days)return;
-  var today=localToday(),td=st.days[today]||{release:{},harvest:{},cleaning:{}},g=waiverInfo.now;
-  if(!g){var any=Object.keys(td.harvest||{}).concat(Object.keys(td.release||{}),Object.keys(td.cleaning||{}));g=any[0]||'';}
+  var today=localToday(),td=st.days[today]||{release:{},harvest:{},cleaning:{}},camp=faceCamp(),here=camp.inCamp,g=here.length?here[here.length-1].group:'';
   var rel=g?td.release[g]||0:0,shot=g?td.harvest[g]||0:0,cl=g?td.cleaning[g]||0:0,ds=g&&td.discarded?td.discarded[g]||0:0;
+  if(!g){
+    faceSet('k1-l','Next group');faceSet('k2-l','Booked');
+    var nx=camp.next;
+    if(nx){faceCount(document.getElementById('k-shot'),daysApart(nx.arrive,today),daysApart(nx.arrive,today)===1?' day':' days');faceSet('k-shot-n',esc(nx.group),'');
+      if(nx.booked){faceCount(document.getElementById('k-clean'),nx.booked);faceSet('k-clean-n',faceSigned(nx)+' signed in','');}else{faceSet('k-clean','\u2013');faceSet('k-clean-n','not set yet','warn');}}
+    else{faceSet('k-shot','\u2013');faceSet('k-shot-n','none booked','');faceSet('k-clean','\u2013');faceSet('k-clean-n','','');}
+  } else {
+  faceSet('k1-l','Shot today');faceSet('k2-l','Cleaned');
   faceCount(document.getElementById('k-shot'),shot);
   faceCount(document.getElementById('k-clean'),cl);
-  var n=g?faceHunters(g):null,lim=n?n*3:null;
-  if(!g)faceSet('k-shot-n','no group','');
+  var gr=here[here.length-1],n=gr.booked||faceSigned(gr)||null,lim=n?n*3:null;
+  if(false)faceSet('k-shot-n','','');
   else if(lim)faceSet('k-shot-n',shot>=lim?'✓ limit '+lim:'of '+lim+' limit',shot>=lim?'ok':'');
   else faceSet('k-shot-n',shot?'today':'none yet','');
   if(!shot&&!cl)faceSet('k-clean-n','none yet','');
   else if(shot===cl+ds)faceSet('k-clean-n','✓ matches','ok');
   else faceSet('k-clean-n',(shot-cl-ds>0?(shot-cl-ds)+' to clean':'more than shot'),'warn');
+  }
   var sub=function(id,q){if(!g){faceSet(id,'Tap to log','');return;}faceSet(id,q?'Today: '+q:'Not logged yet',q?'done':'todo');};
   sub('t-release',rel);sub('t-harvest',shot);sub('t-cleaning',cl);
   var lp=st.last&&st.last.purchase;
@@ -3626,7 +3704,7 @@ function faceFromStatus(st){
   var card=document.getElementById('check-card'),badge=document.getElementById('check-badge');
   var bad=card.querySelectorAll('.ck-row.bad').length,todo=card.querySelectorAll('.ck-row.soon').length;
   var items=[].slice.call(card.querySelectorAll('.ck-row.bad .ck-txt,.ck-row.soon .ck-txt')).slice(0,2).map(function(x){return (x.childNodes[0]&&x.childNodes[0].textContent||'').trim();});
-  var title=bad?bad+' thing'+(bad===1?'':'s')+' to fix':todo?todo+' thing'+(todo===1?'':'s')+' need you':'All caught up';
+  var title=bad?bad+' thing'+(bad===1?'':'s')+' to fix':todo?todo+(todo===1?' thing needs you':' things need you'):'All caught up';
   var head=card.querySelector('.check-head span');
   head.className='al';
   head.innerHTML='<span class="al-ic">'+faceIcon(bad||todo?'alert':'ok')+'</span><span style="min-width:0"><b>'+esc(title)+'</b><small>'+esc(items.join(' · ')||'Every day logged and matching')+'</small></span>';
@@ -3650,11 +3728,135 @@ function faceBags(){
 }
 function faceRefresh(){faceHeader();faceBags();if(typeof loadChecklist==='function')loadChecklist();}
 var _faceRenderChecklist=renderChecklist;
-renderChecklist=function(st){_faceRenderChecklist(st);try{faceFromStatus(st);}catch(e){console.log('face',e);}};
+renderChecklist=function(st){try{faceCampFromStatus(st);}catch(e){}_faceRenderChecklist(st);try{faceFromStatus(st);}catch(e){console.log('face',e);}};
 window.addEventListener('DOMContentLoaded',function(){
   var slot=document.getElementById('check-slot'),cc=document.getElementById('check-card');
   if(slot&&cc)slot.appendChild(cc);
-  faceIcons();faceHeader();faceBags();faceView('');
+  faceIcons();faceHeader();faceBags();faceView('');faceRenderCamp();
+});
+
+/* ═══ WHO'S IN CAMP: season calendar, check-in progress, up next ═══ */
+var FACE_SCHED_FALLBACK=[
+  {group:'Texas',lead:'',arrive:'2026-10-16',depart:'2026-10-20',days:3,booked:10},
+  {group:'Michigan',lead:'',arrive:'2026-10-21',depart:'2026-10-25',days:3,booked:11},
+  {group:'Edwards',lead:'Gary Edwards',arrive:'2026-10-28',depart:'2026-11-01',days:3,booked:8},
+  {group:'Verbeke',lead:'Tim Verbeke',arrive:'2026-11-04',depart:'2026-11-08',days:3,booked:13},
+  {group:'FarmHouse',lead:'',arrive:'2026-11-12',depart:'2026-11-15',days:2,booked:null},
+  {group:'Hendrik',lead:'Hendrik de Hoog',arrive:'2026-11-15',depart:'2026-11-19',days:3,booked:null},
+  {group:'Jared Hendrickson',lead:'Jimi',arrive:'2026-11-19',depart:'2026-11-22',days:2,booked:null}
+];
+var faceSchedLive=null;
+(function(){try{var c=JSON.parse(localStorage.getItem('dr_sched')||'null');if(c&&c.schedule&&c.schedule.length)faceSchedLive=c;}catch(e){}})();
+function faceSchedule(){return ((faceSchedLive&&faceSchedLive.schedule&&faceSchedLive.schedule.length)?faceSchedLive.schedule:FACE_SCHED_FALLBACK).slice().sort(function(a,b){return a.arrive.localeCompare(b.arrive);});}
+function faceCheckouts(){return (faceSchedLive&&faceSchedLive.checkouts)||[];}
+function faceName(r){return r.lead&&r.lead.indexOf(' ')<0?r.group+' ('+r.lead+')':r.group;}
+function faceLead(r){return r.lead&&r.lead.indexOf(' ')>=0?r.lead:'';}
+function faceSigned(r){
+  var c=window.waiverCounts||{},n=0,lo=addDays(r.arrive,-14);
+  Object.keys(c).forEach(function(k){var m=k.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m)return;
+    var iso=m[3]+'-'+String(m[1]).padStart(2,'0')+'-'+String(m[2]).padStart(2,'0');
+    if(iso>=lo&&iso<=r.depart){var v=c[k]&&c[k][r.group];n+=typeof v==='number'?v:(parseInt(v,10)||0);}});
+  return n;
+}
+function faceCheckedOut(r){
+  var signed=0,billed=0;
+  faceCheckouts().forEach(function(x){if(x.group===r.group&&x.date>=addDays(r.arrive,-1)&&x.date<=r.depart){billed+=x.billed;signed=Math.max(signed,x.signedIn);}});
+  return signed>0&&billed>=signed;
+}
+function faceCamp(){
+  var today=localToday(),rows=faceSchedule(),inCamp=[],next=null;
+  // a group signing waivers that isn't on the calendar still counts as here
+  var lt=(typeof waiverInfo!=='undefined'&&waiverInfo.latest)||{};
+  Object.keys(lt).forEach(function(g){
+    var d=daysApart(today,lt[g]);if(d<-2||d>5)return;
+    if(rows.some(function(r){return r.group===g&&Math.abs(daysApart(lt[g],r.arrive))<=7;}))return;
+    rows.push({group:g,lead:'',arrive:lt[g],depart:addDays(lt[g],4),days:null,booked:null,adhoc:true});
+  });
+  rows.sort(function(a,b){return a.arrive.localeCompare(b.arrive);});
+  rows.forEach(function(r){
+    var out=faceCheckedOut(r);
+    r.state=today>r.depart||(out&&today>=r.arrive)?'done':today>=r.arrive?'camp':'booked';
+    r.checkedOut=out;
+    if(r.state==='camp')inCamp.push(r);
+    if(r.state==='booked'&&!next)next=r;
+  });
+  if(next)next.state='next';
+  var recent=rows.filter(function(r){return r.state==='done'&&daysApart(today,r.depart)<=1;}).pop()||null;
+  return {today:today,rows:rows,inCamp:inCamp,next:next,recent:recent};
+}
+// the group the forms should pick: whoever is here, or a group that just left (late logging)
+function faceCampNow(){var c=faceCamp();return c.inCamp.length?c.inCamp[c.inCamp.length-1].group:(c.recent?c.recent.group:'');}
+function faceDow(iso){return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(iso+'T12:00:00').getDay()];}
+function faceMD(iso){var p=iso.split('-');return (+p[1])+'/'+(+p[2]);}
+function faceRing(pct,size,label,sub){
+  var r=(size-8)/2,c=2*Math.PI*r,p=Math.max(0,Math.min(1,pct||0));
+  return '<div class="ring" style="width:'+size+'px;height:'+size+'px"><svg viewBox="0 0 '+size+' '+size+'"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" class="ring-bg"/>'+
+    '<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" class="ring-fg'+(p>=1?' full':'')+'" stroke-dasharray="'+c+'" stroke-dashoffset="'+c+'" data-off="'+(c*(1-p))+'" transform="rotate(-90 '+size/2+' '+size/2+')"/></svg>'+
+    '<div class="ring-t"><b>'+label+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div></div>';
+}
+function faceAnimRings(root){requestAnimationFrame(function(){(root||document).querySelectorAll('.ring-fg[data-off]').forEach(function(el){el.style.strokeDashoffset=el.getAttribute('data-off');});});}
+function faceStay(r,today){
+  var d=daysApart(today,r.arrive);
+  if(today===r.depart)return 'Checkout day';
+  if(d===0)return 'Arrival night';
+  var hd=r.days||Math.max(1,daysApart(r.depart,r.arrive)-1);
+  return 'Hunt day '+Math.min(d,hd)+' of '+hd;
+}
+function faceCheckinCard(r,today,kind){
+  var signed=faceSigned(r),booked=r.booked,pct=booked?signed/booked:(signed?1:0);
+  var head=kind==='camp'?'In camp':'Checking in';
+  var when=kind==='camp'?faceStay(r,today)+' · leaves '+faceDow(r.depart)+' '+faceMD(r.depart):
+    (r.arrive===today?'Arrives tonight':'Arrives '+faceDow(r.arrive)+' '+faceMD(r.arrive)+' · in '+daysApart(r.arrive,today)+' day'+(daysApart(r.arrive,today)===1?'':'s'));
+  var line=booked?(signed>=booked?'Everyone signed in':(booked-signed)+' still to sign'):(signed?signed+' signed in':'No waivers yet');
+  return '<div class="ci"><div class="ci-l"><div class="eyebrow">'+head+'</div><b>'+esc(faceName(r))+'</b>'+(faceLead(r)?'<small>'+esc(faceLead(r))+'</small>':'')+
+    '<span class="ci-when">'+esc(when)+'</span><span class="ci-line '+(booked&&signed>=booked?'ok':'')+'">'+esc(line)+'</span></div>'+
+    faceRing(pct,96,signed+(booked?'<i>/'+booked+'</i>':''),'signed in')+'</div>';
+}
+function faceRenderCamp(){
+  var c=faceCamp(),today=c.today,html='';
+  c.inCamp.forEach(function(r){html+=faceCheckinCard(r,today,'camp');});
+  if(c.next&&daysApart(c.next.arrive,today)<=3&&!c.inCamp.some(function(r){return r.group===c.next.group;}))html+=faceCheckinCard(c.next,today,'next');
+  else if(c.next)html+='<button type="button" class="upnext" onclick="navTo(\'schedule\')"><span class="un-d"><b>'+daysApart(c.next.arrive,today)+'</b><small>days</small></span><span class="un-t"><span class="eyebrow">Up next</span><b>'+esc(faceName(c.next))+'</b><small>Arrives '+faceDow(c.next.arrive)+' '+faceMD(c.next.arrive)+' · '+(c.next.days||'?')+'-day hunt'+(c.next.booked?' · '+c.next.booked+' hunters':'')+'</small></span><span class="chev" data-ic="chev"></span></button>';
+  else if(!c.inCamp.length)html+='<div class="upnext"><span class="un-t"><span class="eyebrow">Season</span><b>No more groups booked</b><small>Add groups to the Schedule tab in the sheet</small></span></div>';
+  var slot=document.getElementById('camp-slot');if(slot){slot.innerHTML=html;faceIcons(slot);faceAnimRings(slot);}
+  return c;
+}
+function faceRenderSchedule(){
+  var box=document.getElementById('sc-body');if(!box)return;
+  var c=faceCamp(),today=c.today,rows=c.rows;if(!rows.length){box.innerHTML='<div class="report-hint">No groups in the Schedule tab yet.</div>';return;}
+  // season strip: one cell per day, colored by who is here
+  var first=rows[0].arrive,last=rows[rows.length-1].depart,n=daysApart(last,first)+1,cells='';
+  for(var i=0;i<n;i++){
+    var d=addDays(first,i),who=rows.filter(function(r){return d>=r.arrive&&d<=r.depart;});
+    var st=who.length?who[who.length-1].state:'';
+    cells+='<span class="sd '+st+(d===today?' today':'')+'" title="'+esc(faceMD(d)+' '+who.map(function(r){return r.group;}).join(' / '))+'"></span>';
+  }
+  var hunt=rows.reduce(function(a,r){return a+(r.days||0);},0),done=rows.filter(function(r){return r.state==='done';}).length;
+  var html='<div class="sc-sum"><div><b>'+rows.length+'</b><span>groups</span></div><div><b>'+done+'</b><span>done</span></div><div><b>'+hunt+'</b><span>hunt days</span></div><div><b>'+rows.reduce(function(a,r){return a+(r.booked||0);},0)+'</b><span>hunters booked</span></div></div>'+
+    '<div class="strip"><div class="strip-cells" style="grid-template-columns:repeat('+n+',1fr)">'+cells+'</div><div class="strip-l"><span>'+faceMD(first)+'</span><span>'+faceMD(last)+'</span></div>'+
+    '<div class="legend"><span class="lg done">Done</span><span class="lg camp">In camp</span><span class="lg next">Up next</span><span class="lg booked">Booked</span></div></div>';
+  var month='',mons=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  rows.forEach(function(r){
+    var m=mons[+r.arrive.slice(5,7)-1];
+    if(m!==month){month=m;html+='<div class="sec-h">'+m+'</div>';}
+    var signed=faceSigned(r),pill={done:'Done',camp:'In camp',next:'Up next',booked:'Booked'}[r.state];
+    var who=r.state==='done'||r.state==='camp'?signed+(r.booked?' of '+r.booked:'')+' signed in':(r.booked?r.booked+' booked':'Hunters not set')+(signed?' · '+signed+' signed':'');
+    html+='<div class="trip '+r.state+'"><div class="trip-d"><b>'+faceMD(r.arrive)+'</b><small>'+faceDow(r.arrive)+' → '+faceDow(r.depart)+' '+faceMD(r.depart)+'</small></div>'+
+      '<div class="trip-m"><b>'+esc(faceName(r))+'</b><small>'+(faceLead(r)?esc(faceLead(r))+' · ':'')+(r.days||'?')+'-day hunt · '+esc(who)+'</small></div><span class="pill '+r.state+'">'+pill+'</span></div>';
+  });
+  html+='<p class="sc-note">To add or change a booking, edit the <b>Schedule</b> tab in the Google Sheet (Group, Arrive, Leave, Hunt Days, Hunters Booked). A group drops out of camp when you tap Check Out Group.</p>';
+  box.innerHTML=html;
+}
+function faceCampFromStatus(st){
+  if(st&&st.ok&&st.schedule&&st.schedule.length){faceSchedLive={schedule:st.schedule,checkouts:st.checkouts||[]};try{localStorage.setItem('dr_sched',JSON.stringify(faceSchedLive));}catch(e){}}
+  if(typeof waiverInfo!=='undefined')waiverInfo.now=faceCampNow();
+}
+window.addEventListener('DOMContentLoaded',function(){
+  var inner=document.querySelector('.content-inner');
+  if(inner&&!document.getElementById('card-schedule')){
+    var d=document.createElement('div');d.className='form-card sc-card';d.id='card-schedule';
+    d.innerHTML='<div class="card-title">Season Calendar</div><div id="sc-body"></div>';inner.appendChild(d);
+  }
 });
 
 </script>
