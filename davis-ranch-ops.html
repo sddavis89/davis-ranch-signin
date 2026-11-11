@@ -834,6 +834,48 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 @media(min-width:980px){.sc-card{max-width:900px!important;}}
 .inv-type.three{grid-template-columns:1fr;}
 @media(min-width:620px){.inv-type.three{grid-template-columns:repeat(3,minmax(0,1fr));}}
+/* ── GFP inspection ── */
+.gf-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+.gf-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;flex:1 1 320px}
+.gf-seg button{font:600 .85rem var(--font-body);padding:11px 6px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--fg);cursor:pointer}
+.gf-seg button.on{background:linear-gradient(145deg,var(--gold-light),var(--gold));color:#1A1207;border-color:transparent}
+#gf-group{flex:0 1 220px;min-height:46px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;font:500 16px var(--font-body)}
+.gf-act{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.gf-act button:first-child{grid-column:1/-1}
+@media(min-width:620px){.gf-act{grid-template-columns:repeat(3,minmax(0,1fr))}.gf-act button:first-child{grid-column:auto}}
+.gf-act button{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 8px;font-size:.9rem}
+.gf-act button span{display:grid}.gf-act svg{width:18px;height:18px}
+.gf-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px}
+.gf-head b{display:block;font:600 1.3rem var(--font-display);margin-top:4px}
+.gf-head small{color:var(--fg-soft)}
+.gf-when{text-align:right;color:var(--gold-light);font-weight:600;font-size:.9rem}
+.gf-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.gf-tiles div{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.gf-tiles div.warn{border-color:rgba(233,162,59,.55)}
+.gf-tiles span{display:block;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600}
+.gf-tiles b{display:block;font:500 1.8rem/1.1 var(--font-display);color:#fff;font-variant-numeric:tabular-nums}
+.gf-tiles small{color:var(--fg-soft);font-size:.75rem}
+.gf-flags{margin-top:12px;background:rgba(233,162,59,.10);border:1px solid rgba(233,162,59,.45);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:.88rem}
+.gf-flags b{color:var(--warn)}
+.gf-ok{margin-top:12px;color:var(--success);font-weight:600;font-size:.9rem}
+.gf-sec{font:500 1.25rem var(--font-display);margin:22px 0 8px;color:#fff}
+.gf-h{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.gf-h.nolic{border-color:rgba(233,162,59,.55)}
+.gf-h1{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.gf-h1 b{font-size:1.05rem}
+.gf-lic{font-weight:700;color:var(--gold-light);font-variant-numeric:tabular-nums;font-size:.92rem}
+.gf-h.nolic .gf-lic{color:var(--warn)}
+.gf-h2{color:var(--fg-mid);font-size:.86rem;margin-top:2px}
+.gf-h3{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:.85rem;color:var(--fg-soft)}
+.gf-h3 b{color:#fff}
+.gf-tw{overflow-x:auto}
+.gf-t{width:100%;border-collapse:collapse;font-size:.88rem;color:var(--fg)}
+.gf-t th{text-align:left;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);padding:8px;border-bottom:1px solid var(--line)}
+.gf-t td{padding:8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.gf-t tr.tot td{font-weight:700;color:var(--gold-light)}
+.gf-pin{display:flex;flex-direction:column;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.gf-pin span{color:var(--fg-soft);font-size:.88rem}
+@media(min-width:980px){.gf-card{max-width:1120px!important}}
 </style>
 </head>
 <body>
@@ -852,6 +894,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <button type="button" data-nav="schedule" onclick="navTo('schedule')"><i data-ic="cal"></i>Season calendar</button>
   <button type="button" onclick="openSearch()"><i data-ic="search"></i>Find a hunter</button>
   <div class="sh">Records</div>
+  <button type="button" data-nav="gfp" onclick="navTo('gfp')"><i data-ic="shield"></i>GFP inspection</button>
   <button type="button" data-nav="planning" onclick="navTo('planning')"><i data-ic="chart"></i>Dashboard</button>
   <button type="button" data-nav="summary" onclick="navTo('summary')"><i data-ic="cal"></i>Daily summary</button>
   <button type="button" data-nav="reports" onclick="navTo('reports')"><i data-ic="trend"></i>Season reports</button>
@@ -898,6 +941,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <div class="col-b">
       <div class="sec-h">Records</div>
       <div class="recs">
+        <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<span>Report in seconds</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<span>Who's here, who's next</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('planning')"><i class="ri" data-ic="chart"></i>Dashboard<span>Season at a glance</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="trend"></i>Daily summary<span id="r-sum"></span><i class="chev" data-ic="chev"></i></button>
@@ -1257,6 +1301,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="grab"></div>
   <h3>Records</h3>
   <div class="recs">
+    <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
@@ -3575,7 +3620,7 @@ function submitInventory(){
 </script>
 <script>
 /* ═══ FACELIFT: home screen, banners, nav, sheets, search ═══ */
-var FACE_IC={"bird": "<svg class=\"lucide lucide-bird\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M16 7h.01\" /> <path d=\"M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20\" /> <path d=\"m20 7 2 .5-2 .5\" /> <path d=\"M10 18v3\" /> <path d=\"M14 17.75V21\" /> <path d=\"M7 18a6 6 0 0 0 3.84-10.61\" />", "crosshair": "<svg class=\"lucide lucide-crosshair\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"22\" x2=\"18\" y1=\"12\" y2=\"12\" /> <line x1=\"6\" x2=\"2\" y1=\"12\" y2=\"12\" /> <line x1=\"12\" x2=\"12\" y1=\"6\" y2=\"2\" /> <line x1=\"12\" x2=\"12\" y1=\"22\" y2=\"18\" />", "slice": "<svg class=\"lucide lucide-slice\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 16.586V19a1 1 0 0 1-1 1H2L18.37 3.63a1 1 0 1 1 3 3l-9.663 9.663a1 1 0 0 1-1.414 0L8 14\" />", "truck": "<svg class=\"lucide lucide-truck\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\" /> <path d=\"M15 18H9\" /> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\" /> <circle cx=\"17\" cy=\"18\" r=\"2\" /> <circle cx=\"7\" cy=\"18\" r=\"2\" />", "receipt": "<svg class=\"lucide lucide-receipt\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\" /> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\" /> <path d=\"M12 17.5v-11\" />", "chart": "<svg class=\"lucide lucide-chart-column\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "cal": "<svg class=\"lucide lucide-calendar-days\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" /> <path d=\"M8 14h.01\" /> <path d=\"M12 14h.01\" /> <path d=\"M16 14h.01\" /> <path d=\"M8 18h.01\" /> <path d=\"M12 18h.01\" /> <path d=\"M16 18h.01\" />", "trend": "<svg class=\"lucide lucide-trending-up\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />", "print": "<svg class=\"lucide lucide-printer\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /> <path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /> <rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />", "box": "<svg class=\"lucide lucide-package\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />", "home": "<svg class=\"lucide lucide-house\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "plus": "<svg class=\"lucide lucide-plus\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />", "search": "<svg class=\"lucide lucide-search\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "back": "<svg class=\"lucide lucide-arrow-left\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m12 19-7-7 7-7\" /> <path d=\"M19 12H5\" />", "chev": "<svg class=\"lucide lucide-chevron-right\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m9 18 6-6-6-6\" />", "alert": "<svg class=\"lucide lucide-triangle-alert\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "ok": "<svg class=\"lucide lucide-circle-check\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "more": "<svg class=\"lucide lucide-layout-grid\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />", "x": "<svg class=\"lucide lucide-x\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "feather": "<svg class=\"lucide lucide-feather\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z\" /> <path d=\"M16 8 2 22\" /> <path d=\"M17.5 15H9\" />"};
+var FACE_IC={"bird": "<svg class=\"lucide lucide-bird\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M16 7h.01\" /> <path d=\"M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20\" /> <path d=\"m20 7 2 .5-2 .5\" /> <path d=\"M10 18v3\" /> <path d=\"M14 17.75V21\" /> <path d=\"M7 18a6 6 0 0 0 3.84-10.61\" />", "crosshair": "<svg class=\"lucide lucide-crosshair\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"22\" x2=\"18\" y1=\"12\" y2=\"12\" /> <line x1=\"6\" x2=\"2\" y1=\"12\" y2=\"12\" /> <line x1=\"12\" x2=\"12\" y1=\"6\" y2=\"2\" /> <line x1=\"12\" x2=\"12\" y1=\"22\" y2=\"18\" />", "slice": "<svg class=\"lucide lucide-slice\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 16.586V19a1 1 0 0 1-1 1H2L18.37 3.63a1 1 0 1 1 3 3l-9.663 9.663a1 1 0 0 1-1.414 0L8 14\" />", "truck": "<svg class=\"lucide lucide-truck\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\" /> <path d=\"M15 18H9\" /> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\" /> <circle cx=\"17\" cy=\"18\" r=\"2\" /> <circle cx=\"7\" cy=\"18\" r=\"2\" />", "receipt": "<svg class=\"lucide lucide-receipt\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\" /> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\" /> <path d=\"M12 17.5v-11\" />", "chart": "<svg class=\"lucide lucide-chart-column\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "cal": "<svg class=\"lucide lucide-calendar-days\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" /> <path d=\"M8 14h.01\" /> <path d=\"M12 14h.01\" /> <path d=\"M16 14h.01\" /> <path d=\"M8 18h.01\" /> <path d=\"M12 18h.01\" /> <path d=\"M16 18h.01\" />", "trend": "<svg class=\"lucide lucide-trending-up\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />", "print": "<svg class=\"lucide lucide-printer\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /> <path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /> <rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />", "box": "<svg class=\"lucide lucide-package\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />", "home": "<svg class=\"lucide lucide-house\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "plus": "<svg class=\"lucide lucide-plus\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />", "search": "<svg class=\"lucide lucide-search\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "back": "<svg class=\"lucide lucide-arrow-left\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m12 19-7-7 7-7\" /> <path d=\"M19 12H5\" />", "chev": "<svg class=\"lucide lucide-chevron-right\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m9 18 6-6-6-6\" />", "alert": "<svg class=\"lucide lucide-triangle-alert\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "ok": "<svg class=\"lucide lucide-circle-check\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "more": "<svg class=\"lucide lucide-layout-grid\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />", "x": "<svg class=\"lucide lucide-x\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "feather": "<svg class=\"lucide lucide-feather\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z\" /> <path d=\"M16 8 2 22\" /> <path d=\"M17.5 15H9\" />", "shield": "<svg class=\"lucide lucide-shield-check\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />", "share": "<svg class=\"lucide lucide-share-2\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"18\" cy=\"5\" r=\"3\" /> <circle cx=\"6\" cy=\"12\" r=\"3\" /> <circle cx=\"18\" cy=\"19\" r=\"3\" /> <line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\" /> <line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\" />", "drive": "<svg class=\"lucide lucide-cloud-upload\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 13v8\" /> <path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m8 17 4-4 4 4\" />"};
 function faceIcon(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(FACE_IC[k]||'')+'</svg>';}
 function faceIcons(root){(root||document).querySelectorAll('[data-ic]').forEach(function(el){if(!el.querySelector('svg'))el.insertAdjacentHTML('afterbegin',faceIcon(el.getAttribute('data-ic')));});}
 var FACE_BANNER={
@@ -3589,7 +3634,8 @@ var FACE_BANNER={
   inventory:['lodge','Lodge Inventory','What is on the shelf and what is low'],
   reports:['dogs','Season Reports','2026 season totals'],
   planning:['hero','Dashboard','The season at a glance'],
-  schedule:['lodge','Season Calendar','Who is here, who is next']
+  schedule:['lodge','Season Calendar','Who is here, who is next'],
+  gfp:['harvest','GFP Inspection','Guest register, birds per hunter, releases']
 };
 var faceCur=null;
 function faceView(val){
@@ -3597,6 +3643,7 @@ function faceView(val){
   var changed=val!==faceCur;faceCur=val;
   document.getElementById('home').style.display=val?'none':'';
   var sc=document.getElementById('card-schedule');if(sc){sc.style.display=val==='schedule'?'block':'none';sc.classList.toggle('active',val==='schedule');if(val==='schedule')faceRenderSchedule();}
+  var gc=document.getElementById('card-gfp');if(gc){gc.style.display=val==='gfp'?'block':'none';gc.classList.toggle('active',val==='gfp');if(val==='gfp'&&changed&&typeof gfOpen==='function')gfOpen();}
   var tb=document.getElementById('tb');
   if(val){
     var b=FACE_BANNER[val]||['hero',val,''];
@@ -3944,6 +3991,163 @@ earlyPlan=function(){
     parts.push('<b>Split payment:</b> '+money(m.half)+' of each package is on the organizer&rsquo;s invoice; unfilled spots and the deposit are shared evenly.');}
   el.innerHTML=parts.join('<br>');
 };
+
+/* ═══ GFP INSPECTION: guest register + birds per hunter + releases, on screen, printed or as a PDF ═══ */
+var gfRange='',gfData=null,gfBusy=false;
+function gfGroups(){
+  var gs={};faceSchedule().forEach(function(r){gs[r.group]=1;});
+  Object.keys((typeof waiverInfo!=='undefined'&&waiverInfo.latest)||{}).forEach(function(g){gs[g]=1;});
+  return Object.keys(gs).sort();
+}
+function gfCampGroup(){var c=faceCamp();return c.inCamp.length?c.inCamp[c.inCamp.length-1]:(c.recent||null);}
+function gfDates(){
+  var t=localToday(),g=val('gf-group');
+  if(gfRange==='week')return {from:addDays(t,-6),to:t};
+  if(gfRange==='trip'){
+    var r=g?faceCamp().rows.filter(function(x){return x.group===g&&x.arrive<=t;}).pop():gfCampGroup();
+    if(r)return {from:r.arrive,to:r.depart<t?r.depart:t};
+    return {from:addDays(t,-6),to:t};
+  }
+  return {from:seasonStartIso(),to:t};
+}
+function gfSetRange(k){
+  gfRange=k;
+  document.querySelectorAll('#gf-range button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-r')===k);});
+  var sel=document.getElementById('gf-group');
+  if(k==='trip'&&!sel.value){var c=gfCampGroup();if(c)sel.value=c.group;}
+  gfLoad();
+}
+function gfOpen(){
+  var sel=document.getElementById('gf-group');
+  if(!sel.options.length||sel.options.length<2){
+    sel.innerHTML='<option value="">All groups</option>'+gfGroups().map(function(g){return '<option value="'+esc(g)+'">'+esc(g)+'</option>';}).join('');
+  }
+  if(!gfRange){var c=gfCampGroup();if(c){sel.value=c.group;gfSetRange('trip');}else{sel.value='';gfSetRange('season');}}
+  else if(!gfData)gfLoad();
+}
+function gfLoad(){
+  var body=document.getElementById('gf-body'),st=document.getElementById('gf-status');
+  if(!getPin()){
+    body.innerHTML='<div class="gf-pin"><b>Enter the records PIN</b><span>The report shows hunters&rsquo; addresses, so it&rsquo;s behind your PIN.</span>'+
+      '<div class="proc-pin"><input type="password" id="gf-pin" inputmode="numeric" autocomplete="off" placeholder="Records PIN"><button type="button" onclick="gfPin()">Open</button></div></div>';
+    return;
+  }
+  var D=gfDates(),g=val('gf-group');
+  st.className='submit-status';
+  body.innerHTML='<div class="report-hint">Pulling the waivers, Bird Log and releases&hellip;</div>';
+  procGet({action:'report',from:D.from,to:D.to,group:g,sections:'guests,releases,purchases,harvest,daily,season'}).then(function(r){
+    if(!r||!r.ok){body.innerHTML='<div class="proc-msg err">'+esc(r?handleProcError(r):'Could not load.')+'</div>';return;}
+    if(!r.guests){body.innerHTML='<div class="proc-msg err">Paste the newest Davis Ranch script and deploy a New version to get the guest register.</div>';return;}
+    if(r.facility)procFacility=r.facility;
+    gfData=r;body.innerHTML=gfScreen(r);
+  }).catch(function(){body.innerHTML='<div class="proc-msg err">Could not reach the records sheet. Check your signal and try again.</div>';});
+}
+function gfPin(){var v=val('gf-pin').trim();if(!v)return;setPin(v);gfLoad();}
+function gfMD(iso){return iso?(+iso.slice(5,7))+'/'+(+iso.slice(8,10)):'';}
+function gfSpan(days){if(!days.length)return '';return days.length===1?gfMD(days[0]):gfMD(days[0])+'–'+gfMD(days[days.length-1]);}
+function gfBirds(x){var k=Object.keys(x.days).sort();return k.length?k.map(function(d){return gfMD(d)+': '+x.days[d];}).join(' · '):'';}
+function gfStats(r){
+  var g=r.guests,s=r.season||{};
+  return {hunters:g.length,noLic:g.filter(function(x){return !x.license;}),noWaiver:g.filter(function(x){return !x.waiver;}),
+    released:s.released||0,harvested:s.harvested||0,cleaned:s.cleaned||0,discarded:s.discarded||0,given:g.reduce(function(a,x){return a+x.total;},0),
+    bad:(r.daily||[]).filter(function(d){return !d.match&&(d.harvested||d.cleaned);})};
+}
+function gfScreen(r){
+  var S=gfStats(r),f=procFacility||{name:'Davis Ranch Hunting LLC'},left=Math.max(0,S.cleaned-S.given);
+  var head='<div class="gf-head"><div><div class="eyebrow">Shooting preserve records</div><b>'+esc(f.name)+'</b><small>'+esc(f.address||'')+(f.phone?' · '+esc(f.phone):'')+'</small></div>'+
+    '<div class="gf-when">'+esc(usDate(r.from))+' – '+esc(usDate(r.to))+'<br>'+esc(r.group||'All groups')+'</div></div>';
+  var tiles='<div class="gf-tiles">'+[['Hunters',S.hunters,S.noLic.length?S.noLic.length+' missing license #':'all licensed'],['Released',S.released,'birds put out'],
+    ['Harvested',S.harvested,'roosters shot'],['To hunters',S.given,'on receipts'],['Not given yet',left,'cleaned, waiting']].map(function(t,i){
+      return '<div class="'+(i===0&&S.noLic.length?'warn':'')+'"><span>'+t[0]+'</span><b>'+t[1]+'</b><small>'+esc(t[2])+'</small></div>';}).join('')+'</div>';
+  var flags=[];
+  if(S.noLic.length)flags.push('No license # on the waiver: '+S.noLic.map(function(x){return esc(x.name);}).join(', '));
+  if(S.noWaiver.length)flags.push('On the Bird Log but no waiver found: '+S.noWaiver.map(function(x){return esc(x.name);}).join(', '));
+  S.bad.forEach(function(d){flags.push(esc(gfMD(d.date))+' '+esc(d.group)+': harvested '+d.harvested+', cleaned '+d.cleaned+(d.discarded?' + '+d.discarded+' discarded':''));});
+  var fl=flags.length?'<div class="gf-flags"><b>Check before you hand it over</b>'+flags.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div>':'<div class="gf-ok">✓ Every hunter has a license # and every day&rsquo;s harvest matches cleaning.</div>';
+  var grp='',reg='';
+  r.guests.forEach(function(x,i){
+    if(x.group!==grp){grp=x.group;reg+='<div class="sec-h">'+esc(grp)+' · '+r.guests.filter(function(y){return y.group===grp;}).length+' hunters</div>';}
+    reg+='<div class="gf-h'+(x.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(x.name)+'</b><span class="gf-lic">'+(x.license?'License / CID '+esc(x.license):'No license #')+'</span></div>'+
+      '<div class="gf-h2">'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</div>'+
+      '<div class="gf-h3"><span>'+(x.huntDays.length?'Hunted '+esc(gfSpan(x.huntDays)):(x.signed?'Signed in '+esc(gfMD(x.signed)):''))+'</span><span>'+(x.total?esc(gfBirds(x))+' · <b>'+x.total+' birds</b>':'No birds taken')+'</span>'+
+      (x.receipts.length?'<span>Receipt #'+esc(x.receipts.join(', #'))+(x.released?' · released '+esc(gfMD(x.released)):'')+'</span>':'')+'</div></div>';
+  });
+  var rel=r.releases||[],pur=r.purchases||[],sum=function(a,k){return a.reduce(function(t,x){return t+(+x[k]||0);},0);};
+  var T=function(h,rows,tot){return rows.length?'<div class="gf-tw"><table class="gf-t"><thead><tr>'+h.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+
+    rows.map(function(rw){return '<tr>'+rw.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+(tot?'<tr class="tot">'+tot.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>':'')+'</tbody></table></div>':'<div class="report-hint">None in these dates.</div>';};
+  return head+tiles+fl+
+    '<h3 class="gf-sec">Guest register</h3>'+(reg||'<div class="report-hint">No hunters signed in for these dates.</div>')+
+    '<h3 class="gf-sec">Birds released</h3>'+T(['Date','Field','Group','Birds'],rel.map(function(x){return [esc(usDate(x.date)),esc(x.field),esc(x.group),x.qty];}),['Total','','',sum(rel,'qty')])+
+    '<h3 class="gf-sec">Source of birds</h3>'+T(['Date','Supplier','Birds'],pur.map(function(x){return [esc(usDate(x.date)),esc(x.supplier),x.qty];}),['Total','',sum(pur,'qty')])+
+    '<h3 class="gf-sec">Daily harvest</h3>'+T(['Date','Group','Released','Harvested','Cleaned','Given out'],(r.daily||[]).map(function(d){return [esc(gfMD(d.date)),esc(d.group),d.released,d.harvested,d.cleaned+(d.discarded?' +'+d.discarded+' disc.':''),d.given];}));
+}
+// printable / PDF version (white paper)
+var GF_CSS='.g{font-family:Georgia,serif;color:#000;font-size:9.5pt;max-width:10in;margin:0 auto}.g h1{font-size:15pt;margin:0}.g h2{font-size:11.5pt;margin:14pt 0 4pt;border-bottom:1.5px solid #000;padding-bottom:2pt}'+
+  '.g .sub{margin:2pt 0 8pt;line-height:1.4}.g table{width:100%;border-collapse:collapse;margin-bottom:4pt;color:#000;font:inherit}.g th,.g td{border:1px solid #888;padding:3pt 5pt;text-align:left;vertical-align:top}.g th{background:#eee;font-size:8.5pt}'+
+  '.g td.n,.g th.n{text-align:right;white-space:nowrap}.g tr{page-break-inside:avoid}.g tr.tot td{font-weight:bold;border-top:2px solid #000}.g .kv td{padding:4pt 6pt}.g .kv b{font-size:13pt}'+
+  '.g .flag{border:1px solid #b00;padding:5pt 7pt;margin:6pt 0;color:#900}.g .sig{margin-top:22pt}.g .sig td{border:none;border-top:1px solid #000;padding-top:3pt;width:33%}.g .grp td{background:#f4f4f4;font-weight:bold}';
+function gfDoc(r){
+  var S=gfStats(r),f=procFacility||{name:'Davis Ranch Hunting LLC'},left=Math.max(0,S.cleaned-S.given);
+  var rows='',grp='',n=0;
+  r.guests.forEach(function(x){
+    if(x.group!==grp){grp=x.group;rows+='<tr class="grp"><td colspan="8">'+esc(grp)+'</td></tr>';}
+    rows+='<tr><td class="n">'+(++n)+'</td><td>'+esc(x.name)+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on waiver</i>')+'</td><td>'+esc(gfSpan(x.huntDays))+'</td><td>'+esc(gfBirds(x)||'—')+'</td><td class="n">'+x.total+'</td><td>'+esc(x.receipts.join(', '))+'</td></tr>';
+  });
+  var rel=r.releases||[],pur=r.purchases||[],sum=function(a,k){return a.reduce(function(t,x){return t+(+x[k]||0);},0);};
+  var tb=function(h,rws,tot){return rws.length?'<table><tr>'+h.map(function(c){return '<th'+(/^(Birds|Qty|Released|Harvested|Cleaned|Given)/.test(c)?' class="n"':'')+'>'+c+'</th>';}).join('')+'</tr>'+rws.join('')+(tot||'')+'</table>':'<div class="sub"><i>None in these dates.</i></div>';};
+  var flags=[];
+  if(S.noLic.length)flags.push('No license # on the waiver: '+S.noLic.map(function(x){return esc(x.name);}).join(', '));
+  if(S.noWaiver.length)flags.push('On the Bird Log without a waiver on file: '+S.noWaiver.map(function(x){return esc(x.name);}).join(', '));
+  return '<div class="g"><h1>'+esc(f.name)+' — Shooting Preserve Records</h1><div class="sub">'+esc(f.address||'')+(f.phone?' · '+esc(f.phone):'')+'<br><b>Dates:</b> '+esc(usDate(r.from))+' to '+esc(usDate(r.to))+' · <b>Group:</b> '+esc(r.group||'All groups')+' · Printed '+esc(usDate(localToday()))+' '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div>'+
+    '<table class="kv"><tr><td>Hunters<br><b>'+S.hunters+'</b></td><td>Birds released<br><b>'+S.released+'</b></td><td>Harvested<br><b>'+S.harvested+'</b></td><td>Given to hunters<br><b>'+S.given+'</b></td><td>Cleaned, not yet given<br><b>'+left+'</b></td></tr></table>'+
+    (flags.length?'<div class="flag">'+flags.join('<br>')+'</div>':'')+
+    '<h2>Guest register</h2><table><tr><th class="n">#</th><th>Hunter</th><th>Address</th><th>License / CID #</th><th>Hunt dates</th><th>Birds by day</th><th class="n">Total</th><th>Receipt #</th></tr>'+rows+
+    '<tr class="tot"><td></td><td colspan="5">'+S.hunters+' hunters</td><td class="n">'+S.given+'</td><td></td></tr></table>'+
+    '<h2>Birds released</h2>'+tb(['Date','Field','Group','Birds'],rel.map(function(x){return '<tr><td>'+esc(usDate(x.date))+'</td><td>'+esc(x.field)+'</td><td>'+esc(x.group)+'</td><td class="n">'+x.qty+'</td></tr>';}),'<tr class="tot"><td colspan="3">Total</td><td class="n">'+sum(rel,'qty')+'</td></tr>')+
+    '<h2>Source of birds</h2>'+tb(['Date','Supplier','Birds'],pur.map(function(x){return '<tr><td>'+esc(usDate(x.date))+'</td><td>'+esc(x.supplier)+'</td><td class="n">'+x.qty+'</td></tr>';}),'<tr class="tot"><td colspan="2">Total</td><td class="n">'+sum(pur,'qty')+'</td></tr>')+
+    '<h2>Daily harvest</h2>'+tb(['Date','Group','Released','Harvested','Cleaned','Given out'],(r.daily||[]).map(function(d){return '<tr><td>'+esc(usDate(d.date))+'</td><td>'+esc(d.group)+'</td><td class="n">'+d.released+'</td><td class="n">'+d.harvested+'</td><td class="n">'+d.cleaned+(d.discarded?' (+'+d.discarded+' discarded)':'')+'</td><td class="n">'+d.given+'</td></tr>';}))+
+    '<table class="sig"><tr><td>Operator signature</td><td>Inspected by</td><td>Date</td></tr></table></div>';
+}
+function gfName(){var r=gfData;return 'GFP Records '+(r.group||'All groups')+' '+usDate(r.from).replace(/\//g,'-')+' to '+usDate(r.to).replace(/\//g,'-');}
+function gfPrint(){
+  if(!gfData){toast('Load the report first.',true);return;}
+  var area=document.getElementById('print-area');
+  if(!area){area=document.createElement('div');area.id='print-area';document.body.appendChild(area);}
+  area.innerHTML='<style>@page{size:landscape;margin:0.4in}'+GF_CSS+'</style>'+gfDoc(gfData);
+  setTimeout(function(){window.print();},60);
+}
+function gfPdf(share){
+  if(!gfData){toast('Load the report first.',true);return;}
+  if(gfBusy)return;gfBusy=true;
+  var st=document.getElementById('gf-status');st.className='submit-status show';st.textContent='Making the PDF…';
+  var html='<html><head><meta charset="utf-8"><style>@page{size:landscape;margin:0.4in}'+GF_CSS+'</style></head><body>'+gfDoc(gfData)+'</body></html>';
+  procPost({action:'gfpPdf',submissionId:newId(),html:html,name:gfName()}).then(function(r){
+    gfBusy=false;
+    if(!r||!r.ok){st.className='submit-status show error';st.textContent='✗ '+(r?handleProcError(r):'No signal.');return;}
+    var bin=atob(r.b64),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    var file=new File([u],r.name,{type:'application/pdf'});
+    st.className='submit-status show success';
+    st.innerHTML='Saved: '+esc(r.name)+(r.url?' &middot; <a href="'+esc(r.url)+'" target="_blank" rel="noopener">open in Drive</a>':'');
+    if(share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:r.name}).catch(function(){});
+    } else if(share){
+      var a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=r.name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},2000);
+      st.innerHTML+=' &middot; Downloaded. Attach it to a text or email.';
+    }
+  }).catch(function(){gfBusy=false;st.className='submit-status show error';st.textContent='✗ Could not reach the records sheet. Check your signal.';});
+}
+window.addEventListener('DOMContentLoaded',function(){
+  var inner=document.querySelector('.content-inner');
+  if(inner&&!document.getElementById('card-gfp')){
+    var d=document.createElement('div');d.className='form-card sc-card gf-card';d.id='card-gfp';
+    d.innerHTML='<div class="card-title">GFP Inspection</div>'+
+      '<div class="gf-bar"><div class="gf-seg" id="gf-range"><button type="button" data-r="trip" onclick="gfSetRange(\'trip\')">This group</button><button type="button" data-r="week" onclick="gfSetRange(\'week\')">Last 7 days</button><button type="button" data-r="season" onclick="gfSetRange(\'season\')">Whole season</button></div>'+
+      '<select id="gf-group" aria-label="Group" onchange="gfLoad()"></select></div>'+
+      '<div class="gf-act"><button type="button" class="btn-small btn-gold" onclick="gfPdf(true)"><span data-ic="share"></span>Send PDF</button><button type="button" class="btn-small" onclick="gfPrint()"><span data-ic="print"></span>Print</button><button type="button" class="btn-small" onclick="gfPdf(false)"><span data-ic="drive"></span>Save to Drive</button></div>'+
+      '<div class="submit-status" id="gf-status"></div><div id="gf-body"></div>';
+    inner.appendChild(d);faceIcons(d);
+  }
+});
 
 </script>
 </body>
