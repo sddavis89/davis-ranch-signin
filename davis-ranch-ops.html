@@ -1014,6 +1014,22 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .gf-mode{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:10px}
 .gf-day{display:flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600;flex:1 1 220px}
 .gf-day input{flex:1;min-height:46px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;font:500 1rem var(--font-body);letter-spacing:0;text-transform:none}
+/* guides in camp */
+#h-guides .gd-row.off{opacity:.55}
+#h-guides .gd-in{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600}
+#h-guides .gd-in input{width:22px;height:22px;accent-color:var(--gold)}
+#h-guides .gd-in small{display:block;font-weight:400;font-size:.74rem;color:var(--fg-soft)}
+.gd-over{color:#F17778;font-weight:700}
+.gic{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:-4px 0 12px;padding:10px 14px;border-radius:14px;background:var(--card2);border:1px solid var(--line)}
+.gic:empty{display:none}
+.gic-l{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600;flex:1 0 100%}
+.gic-c{display:flex;flex-wrap:wrap;gap:6px}
+.gic-b{font:600 .88rem var(--font-body);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--fg-soft);cursor:pointer;min-height:38px}
+.gic-b.on{background:linear-gradient(145deg,var(--gold-light),var(--gold));color:#1A1207;border-color:transparent}
+.gic-m{font-size:.78rem;color:var(--fg-soft)}.gic-none{font-size:.84rem;color:var(--fg-soft)}
+#h-guides .gd-in{text-transform:none;letter-spacing:0;font:600 .98rem var(--font-body);color:var(--fg);margin:0}
+#h-guides .gd-in input[type=checkbox]{-webkit-appearance:auto;appearance:auto;width:24px;height:24px;min-height:0;flex:0 0 24px;padding:0;margin:0;border-radius:6px;background:none;box-shadow:none}
+#h-guides .gd-in small{text-transform:none;letter-spacing:0}
 </style>
 </head>
 <body>
@@ -4230,8 +4246,11 @@ function gfFieldData(r){
     var hunted=x.huntDays.filter(function(d){return d<=day;}).length||Object.keys(x.days).filter(function(d){return d<=day;}).length||1;
     return {x:x,today:x.days[day]||0,sofar:sofar,poss:gfPossLimit(hunted),hunted:hunted};
   });
-  var guides=Object.keys(gshot).map(function(n){var g=GD[n.toLowerCase()]||{name:n};var reg=r.guests.filter(function(y){return y.guide&&y.name.toLowerCase()===n.toLowerCase();})[0];
-    return {name:g.name,license:g.license||'',address:[g.address,g.csz].filter(Boolean).join(', '),shot:gshot[n],kept:reg?reg.total:0};});
+  // guides in camp that day (Guides in Camp check-in, the owner by default, anyone with birds logged)
+  var inc={};Object.keys(r.guideCamp||{}).forEach(function(k){if(k.split('|')[0]===day&&(!r.group||k.slice(11).toLowerCase()===r.group.toLowerCase()))(r.guideCamp[k]||[]).forEach(function(n){inc[n.toLowerCase()]=n;});});
+  Object.keys(gshot).forEach(function(n){inc[n.toLowerCase()]=n;});
+  var guides=Object.keys(inc).map(function(k){var n=inc[k],g=GD[k]||{name:n};var sh=0;Object.keys(gshot).forEach(function(x){if(x.toLowerCase()===k)sh+=gshot[x];});
+    return {name:g.name,role:g.role||'Guide',license:g.license||'',address:[g.address,g.csz].filter(Boolean).join(', '),shot:sh};});
   var limit=(people.length+guides.length)*GF_DAILY,given=people.reduce(function(a,p){return a+p.today;},0);
   return {day:day,shot:shot,people:people,guides:guides,limit:limit,given:given};
 }
@@ -4248,7 +4267,7 @@ function gfField(r){
   var head='<div class="gf-head"><div><div class="eyebrow">Field check</div><b>'+esc(f.name)+'</b><small>'+esc(f.biz)+'</small></div>'+
     '<div class="gf-when">'+esc(usDate(F.day))+'<br>'+esc(r.group||'All groups')+'</div></div>';
   var tiles='<div class="gf-tiles">'+[['Hunters today',F.people.length,F.people.filter(function(p){return !p.x.license;}).length?'missing license #':'all licensed'],
-    ['Guides today',F.guides.length,F.guides.length?'on their own license':'none logged'],['Shot today',F.shot,'whole party'],['Party limit',F.limit,(F.people.length+F.guides.length)+' licensed × '+GF_DAILY]].map(function(t,i){
+    ['Guides in camp',F.guides.length,F.guides.length?'on their own license':'none checked in'],['Shot today',F.shot,'whole party'],['Party limit',F.limit,(F.people.length+F.guides.length)+' licensed × '+GF_DAILY]].map(function(t,i){
       return '<div class="'+(i===2&&F.shot>F.limit?'warn':'')+'"><span>'+t[0]+'</span><b>'+t[1]+'</b><small>'+esc(t[2])+'</small></div>';}).join('')+'</div>';
   var ok=fl.length?'<div class="gf-flags"><b>Check before you hand it over</b>'+fl.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>':'<div class="gf-ok">✓ Everyone has a license # and the party is within its limit.</div>';
   var rows=F.people.map(function(p){var x=p.x;
@@ -5111,7 +5130,12 @@ window.addEventListener('DOMContentLoaded',function(){
 var procGuides=[],procGuideBirds=[],guideNamesDay=[];
 function isGuideName(n){n=String(n||'').toLowerCase();return procGuides.some(function(g){return g.name.toLowerCase()===n;})||guideNamesDay.some(function(g){return g.toLowerCase()===n;});}
 function giftLine(g){return g.count+' shot by '+g.guide+' (guide, CID '+(g.license||'not on file')+') on '+usDate(g.shot)+', given '+usDate(g.given);}
-// Harvest screen: one box per guide, prefilled with the day's numbers
+// Harvest screen: one row per guide: in camp today? and how many he shot
+var guideRolesDay={};
+function guideDefaultCamp(r,group){
+  var set=(r.guideDays||{})[group];if(set)return set.slice();
+  return (r.guideNames||[]).filter(function(n){return (r.guideRoles||{})[n]==='Owner';});
+}
 function guideHarvestBox(){
   var wrap=document.getElementById('h-guides-wrap');if(!wrap)return;
   var date=val('h-date'),group=val('h-group');
@@ -5119,28 +5143,41 @@ function guideHarvestBox(){
   var token=date+'|'+group;wrap.dataset.token=token;
   opsGet({action:'opsday',date:date}).then(function(r){
     if(wrap.dataset.token!==token||!r||!r.ok)return;
-    guideNamesDay=r.guideNames||[];
-    var have=(r.guideShot||{})[group]||{},names=guideNamesDay.slice();
-    Object.keys(have).forEach(function(n){if(names.indexOf(n)<0)names.push(n);});
+    guideNamesDay=r.guideNames||[];guideRolesDay=r.guideRoles||{};
+    var have=(r.guideShot||{})[group]||{},names=guideNamesDay.slice(),camp=guideDefaultCamp(r,group);
+    Object.keys(have).forEach(function(n){if(names.indexOf(n)<0)names.push(n);if(have[n]&&camp.indexOf(n)<0)camp.push(n);});
     if(!names.length){wrap.style.display='block';document.getElementById('h-guides').innerHTML='';
-      document.getElementById('h-guides-note').innerHTML='No guides yet. Add them on the <b>Guides</b> tab in the sheet (name, CID, address) to log their birds here.';return;}
+      document.getElementById('h-guides-note').innerHTML='No guides yet. Add them on the <b>Guides</b> tab in the sheet (name, CID, address, role) to log their birds here.';return;}
     document.getElementById('h-guides').innerHTML=names.map(function(n,i){
-      return '<div class="gd-row"><span>'+esc(n)+'</span><span class="fs-n"><button type="button" class="stp" onclick="guideStep('+i+',-1)">\u2212</button>'+
-        '<input type="number" min="0" max="3" inputmode="numeric" id="hg-'+i+'" data-name="'+esc(n)+'" value="'+(have[n]||0)+'" oninput="guideNote()"><button type="button" class="stp" onclick="guideStep('+i+',1)">+</button></span></div>';}).join('');
+      var on=camp.indexOf(n)>=0,role=guideRolesDay[n]||'Guide';
+      return '<div class="gd-row'+(on?'':' off')+'" id="hgr-'+i+'"><label class="gd-in"><input type="checkbox" id="hgc-'+i+'"'+(on?' checked':'')+' onchange="guideCampToggle('+i+')"><span>'+esc(n)+'<small>'+esc(role)+(on?' · in camp':' · not here')+'</small></span></label>'+
+        '<span class="fs-n"><button type="button" class="stp" onclick="guideStep('+i+',-1)">−</button>'+
+        '<input type="number" min="0" max="3" inputmode="numeric" id="hg-'+i+'" data-name="'+esc(n)+'" value="'+(have[n]||0)+'" oninput="guideNote()"'+(on?'':' disabled')+'><button type="button" class="stp" onclick="guideStep('+i+',1)">+</button></span></div>';}).join('');
     wrap.style.display='block';guideNote();
   }).catch(function(){});
 }
-function guideStep(i,d){var el=document.getElementById('hg-'+i);el.value=Math.min(3,Math.max(0,(parseInt(el.value,10)||0)+d));guideNote();}
-function guideInputs(){return Array.prototype.slice.call(document.querySelectorAll('#h-guides input')).map(function(el){return {name:el.getAttribute('data-name'),count:Math.max(0,parseInt(el.value,10)||0)};});}
+function guideCampToggle(i){
+  var on=document.getElementById('hgc-'+i).checked,row=document.getElementById('hgr-'+i),inp=document.getElementById('hg-'+i);
+  row.classList.toggle('off',!on);inp.disabled=!on;if(!on)inp.value=0;
+  var sm=row.querySelector('small');if(sm)sm.textContent=(guideRolesDay[inp.getAttribute('data-name')]||'Guide')+(on?' · in camp':' · not here');
+  guideNote();
+}
+function guideStep(i,d){var c=document.getElementById('hgc-'+i);if(c&&!c.checked){c.checked=true;guideCampToggle(i);}var el=document.getElementById('hg-'+i);el.value=Math.min(3,Math.max(0,(parseInt(el.value,10)||0)+d));guideNote();}
+function guideInputs(){return Array.prototype.slice.call(document.querySelectorAll('#h-guides input[type=number]')).map(function(el){return {name:el.getAttribute('data-name'),count:el.disabled?0:Math.max(0,parseInt(el.value,10)||0)};});}
+function guideInCampList(){return Array.prototype.slice.call(document.querySelectorAll('#h-guides input[type=checkbox]')).filter(function(c){return c.checked;}).map(function(c){return document.getElementById('hg-'+c.id.slice(4)).getAttribute('data-name');});}
+function guideHunters(group,date){var r=faceSchedule().filter(function(x){return x.group===group&&x.arrive<=date&&x.depart>=date;})[0];return r?faceSigned(r):0;}
 function guideNote(){
-  var t=guideInputs().reduce(function(a,g){return a+g.count;},0),el=document.getElementById('h-guides-note');
-  el.innerHTML='Part of the day&rsquo;s total, not extra. Up to 3 each on their own license.'+(t?' <b>'+t+' by guides</b> \u2014 they can go to short hunters at check out; the rest go on the guides&rsquo; own receipts.':'');
+  var t=guideInputs().reduce(function(a,g){return a+g.count;},0),el=document.getElementById('h-guides-note'),gc=guideInCampList().length;
+  var h=guideHunters(val('h-group'),val('h-date')),lim=(h+gc)*3,q=parseInt(val('h-qty'),10)||0;
+  el.innerHTML='Check who hunted with the group today. Their birds are part of the day&rsquo;s total, up to 3 each on their own license.'+
+    (h?'<br><b>Party limit today: '+h+' hunters + '+gc+' in camp = '+lim+'</b>'+(q>lim?' <span class="gd-over">— the total above is over the limit</span>':''):'')+
+    (t?'<br>'+t+' by guides — they can go to short hunters at check out; the rest go on their own receipts.':'');
 }
 var _refreshDayNoteG=refreshDayNote;
 refreshDayNote=function(k){_refreshDayNoteG(k);if(k==='h')guideHarvestBox();};
 var _saveOpsG=saveOps;
 saveOps=function(key,data,statusId,btn,okMsg,clearFn){
-  if(data&&data.task==='harvest'&&document.querySelector('#h-guides input')){data.guides=guideInputs();data.guidesSet=true;}
+  if(data&&data.task==='harvest'&&document.querySelector('#h-guides input')){data.guides=guideInputs();data.guidesSet=true;data.inCamp=guideInCampList();}
   return _saveOpsG(key,data,statusId,btn,okMsg,clearFn);
 };
 // guides & their birds come with the group's running totals; checkout gifts are dated the checkout day
@@ -5188,6 +5225,42 @@ async function guideKeepStep(g){
   setOpen(g,res.open);if(res.pool)setPool(res.pool);procTrip=res.trip||procTrip;
   var seen={};return (res.kept||[]).filter(function(k){if(seen[k.key])return false;seen[k.key]=1;return true;}).map(function(k){return {key:k.key};});
 }
+
+// Home: "Guides in camp today" under each group in camp. Tap a name to check him in or out.
+var gicCache={};
+function gicLoad(){
+  var slots=document.querySelectorAll('.gic[data-group]');if(!slots.length)return;
+  var day=localToday();
+  opsGet({action:'opsday',date:day}).then(function(r){
+    if(!r||!r.ok)return;gicCache={r:r,day:day};
+    slots.forEach(function(el){gicRender(el,r);});
+  }).catch(function(){});
+}
+function gicRender(el,r){
+  var g=el.getAttribute('data-group'),names=r.guideNames||[];
+  if(!names.length){el.innerHTML='<span class="gic-l">Guides in camp</span><span class="gic-none">Add guides on the Guides tab in the sheet</span>';return;}
+  var camp=guideDefaultCamp(r,g);Object.keys((r.guideShot||{})[g]||{}).forEach(function(n){if(camp.indexOf(n)<0&&r.guideShot[g][n])camp.push(n);});
+  el.innerHTML='<span class="gic-l">Guides in camp today</span><span class="gic-c">'+names.map(function(n){var on=camp.indexOf(n)>=0;
+    return '<button type="button" class="gic-b'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="gicTap(this)" data-name="'+esc(n)+'">'+(on?'✓ ':'')+esc(n.split(' ')[0])+'</button>';}).join('')+'</span><span class="gic-m" id="gicm-'+esc(g).replace(/\W/g,'')+'"></span>';
+}
+function gicTap(btn){
+  var el=btn.closest('.gic'),g=el.getAttribute('data-group');
+  btn.classList.toggle('on');var on=btn.classList.contains('on');btn.setAttribute('aria-pressed',on);btn.textContent=(on?'✓ ':'')+btn.getAttribute('data-name').split(' ')[0];
+  var names=Array.prototype.slice.call(el.querySelectorAll('.gic-b.on')).map(function(b){return b.getAttribute('data-name');});
+  var m=el.querySelector('.gic-m');m.textContent='Saving…';
+  opsPost({task:'guideday',submissionId:newId(),date:localToday(),group:g,names:names}).then(function(res){
+    if(res&&res.ok){m.textContent='✓ Saved';setTimeout(function(){m.textContent='';},2500);if(gicCache.r){gicCache.r.guideDays=gicCache.r.guideDays||{};gicCache.r.guideDays[g]=names;}}
+    else{m.textContent='✗ '+(res?opsError(res,true):'Not saved');btn.classList.toggle('on');gicRender(el,gicCache.r||{});}
+  }).catch(function(){m.textContent='✗ No signal — not saved';});
+}
+var _faceCheckinCardG=faceCheckinCard;
+faceCheckinCard=function(r,today,kind){
+  var h=_faceCheckinCardG(r,today,kind);
+  return kind==='camp'?h+'<div class="gic" data-group="'+esc(r.group)+'"></div>':h;
+};
+var _faceRenderCampG=faceRenderCamp;
+faceRenderCamp=function(){var c=_faceRenderCampG.apply(this,arguments);setTimeout(gicLoad,0);return c;};
+window.addEventListener('DOMContentLoaded',function(){var q=document.getElementById('h-qty');if(q)q.addEventListener('input',function(){if(document.querySelector('#h-guides input'))guideNote();});});
 
 </script>
 </body>
