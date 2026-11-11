@@ -909,6 +909,87 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .rc.rx .ie{margin-top:10px}
 .rc.rx .rc-reopen{display:inline!important;width:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;color:var(--fg-soft)!important;font:600 .78rem var(--font-body)!important;text-decoration:underline;cursor:pointer}
 .rc.rx .rc-reopen.sure{color:var(--warn)!important;font-weight:800!important}
+/* ── Financials ── */
+.fin-card{max-width:1120px!important}
+.fin-lock{display:flex;flex-direction:column;gap:10px;max-width:420px;margin:10px auto;text-align:center;align-items:stretch}
+.fin-lock b{font:500 1.4rem var(--font-display)}
+.fin-lock span{color:var(--fg-soft);font-size:.9rem}
+.fin-lock input[type=password],.fin-panel input,.fin-panel select,.fin-ed input,.fin-ed select,.fin-flt select,.fin-flt2 input,.fin-flt2 select,.fin-imp select,.fin-rn input{background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:11px 12px;font:500 16px var(--font-body);width:100%;min-width:0}
+.fin-lock input:focus,.fin-panel input:focus,.fin-ed input:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px rgba(224,168,74,.2)}
+.fin-lk-ic{width:64px;height:64px;border-radius:20px;margin:0 auto 4px;display:grid;place-items:center;background:rgba(224,168,74,.14);border:1px solid rgba(224,168,74,.4);color:var(--gold-light)}
+.fin-lk-ic svg{width:30px;height:30px}
+.fin-ack{text-align:left;font-size:.85rem}
+.fin-top{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.fin-tabs{flex:1;grid-template-columns:repeat(4,minmax(0,1fr))}
+.fin-tabs button{font-size:.8rem!important;padding:10px 4px!important;position:relative}
+.fin-dot{font-style:normal;background:var(--warn);color:#1A1207;border-radius:10px;padding:0 6px;font-size:.7rem;margin-left:3px}
+.fin-lockbtn{display:flex;align-items:center;gap:6px;padding:10px 12px;white-space:nowrap}
+.fin-lockbtn svg{width:16px;height:16px}
+.fin-flt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.fin-flt2{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8px;margin-bottom:8px}
+.fin-sub{color:var(--fg-soft);font-size:.82rem;margin:2px 2px 10px}
+.fin-tiles b.pos{color:var(--success)}.fin-tiles b.neg{color:var(--red)}
+.fin-nudge{display:block;width:100%;margin-top:10px;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid rgba(233,162,59,.5);background:rgba(233,162,59,.1);color:var(--warn);font:700 .9rem var(--font-body);cursor:pointer}
+.fin-legend{display:flex;gap:14px;font-size:.76rem;color:var(--fg-mid);margin-bottom:4px}
+.fin-legend .li::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.fin-legend .in::before{background:var(--success)}.fin-legend .out::before{background:var(--gold)}.fin-legend .cum::before{background:#fff;height:3px;border-radius:2px;vertical-align:3px}
+.fin-svg{display:block}
+.fin-grid{stroke:rgba(255,255,255,.07);stroke-width:1}
+.fin-ax{fill:var(--fg-soft);font:500 10px var(--font-body)}
+.fin-bin{fill:var(--success)}.fin-bout{fill:var(--gold)}
+.fin-cum{fill:none;stroke:#fff;stroke-width:2;stroke-linejoin:round;opacity:.85}
+.fin-cumdot{fill:#fff}
+.fin-2{display:grid;grid-template-columns:minmax(0,1fr);gap:0 24px}
+@media(min-width:900px){.fin-2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.fin-bars{display:flex;flex-direction:column;gap:6px}
+.fin-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;background:none;border:0;padding:6px 2px;color:var(--fg);font:500 .88rem var(--font-body);text-align:left;cursor:pointer;border-radius:8px}
+.fin-bar:hover{background:rgba(255,255,255,.03)}
+.fb-v{font-variant-numeric:tabular-nums;font-weight:700}.fb-v i{font-style:normal;color:var(--fg-soft);font-weight:500;font-size:.78rem}
+.fb-t{grid-column:1/-1;height:8px;border-radius:5px;background:rgba(255,255,255,.06);overflow:hidden}
+.fb-f{display:block;height:100%;border-radius:5px}.fb-f.out{background:linear-gradient(90deg,var(--gold),var(--gold-light))}.fb-f.in{background:var(--success)}
+.fin-pl tr.hd td{padding-top:14px;color:var(--gold-light)}
+.fin-pl td.n{text-align:right}.fin-pl tr.net td{border-top:2px solid var(--gold);font-size:1rem;color:#fff}
+.fin-match{margin-top:10px;background:var(--card2);border:1px solid rgba(233,162,59,.45);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:3px;font-size:.86rem}
+.fin-match.ok{border-color:rgba(83,197,86,.4)}
+.fin-empty{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;padding:24px 8px}
+.fin-empty b{font:500 1.3rem var(--font-display)}.fin-empty span{color:var(--fg-soft)}
+.fin-t{border-bottom:1px solid var(--line)}
+.fin-t.unc{background:rgba(233,162,59,.05)}
+.fin-t-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;padding:11px 4px;background:none;border:0;color:var(--fg);text-align:left;cursor:pointer;font-family:var(--font-body)}
+.ft-d{color:var(--fg-soft);font-size:.8rem;font-variant-numeric:tabular-nums}
+.ft-m b{display:block;font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ft-m small{display:block;color:var(--fg-soft);font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ft-cat{font-style:normal;font-weight:700;margin-right:6px;color:var(--gold-light)}
+.ft-cat.in{color:var(--success)}.ft-cat.xfer{color:var(--fg-mid)}.ft-cat.none{color:var(--warn)}
+.ft-a{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.ft-a.pos{color:var(--success)}
+.gf-t td.pos{color:var(--success)}
+.fin-ed{padding:4px 4px 14px;display:flex;flex-direction:column;gap:8px}
+.fin-ed label,.fin-panel label,.fin-imp label{display:flex;flex-direction:column;gap:4px;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);font-weight:600}
+.fin-ed label.check-line,.fin-panel label.check-line,.fin-imp label.check-line{flex-direction:row;text-transform:none;letter-spacing:0;font-size:.86rem;color:var(--fg-mid);font-weight:500;align-items:flex-start;gap:8px}
+.fin-ed-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.fin-ed-b{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.fin-ed-b .btn-small,.fin-file{padding:10px 14px}
+.btn-small.del{border-color:rgba(241,119,120,.5)!important;color:var(--red)!important}
+.btn-small.del.sure{background:rgba(241,119,120,.15)!important}
+.fin-file{position:relative;overflow:hidden;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-transform:none!important;letter-spacing:0!important}
+.fin-file.big{width:100%;margin:6px 0}
+.fin-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.fin-panel{background:var(--card2);border:1px solid var(--line);border-radius:18px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.fin-panel .gf-sec{margin:0}
+.fin-p{color:var(--fg-soft);font-size:.84rem;margin:0}
+.fin-io{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fin-imp{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.fin-imp-sum{background:rgba(224,168,74,.08);border:1px solid rgba(224,168,74,.35);border-radius:12px;padding:10px 12px;font-size:.88rem}
+.fin-accts{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:900px){.fin-accts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fin-acct{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:13px 14px;display:flex;flex-direction:column;gap:6px}
+.fin-rn{grid-template-columns:minmax(0,1fr) auto}
+.fin-ov{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.8);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:16px}
+.fin-ov-in{max-width:720px;width:100%;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.fin-ov-in img{width:100%;border-radius:10px}
+
+.fin-lockbtn em{font-style:normal}
+@media(max-width:620px){.fin-lockbtn em{display:none}.fin-lockbtn{padding:10px}}
 </style>
 </head>
 <body>
@@ -928,6 +1009,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <button type="button" onclick="openSearch()"><i data-ic="search"></i>Find a hunter</button>
   <div class="sh">Records</div>
   <button type="button" data-nav="gfp" onclick="navTo('gfp')"><i data-ic="shield"></i>GFP inspection</button>
+  <button type="button" data-nav="fin" onclick="navTo('fin')"><i data-ic="wallet"></i>Financials</button>
   <button type="button" data-nav="planning" onclick="navTo('planning')"><i data-ic="chart"></i>Dashboard</button>
   <button type="button" data-nav="summary" onclick="navTo('summary')"><i data-ic="cal"></i>Daily summary</button>
   <button type="button" data-nav="reports" onclick="navTo('reports')"><i data-ic="trend"></i>Season reports</button>
@@ -974,6 +1056,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <div class="col-b">
       <div class="sec-h">Records</div>
       <div class="recs">
+        <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<span>Password locked</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<span>Report in seconds</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<span>Who's here, who's next</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('planning')"><i class="ri" data-ic="chart"></i>Dashboard<span>Season at a glance</span><i class="chev" data-ic="chev"></i></button>
@@ -1334,6 +1417,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="grab"></div>
   <h3>Records</h3>
   <div class="recs">
+    <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
@@ -3653,7 +3737,7 @@ function submitInventory(){
 </script>
 <script>
 /* ═══ FACELIFT: home screen, banners, nav, sheets, search ═══ */
-var FACE_IC={"bird": "<svg class=\"lucide lucide-bird\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M16 7h.01\" /> <path d=\"M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20\" /> <path d=\"m20 7 2 .5-2 .5\" /> <path d=\"M10 18v3\" /> <path d=\"M14 17.75V21\" /> <path d=\"M7 18a6 6 0 0 0 3.84-10.61\" />", "crosshair": "<svg class=\"lucide lucide-crosshair\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"22\" x2=\"18\" y1=\"12\" y2=\"12\" /> <line x1=\"6\" x2=\"2\" y1=\"12\" y2=\"12\" /> <line x1=\"12\" x2=\"12\" y1=\"6\" y2=\"2\" /> <line x1=\"12\" x2=\"12\" y1=\"22\" y2=\"18\" />", "slice": "<svg class=\"lucide lucide-slice\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 16.586V19a1 1 0 0 1-1 1H2L18.37 3.63a1 1 0 1 1 3 3l-9.663 9.663a1 1 0 0 1-1.414 0L8 14\" />", "truck": "<svg class=\"lucide lucide-truck\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\" /> <path d=\"M15 18H9\" /> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\" /> <circle cx=\"17\" cy=\"18\" r=\"2\" /> <circle cx=\"7\" cy=\"18\" r=\"2\" />", "receipt": "<svg class=\"lucide lucide-receipt\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\" /> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\" /> <path d=\"M12 17.5v-11\" />", "chart": "<svg class=\"lucide lucide-chart-column\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "cal": "<svg class=\"lucide lucide-calendar-days\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" /> <path d=\"M8 14h.01\" /> <path d=\"M12 14h.01\" /> <path d=\"M16 14h.01\" /> <path d=\"M8 18h.01\" /> <path d=\"M12 18h.01\" /> <path d=\"M16 18h.01\" />", "trend": "<svg class=\"lucide lucide-trending-up\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />", "print": "<svg class=\"lucide lucide-printer\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /> <path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /> <rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />", "box": "<svg class=\"lucide lucide-package\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />", "home": "<svg class=\"lucide lucide-house\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "plus": "<svg class=\"lucide lucide-plus\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />", "search": "<svg class=\"lucide lucide-search\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "back": "<svg class=\"lucide lucide-arrow-left\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m12 19-7-7 7-7\" /> <path d=\"M19 12H5\" />", "chev": "<svg class=\"lucide lucide-chevron-right\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m9 18 6-6-6-6\" />", "alert": "<svg class=\"lucide lucide-triangle-alert\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "ok": "<svg class=\"lucide lucide-circle-check\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "more": "<svg class=\"lucide lucide-layout-grid\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />", "x": "<svg class=\"lucide lucide-x\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "feather": "<svg class=\"lucide lucide-feather\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z\" /> <path d=\"M16 8 2 22\" /> <path d=\"M17.5 15H9\" />", "shield": "<svg class=\"lucide lucide-shield-check\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />", "share": "<svg class=\"lucide lucide-share-2\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"18\" cy=\"5\" r=\"3\" /> <circle cx=\"6\" cy=\"12\" r=\"3\" /> <circle cx=\"18\" cy=\"19\" r=\"3\" /> <line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\" /> <line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\" />", "drive": "<svg class=\"lucide lucide-cloud-upload\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 13v8\" /> <path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m8 17 4-4 4 4\" />"};
+var FACE_IC={"bird": "<svg class=\"lucide lucide-bird\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M16 7h.01\" /> <path d=\"M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20\" /> <path d=\"m20 7 2 .5-2 .5\" /> <path d=\"M10 18v3\" /> <path d=\"M14 17.75V21\" /> <path d=\"M7 18a6 6 0 0 0 3.84-10.61\" />", "crosshair": "<svg class=\"lucide lucide-crosshair\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"22\" x2=\"18\" y1=\"12\" y2=\"12\" /> <line x1=\"6\" x2=\"2\" y1=\"12\" y2=\"12\" /> <line x1=\"12\" x2=\"12\" y1=\"6\" y2=\"2\" /> <line x1=\"12\" x2=\"12\" y1=\"22\" y2=\"18\" />", "slice": "<svg class=\"lucide lucide-slice\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 16.586V19a1 1 0 0 1-1 1H2L18.37 3.63a1 1 0 1 1 3 3l-9.663 9.663a1 1 0 0 1-1.414 0L8 14\" />", "truck": "<svg class=\"lucide lucide-truck\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\" /> <path d=\"M15 18H9\" /> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\" /> <circle cx=\"17\" cy=\"18\" r=\"2\" /> <circle cx=\"7\" cy=\"18\" r=\"2\" />", "receipt": "<svg class=\"lucide lucide-receipt\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\" /> <path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\" /> <path d=\"M12 17.5v-11\" />", "chart": "<svg class=\"lucide lucide-chart-column\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /> <path d=\"M18 17V9\" /> <path d=\"M13 17V5\" /> <path d=\"M8 17v-3\" />", "cal": "<svg class=\"lucide lucide-calendar-days\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" /> <path d=\"M8 14h.01\" /> <path d=\"M12 14h.01\" /> <path d=\"M16 14h.01\" /> <path d=\"M8 18h.01\" /> <path d=\"M12 18h.01\" /> <path d=\"M16 18h.01\" />", "trend": "<svg class=\"lucide lucide-trending-up\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" />", "print": "<svg class=\"lucide lucide-printer\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /> <path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /> <rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />", "box": "<svg class=\"lucide lucide-package\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />", "home": "<svg class=\"lucide lucide-house\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" />", "plus": "<svg class=\"lucide lucide-plus\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M5 12h14\" /> <path d=\"M12 5v14\" />", "search": "<svg class=\"lucide lucide-search\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "back": "<svg class=\"lucide lucide-arrow-left\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m12 19-7-7 7-7\" /> <path d=\"M19 12H5\" />", "chev": "<svg class=\"lucide lucide-chevron-right\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m9 18 6-6-6-6\" />", "alert": "<svg class=\"lucide lucide-triangle-alert\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "ok": "<svg class=\"lucide lucide-circle-check\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "more": "<svg class=\"lucide lucide-layout-grid\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />", "x": "<svg class=\"lucide lucide-x\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "feather": "<svg class=\"lucide lucide-feather\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z\" /> <path d=\"M16 8 2 22\" /> <path d=\"M17.5 15H9\" />", "shield": "<svg class=\"lucide lucide-shield-check\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" />", "share": "<svg class=\"lucide lucide-share-2\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"18\" cy=\"5\" r=\"3\" /> <circle cx=\"6\" cy=\"12\" r=\"3\" /> <circle cx=\"18\" cy=\"19\" r=\"3\" /> <line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\" /> <line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\" />", "drive": "<svg class=\"lucide lucide-cloud-upload\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 13v8\" /> <path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\" /> <path d=\"m8 17 4-4 4 4\" />", "wallet": "<svg class=\"lucide lucide-wallet\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" /> <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />"};
 function faceIcon(k){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(FACE_IC[k]||'')+'</svg>';}
 function faceIcons(root){(root||document).querySelectorAll('[data-ic]').forEach(function(el){if(!el.querySelector('svg'))el.insertAdjacentHTML('afterbegin',faceIcon(el.getAttribute('data-ic')));});}
 var FACE_BANNER={
@@ -3668,7 +3752,8 @@ var FACE_BANNER={
   reports:['dogs','Season Reports','2026 season totals'],
   planning:['hero','Dashboard','The season at a glance'],
   schedule:['lodge','Season Calendar','Who is here, who is next'],
-  gfp:['harvest','GFP Inspection','Guest register, birds per hunter, releases']
+  gfp:['harvest','GFP Inspection','Guest register, birds per hunter, releases'],
+  fin:['lodge','Financials','Locked with your own password']
 };
 var faceCur=null;
 function faceView(val){
@@ -3676,6 +3761,7 @@ function faceView(val){
   var changed=val!==faceCur;faceCur=val;
   document.getElementById('home').style.display=val?'none':'';
   var sc=document.getElementById('card-schedule');if(sc){sc.style.display=val==='schedule'?'block':'none';sc.classList.toggle('active',val==='schedule');if(val==='schedule')faceRenderSchedule();}
+  var fc=document.getElementById('card-fin');if(fc){fc.style.display=val==='fin'?'block':'none';fc.classList.toggle('active',val==='fin');if(changed){if(val==='fin'&&typeof mnyOpenView==='function')mnyOpenView();else if(typeof mnyLock==='function'&&MNY.key)mnyLock('Locked when you left Financials.');}}
   var gc=document.getElementById('card-gfp');if(gc){gc.style.display=val==='gfp'?'block':'none';gc.classList.toggle('active',val==='gfp');if(val==='gfp'&&changed&&typeof gfOpen==='function')gfOpen();}
   var tb=document.getElementById('tb');
   if(val){
@@ -4273,6 +4359,489 @@ renderReceiptList=function(){
       keys.map(function(k){var h=x.hunters[k];return rxHunterCard(h.r,h.ri,h.invs,hasG);}).join('');
   }).join('');
 };
+
+/* ═══ FINANCIALS: own password, encrypted on this device, accounts, CSV import, reports ═══ */
+var MNY={key:null,salt:null,iter:310000,version:0,data:null,view:'over',range:'season',biz:'Hunting',acct:'',idle:null,hideT:null,plan:null,imp:null,edit:null,busy:false};
+var MNY_CATS=[
+  ['Hunt packages','in'],['Deposits','in'],['Tips','in'],['Merchandise','in'],['Other income','in'],
+  ['Birds','out'],['Feed & grain','out'],['Processing supplies','out'],['Fuel','out'],['Lodge & food','out'],['Utilities','out'],['Repairs & maintenance','out'],
+  ['Equipment','out'],['Labor','out'],['Advertising','out'],['Insurance','out'],['Licenses & fees','out'],['Bank & card fees','out'],['Taxes','out'],['Office & phone','out'],['Other expense','out'],
+  ['Transfer / card payment','xfer'],['Owner draw / contribution','xfer'],['Uncategorized','none']];
+var MNY_RULES=[
+  ['THANK YOU','Transfer / card payment'],['E-PAYMENT','Transfer / card payment'],['INTERNET PAYMENT','Transfer / card payment'],['PAYMENT RECEIVED','Transfer / card payment'],['ULINE','Processing supplies'],['VAC BAG','Processing supplies'],['VACUUM','Processing supplies'],['ONLINE PAYMENT','Transfer / card payment'],['AUTOPAY','Transfer / card payment'],['TRANSFER','Transfer / card payment'],
+  ['CENEX','Fuel'],['CASEY','Fuel'],['SHELL OIL','Fuel'],['SINCLAIR','Fuel'],['PHILLIPS 66','Fuel'],['CONOCO','Fuel'],['EXXON','Fuel'],['HOLIDAY STATION','Fuel'],['KUM & GO','Fuel'],['PILOT','Fuel'],["LOVE'S",'Fuel'],
+  ['HY-VEE','Lodge & food'],['WALMART','Lodge & food'],['WAL-MART','Lodge & food'],['SAMS CLUB',"Lodge & food"],["SAM'S CLUB",'Lodge & food'],['COSTCO','Lodge & food'],['DOLLAR GENERAL','Lodge & food'],['COUNTY MARKET','Lodge & food'],['FAREWAY','Lodge & food'],['SUNSHINE FOODS','Lodge & food'],
+  ['TRACTOR SUPPLY','Equipment'],['RUNNINGS','Equipment'],['FLEET FARM','Equipment'],['SCHEELS','Equipment'],['CABELA','Equipment'],
+  ['SANTEL','Utilities'],['XCEL','Utilities'],['NORTHWESTERN ENERGY','Utilities'],['VERIZON','Office & phone'],
+  ['FACEBK','Advertising'],['META ADS','Advertising'],['GOOGLE ADS','Advertising'],
+  ['INSURANCE','Insurance'],['FARM BUREAU','Insurance'],['STATE FARM','Insurance'],
+  ['SERVICE CHARGE','Bank & card fees'],['INTEREST CHARGE','Bank & card fees'],['LATE FEE','Bank & card fees'],['ANNUAL FEE','Bank & card fees'],
+  ['VENMO','Deposits'],['MOBILE DEPOSIT','Deposits'],['DEPOSIT','Deposits']];
+function mnyKind(c){var x=MNY_CATS.filter(function(k){return k[0]===c;})[0];return x?x[1]:((MNY.data&&MNY.data.cats||[]).filter(function(k){return k[0]===c;})[0]||[c,'out'])[1];}
+function mnyAllCats(){return MNY_CATS.concat((MNY.data&&MNY.data.cats)||[]);}
+// ── crypto: PBKDF2 → AES-GCM, all on this device ──
+function b64(u){var s='';u=new Uint8Array(u);for(var i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s);}
+function unb64(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+async function mnyDerive(pw,salt,iter){
+  var base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function mnySeal(obj){
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},MNY.key,new TextEncoder().encode(JSON.stringify(obj)));
+  return JSON.stringify({v:1,salt:b64(MNY.salt),iter:MNY.iter,iv:b64(iv),ct:b64(ct)});
+}
+async function mnyOpen(env,key){
+  var e=JSON.parse(env),pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(e.iv)},key,unb64(e.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+// ── lock ──
+function mnyLock(msg){
+  MNY.key=null;MNY.data=null;MNY.imp=null;MNY.edit=null;clearTimeout(MNY.idle);clearTimeout(MNY.hideT);
+  var b=document.getElementById('fin-body');if(b)mnyRenderLock(msg);
+}
+function mnyTouch(){clearTimeout(MNY.idle);if(MNY.key)MNY.idle=setTimeout(function(){mnyLock('Locked after 10 minutes without use.');},10*60*1000);}
+document.addEventListener('visibilitychange',function(){
+  clearTimeout(MNY.hideT);
+  if(document.hidden&&MNY.key)MNY.hideT=setTimeout(function(){mnyLock('Locked because the app was in the background.');},90*1000);
+});
+['click','keydown','input'].forEach(function(ev){document.addEventListener(ev,function(e){if(MNY.key&&e.target.closest&&e.target.closest('#card-fin'))mnyTouch();},true);});
+function mnyOpenView(){
+  var c=document.getElementById('card-fin');if(!c)return;
+  if(!MNY.key)mnyRenderLock();else mnyRender();
+}
+function mnyRenderLock(msg){
+  var b=document.getElementById('fin-body');
+  b.innerHTML='<div class="fin-lock"><div class="fin-lk-ic" data-ic="shield"></div><div class="report-hint" id="fin-lk-msg">Checking your financials&hellip;</div></div>';faceIcons(b);
+  if(!getPin()){
+    b.innerHTML='<div class="fin-lock"><div class="fin-lk-ic" data-ic="shield"></div><b>Enter the records PIN first</b><span>Then you&rsquo;ll be asked for your Financials password.</span>'+
+      '<div class="proc-pin"><input type="password" id="fin-rpin" inputmode="numeric" autocomplete="off" placeholder="Records PIN"><button type="button" onclick="setPin(val(\'fin-rpin\').trim());mnyRenderLock()">Next</button></div></div>';faceIcons(b);return;
+  }
+  procGet({action:'finGet'}).then(function(r){
+    if(!r||!r.ok){b.innerHTML='<div class="proc-msg err">'+esc(r?handleProcError(r):'Could not reach the records sheet.')+(r&&/action|unknown/i.test(r.error||'')?' Paste the newest Davis Ranch script and deploy a New version.':'')+'</div>';return;}
+    MNY.version=r.version;MNY.env=r.data;
+    var first=!r.data;
+    b.innerHTML='<div class="fin-lock"><div class="fin-lk-ic" data-ic="shield"></div>'+
+      (first?'<b>Set your Financials password</b><span>Only you should know it. It&rsquo;s asked every time you open Financials, and your numbers are scrambled with it before they leave this device.</span>'+
+        '<input type="password" id="fin-pw" autocomplete="new-password" placeholder="New password (8+ characters)"><input type="password" id="fin-pw2" autocomplete="new-password" placeholder="Type it again">'+
+        '<label class="check-line fin-ack"><input type="checkbox" id="fin-ack"> <span>I wrote it down somewhere safe. If it&rsquo;s lost, nobody can unlock these numbers. I&rsquo;d re-import my bank CSVs.</span></label>'+
+        '<button type="button" class="btn-submit" onclick="mnySetup()">Create &amp; unlock</button>'
+      :'<b>Financials are locked</b><span>'+esc(msg||'Enter your Financials password. It&rsquo;s separate from the records PIN.')+'</span>'+
+        '<input type="password" id="fin-pw" autocomplete="current-password" placeholder="Financials password" onkeydown="if(event.key===\'Enter\')mnyUnlock()">'+
+        '<button type="button" class="btn-submit" onclick="mnyUnlock()">Unlock</button>')+
+      '<div class="re-msg" id="fin-lk-msg"></div></div>';
+    faceIcons(b);var pw=document.getElementById('fin-pw');if(pw)setTimeout(function(){pw.focus();},50);
+  }).catch(function(){b.innerHTML='<div class="proc-msg err">Could not reach the records sheet. Check your signal and try again.</div>';});
+}
+async function mnySetup(){
+  var a=val('fin-pw'),c=val('fin-pw2'),m=document.getElementById('fin-lk-msg');
+  if(a.length<8){m.className='re-msg err';m.textContent='Use at least 8 characters.';return;}
+  if(a!==c){m.className='re-msg err';m.textContent='The two passwords don\u2019t match.';return;}
+  if(!document.getElementById('fin-ack').checked){m.className='re-msg err';m.textContent='Check the box once you\u2019ve written it down.';return;}
+  m.className='re-msg';m.textContent='Setting up\u2026';
+  MNY.salt=crypto.getRandomValues(new Uint8Array(16));MNY.key=await mnyDerive(a,MNY.salt,MNY.iter);
+  MNY.data={v:1,accounts:[{id:'a1',name:'Davis Ranch Hunting LLC \u2014 main',type:'Checking',added:localToday()}],txns:[],rules:[],cats:[],imports:[]};
+  var ok=await mnySave('Set up');if(!ok){MNY.key=null;return;}
+  mnyTouch();MNY.view='add';mnyRender();
+}
+async function mnyUnlock(){
+  var pw=val('fin-pw'),m=document.getElementById('fin-lk-msg');if(!pw)return;
+  m.className='re-msg';m.textContent='Unlocking\u2026';
+  try{
+    var e=JSON.parse(MNY.env),salt=unb64(e.salt),k=await mnyDerive(pw,salt,e.iter||310000),d=await mnyOpen(MNY.env,k);
+    MNY.key=k;MNY.salt=salt;MNY.iter=e.iter||310000;MNY.data=d;MNY.env=null;mnyTouch();mnyRender();
+  }catch(err){m.className='re-msg err';m.textContent='That password didn\u2019t unlock it. Try again.';var p=document.getElementById('fin-pw');if(p){p.value='';p.focus();}}
+}
+async function mnySave(what){
+  if(MNY.busy)return false;MNY.busy=true;
+  try{
+    var env=await mnySeal(MNY.data),r=await procPost({action:'finPut',submissionId:newId(),version:MNY.version,data:env});
+    MNY.busy=false;
+    if(r&&r.ok){MNY.version=r.version;if(what)toast('\u2713 '+what+'. Saved, encrypted.');return true;}
+    if(r&&r.conflict){toast(r.error,true);mnyLock('Your financials changed on another device. Unlock again to load the newest copy.');return false;}
+    toast('\u2717 Not saved: '+(r?handleProcError(r):'no signal'),true);return false;
+  }catch(err){MNY.busy=false;toast('\u2717 Not saved: could not reach the records sheet.',true);return false;}
+}
+// ── dates / money helpers ──
+function mnyRange(){
+  var t=localToday(),y=t.slice(0,4);
+  if(MNY.range==='year')return {from:y+'-01-01',to:t,label:'Jan 1 \u2013 today'};
+  if(MNY.range==='12')return {from:addDays(t,-364),to:t,label:'Last 12 months'};
+  if(MNY.range==='all')return {from:'0000',to:'9999',label:'All time'};
+  return {from:seasonStartIso(),to:t,label:'This season (since '+usDate(seasonStartIso()).slice(0,5)+')'};
+}
+function mnyRows(opts){
+  opts=opts||{};var R=mnyRange(),biz=MNY.biz,acct=MNY.acct;
+  return MNY.data.txns.filter(function(x){
+    if(!opts.allDates&&(x.date<R.from||x.date>R.to))return false;
+    if(acct&&x.acct!==acct)return false;
+    if(biz&&biz!=='All'&&(x.biz||'Hunting')!==biz)return false;
+    return true;
+  });
+}
+function mnyAcctName(id){var a=MNY.data.accounts.filter(function(x){return x.id===id;})[0];return a?a.name:'(removed account)';}
+function mnyMon(iso){var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[+iso.slice(5,7)-1]+' \u2019'+iso.slice(2,4);}
+function mnyMoney0(n){var s=Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');return (n<0?'\u2212':'')+'$'+s;}
+// ── shell ──
+function mnyRender(){
+  var b=document.getElementById('fin-body');if(!b||!MNY.key)return;
+  var tabs=[['over','Overview'],['txn','Lines'],['add','Add'],['acct','Accounts']];
+  var unc=MNY.data.txns.filter(function(x){return x.cat==='Uncategorized';}).length;
+  b.innerHTML='<div class="fin-top"><div class="gf-seg fin-tabs">'+tabs.map(function(t){return '<button type="button" class="'+(MNY.view===t[0]?'on':'')+'" onclick="MNY.view=\''+t[0]+'\';mnyRender()">'+t[1]+(t[0]==='txn'&&unc?' <i class="fin-dot">'+unc+'</i>':'')+'</button>';}).join('')+'</div>'+
+    '<button type="button" class="btn-small fin-lockbtn" aria-label="Lock Financials" title="Lock" onclick="mnyLock(\'Locked.\')"><span data-ic="shield"></span><em>Lock</em></button></div>'+
+    (MNY.view==='over'||MNY.view==='txn'?mnyFilters():'')+'<div id="fin-view"></div>';
+  faceIcons(b);
+  var v=document.getElementById('fin-view');
+  if(MNY.view==='over')mnyOverview(v);else if(MNY.view==='txn')mnyTxns(v);else if(MNY.view==='add')mnyAdd(v);else mnyAccounts(v);
+}
+function mnyFilters(){
+  var r=[['season','This season'],['year','This year'],['12','Last 12 mo'],['all','All time']];
+  return '<div class="fin-flt"><select id="fin-range" aria-label="Dates" onchange="MNY.range=this.value;mnyRender()">'+r.map(function(x){return '<option value="'+x[0]+'"'+(MNY.range===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select>'+
+    '<select id="fin-acct" aria-label="Account" onchange="MNY.acct=this.value;mnyRender()"><option value="">All accounts</option>'+MNY.data.accounts.map(function(a){return '<option value="'+a.id+'"'+(MNY.acct===a.id?' selected':'')+'>'+esc(a.name)+'</option>';}).join('')+'</select>'+
+    '<select id="fin-biz" aria-label="Business" onchange="MNY.biz=this.value;mnyRender()">'+['Hunting','Cattle','Personal','All'].map(function(x){return '<option'+(MNY.biz===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select></div>';
+}
+// ── overview / reports ──
+function mnyTotals(rows){
+  var t={inn:0,out:0,byIn:{},byOut:{},months:{},n:rows.length};
+  rows.forEach(function(x){
+    var k=mnyKind(x.cat),m=x.date.slice(0,7);if(!t.months[m])t.months[m]={inn:0,out:0};
+    if(k==='xfer')return;
+    if(x.amt>0&&k!=='out'){t.inn+=x.amt;t.byIn[x.cat]=(t.byIn[x.cat]||0)+x.amt;t.months[m].inn+=x.amt;}
+    else if(x.amt<0){t.out+=-x.amt;t.byOut[x.cat]=(t.byOut[x.cat]||0)-x.amt;t.months[m].out+=-x.amt;}
+    else{t.out-=x.amt;t.byOut[x.cat]=(t.byOut[x.cat]||0)-x.amt;t.months[m].out-=x.amt;}   // refunds on an expense category reduce it
+  });
+  return t;
+}
+function mnyOverview(v){
+  var rows=mnyRows(),T=mnyTotals(rows),net=T.inn-T.out,R=mnyRange();
+  if(!MNY.data.txns.length){v.innerHTML='<div class="fin-empty"><b>No transactions yet</b><span>Import a CSV from your bank or card, or add a purchase by hand.</span><button type="button" class="btn-submit" onclick="MNY.view=\'add\';mnyRender()">Add or import</button></div>';return;}
+  var unc=rows.filter(function(x){return x.cat==='Uncategorized';});
+  var html='<div class="fin-sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'all businesses':MNY.biz)+(MNY.acct?' \u00b7 '+esc(mnyAcctName(MNY.acct)):' \u00b7 all accounts')+'</div>'+
+    '<div class="gf-tiles fin-tiles"><div><span>Money in</span><b class="pos">'+mnyMoney0(T.inn)+'</b><small>income</small></div><div><span>Money out</span><b>'+mnyMoney0(T.out)+'</b><small>expenses</small></div>'+
+    '<div class="'+(net<0?'warn':'')+'"><span>Net</span><b class="'+(net>=0?'pos':'neg')+'">'+mnyMoney0(net)+'</b><small>'+(T.inn?Math.round(net/T.inn*100)+'% margin':'')+'</small></div><div><span>Lines</span><b>'+rows.length+'</b><small>'+(unc.length?unc.length+' need a category':'all sorted')+'</small></div></div>';
+  if(unc.length)html+='<button type="button" class="fin-nudge" onclick="MNY.view=\'txn\';MNY.q=\'\';MNY.cat=\'Uncategorized\';mnyRender()">'+unc.length+' line'+(unc.length===1?'':'s')+' need a category \u203a</button>';
+  html+='<h3 class="gf-sec">Month by month</h3>'+mnyMonthSvg(T.months)+
+    '<div class="fin-2"><div><h3 class="gf-sec">Where the money went</h3>'+mnyBars(T.byOut,T.out,'out')+'</div><div><h3 class="gf-sec">Where it came from</h3>'+mnyBars(T.byIn,T.inn,'in')+'</div></div>'+
+    '<div id="fin-unit"></div>'+
+    '<h3 class="gf-sec">Profit &amp; loss</h3>'+mnyPL(T)+
+    '<div class="gf-act" style="margin-top:14px"><button type="button" class="btn-small btn-gold" onclick="mnyPrint()"><span data-ic="print"></span>Print P&amp;L</button><button type="button" class="btn-small" onclick="mnyCsv()"><span data-ic="drive"></span>Copy as CSV</button></div>';
+  v.innerHTML=html;faceIcons(v);mnyUnit();
+}
+function mnyMonthSvg(months){
+  var keys=Object.keys(months).sort();if(!keys.length)return '<div class="report-hint">No money in or out in these dates.</div>';
+  if(keys.length>18)keys=keys.slice(-18);
+  var W=Math.max(320,keys.length*58),H=210,pad=34,top=14,bot=28,max=1;
+  keys.forEach(function(k){max=Math.max(max,months[k].inn,months[k].out);});
+  var y=function(n){return top+(H-top-bot)*(1-n/max);},bw=(W-pad-8)/keys.length,s='',cum=0,pts=[];
+  for(var g=0;g<=4;g++){var gv=max*g/4,gy=y(gv);s+='<line x1="'+pad+'" x2="'+(W-4)+'" y1="'+gy+'" y2="'+gy+'" class="fin-grid"/><text x="'+(pad-6)+'" y="'+(gy+3)+'" class="fin-ax" text-anchor="end">'+(gv>=1000?Math.round(gv/1000)+'k':Math.round(gv))+'</text>';}
+  keys.forEach(function(k,i){
+    var m=months[k],x=pad+i*bw+bw*.14,w=bw*.34;
+    s+='<rect x="'+x+'" y="'+y(m.inn)+'" width="'+w+'" height="'+Math.max(0,H-bot-y(m.inn))+'" rx="3" class="fin-bin"><title>'+mnyMon(k+'-01')+' in '+money(m.inn)+'</title></rect>';
+    s+='<rect x="'+(x+w+2)+'" y="'+y(m.out)+'" width="'+w+'" height="'+Math.max(0,H-bot-y(m.out))+'" rx="3" class="fin-bout"><title>'+mnyMon(k+'-01')+' out '+money(m.out)+'</title></rect>';
+    s+='<text x="'+(pad+i*bw+bw/2)+'" y="'+(H-10)+'" class="fin-ax" text-anchor="middle">'+mnyMon(k+'-01')+'</text>';
+    cum+=m.inn-m.out;pts.push([pad+i*bw+bw/2,cum]);
+  });
+  var cmin=Math.min(0,Math.min.apply(null,pts.map(function(p){return p[1];}))),cmax=Math.max(1,Math.max.apply(null,pts.map(function(p){return p[1];})));
+  var cy=function(n){return top+(H-top-bot)*(1-(n-cmin)/(cmax-cmin));};
+  s+='<polyline class="fin-cum" points="'+pts.map(function(p){return p[0]+','+cy(p[1]);}).join(' ')+'"/>'+pts.map(function(p){return '<circle cx="'+p[0]+'" cy="'+cy(p[1])+'" r="3.5" class="fin-cumdot"><title>Running net '+money(p[1])+'</title></circle>';}).join('');
+  return '<div class="fin-legend"><span class="li in">Money in</span><span class="li out">Money out</span><span class="li cum">Running net</span></div><div class="gf-tw"><svg class="fin-svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="Money in and out by month">'+s+'</svg></div>';
+}
+function mnyBars(by,tot,kind){
+  var k=Object.keys(by).sort(function(a,b){return by[b]-by[a];});
+  if(!k.length)return '<div class="report-hint">Nothing here yet.</div>';
+  return '<div class="fin-bars">'+k.map(function(c){var p=tot?by[c]/tot:0;return '<button type="button" class="fin-bar" onclick="MNY.view=\'txn\';MNY.cat=\''+esc(c).replace(/'/g,"\\'")+'\';mnyRender()"><span class="fb-l">'+esc(c)+'</span><span class="fb-v">'+mnyMoney0(by[c])+' <i>'+Math.round(p*100)+'%</i></span><span class="fb-t"><span class="fb-f '+kind+'" style="width:'+Math.max(2,p*100)+'%"></span></span></button>';}).join('')+'</div>';
+}
+function mnyPL(T){
+  var rowsIn=Object.keys(T.byIn).sort(function(a,b){return T.byIn[b]-T.byIn[a];}),rowsOut=Object.keys(T.byOut).sort(function(a,b){return T.byOut[b]-T.byOut[a];});
+  var tr=function(a,b,c){return '<tr'+(c?' class="'+c+'"':'')+'><td>'+a+'</td><td class="n">'+b+'</td></tr>';};
+  return '<div class="gf-tw"><table class="gf-t fin-pl"><tbody>'+tr('<b>Income</b>','','hd')+rowsIn.map(function(c){return tr(esc(c),money(T.byIn[c]));}).join('')+tr('Total income',money(T.inn),'tot')+
+    tr('<b>Expenses</b>','','hd')+rowsOut.map(function(c){return tr(esc(c),money(T.byOut[c]));}).join('')+tr('Total expenses',money(T.out),'tot')+
+    tr('<b>Net profit</b>','<b>'+money(T.inn-T.out)+'</b>','net')+'</tbody></table></div>';
+}
+function mnyUnit(){
+  var box=document.getElementById('fin-unit');if(!box)return;
+  if(MNY.range!=='season'||MNY.biz!=='Hunting'){box.innerHTML='';return;}
+  var show=function(p){
+    var S=p.season||{},hunters=(p.groups||[]).reduce(function(a,g){return a+(g.hunters||0);},0),rows=mnyRows(),T=mnyTotals(rows);
+    var birdsCost=T.byOut['Birds']||0,bought=S.purchased||0,shot=S.harvested||0,hist=(p.history||[]).filter(function(h){return h.live;})[0]||(p.history||[]).slice(-1)[0]||{};
+    var billed=hist.billed||0,hunt=(T.byIn['Hunt packages']||0)+(T.byIn['Deposits']||0);
+    var c=function(l,v,s){return '<div><span>'+l+'</span><b>'+v+'</b><small>'+s+'</small></div>';};
+    box.innerHTML='<h3 class="gf-sec">Per bird &amp; per hunter (this season)</h3><div class="gf-tiles fin-tiles">'+
+      c('Cost per bird bought',bought&&birdsCost?money(birdsCost/bought):'\u2013',bought?bought+' birds bought':'log bird purchases')+
+      c('All costs per bird shot',shot?money(T.out/shot):'\u2013',shot+' roosters shot')+
+      c('Income per hunter',hunters?money(T.inn/hunters):'\u2013',hunters+' hunters')+
+      c('Profit per hunter',hunters?money((T.inn-T.out)/hunters):'\u2013','after every expense')+'</div>'+
+      (billed?'<div class="fin-match '+(Math.abs(billed-hunt)<1?'ok':'')+'"><b>Invoiced vs. collected</b><span>Invoices this season: <b>'+money(billed)+'</b> \u00b7 Hunt packages + deposits in the bank: <b>'+money(hunt)+'</b>'+
+        (Math.abs(billed-hunt)<1?' \u00b7 \u2713 they match':' \u00b7 difference <b>'+money(billed-hunt)+'</b>'+(billed>hunt?' not deposited or not categorized yet':' more deposited than invoiced'))+'</span></div>':'');
+  };
+  if(MNY.plan)show(MNY.plan);
+  else opsGet({action:'planning'}).then(function(p){if(p&&p.ok){MNY.plan=p;show(p);}}).catch(function(){});
+}
+function mnyPrint(){
+  var rows=mnyRows(),T=mnyTotals(rows),R=mnyRange(),f=procFacility||{name:'Davis Ranch Hunting LLC'};
+  var tr=function(a,b,c){return '<tr'+(c?' class="'+c+'"':'')+'><td>'+a+'</td><td class="n">'+b+'</td></tr>';};
+  var mk=Object.keys(T.months).sort();
+  var html='<style>'+GF_CSS+'</style><div class="g"><h1>'+esc(f.name)+' \u2014 Profit &amp; Loss</h1><div class="sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'All businesses':MNY.biz)+' \u00b7 '+esc(MNY.acct?mnyAcctName(MNY.acct):'All accounts')+' \u00b7 Printed '+esc(usDate(localToday()))+'</div>'+
+    '<table class="kv"><tr><td>Income<br><b>'+money(T.inn)+'</b></td><td>Expenses<br><b>'+money(T.out)+'</b></td><td>Net profit<br><b>'+money(T.inn-T.out)+'</b></td></tr></table>'+
+    '<h2>Income</h2><table>'+Object.keys(T.byIn).sort(function(a,b){return T.byIn[b]-T.byIn[a];}).map(function(c){return tr(esc(c),money(T.byIn[c]));}).join('')+tr('Total income',money(T.inn),'tot')+'</table>'+
+    '<h2>Expenses</h2><table>'+Object.keys(T.byOut).sort(function(a,b){return T.byOut[b]-T.byOut[a];}).map(function(c){return tr(esc(c),money(T.byOut[c]));}).join('')+tr('Total expenses',money(T.out),'tot')+'</table>'+
+    '<h2>By month</h2><table><tr><th>Month</th><th class="n">In</th><th class="n">Out</th><th class="n">Net</th></tr>'+mk.map(function(k){var m=T.months[k];return '<tr><td>'+mnyMon(k+'-01')+'</td><td class="n">'+money(m.inn)+'</td><td class="n">'+money(m.out)+'</td><td class="n">'+money(m.inn-m.out)+'</td></tr>';}).join('')+'</table></div>';
+  var area=document.getElementById('print-area');if(!area){area=document.createElement('div');area.id='print-area';document.body.appendChild(area);}
+  area.innerHTML=html;setTimeout(function(){window.print();},60);
+}
+function mnyCsv(){
+  var rows=mnyRows().slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  var q=function(s){s=String(s==null?'':s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  var txt=['Date,Account,Description,Amount,Category,Business,Note'].concat(rows.map(function(x){return [x.date,mnyAcctName(x.acct),x.desc,x.amt.toFixed(2),x.cat,x.biz||'Hunting',x.note||''].map(q).join(',');})).join('\n');
+  navigator.clipboard.writeText(txt).then(function(){toast('\u2713 Copied '+rows.length+' lines. Paste into a spreadsheet.');},function(){toast('Copy didn\u2019t work on this device.',true);});
+}
+// ── transactions ──
+function mnyTxns(v){
+  var q=(MNY.q||'').toLowerCase(),cat=MNY.cat||'';
+  var rows=mnyRows().filter(function(x){return (!cat||x.cat===cat)&&(!q||(x.desc+' '+(x.note||'')+' '+x.cat+' '+x.amt.toFixed(2)).toLowerCase().indexOf(q)>=0);}).sort(function(a,b){return b.date.localeCompare(a.date)||(b.seq||0)-(a.seq||0);});
+  var cats=mnyAllCats().map(function(c){return c[0];});
+  var html='<div class="fin-flt2"><input type="search" id="fin-q" placeholder="Search store, note or amount" value="'+esc(MNY.q||'')+'" oninput="MNY.q=this.value;mnyTxnList()"><select id="fin-cat" aria-label="Category" onchange="MNY.cat=this.value;mnyTxnList()"><option value="">All categories</option>'+cats.map(function(c){return '<option'+(cat===c?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select></div><div id="fin-list"></div>';
+  v.innerHTML=html;mnyTxnList();
+}
+function mnyTxnList(){
+  var q=(MNY.q||'').toLowerCase(),cat=MNY.cat||'',box=document.getElementById('fin-list');if(!box)return;
+  var rows=mnyRows().filter(function(x){return (!cat||x.cat===cat)&&(!q||(x.desc+' '+(x.note||'')+' '+x.cat+' '+x.amt.toFixed(2)).toLowerCase().indexOf(q)>=0);}).sort(function(a,b){return b.date.localeCompare(a.date)||(b.seq||0)-(a.seq||0);});
+  if(!rows.length){box.innerHTML='<div class="report-hint">No lines match.</div>';return;}
+  var sum=rows.reduce(function(a,x){return mnyKind(x.cat)==='xfer'?a:a+x.amt;},0),mon='';
+  box.innerHTML='<div class="fin-sub">'+rows.length+' line'+(rows.length===1?'':'s')+' \u00b7 net '+money(sum)+'</div>'+rows.slice(0,400).map(function(x){
+    var m=x.date.slice(0,7),h='';if(m!==mon){mon=m;h='<div class="rx-gh">'+mnyMon(m+'-01')+'</div>';}
+    var k=mnyKind(x.cat);
+    return h+'<div class="fin-t'+(x.cat==='Uncategorized'?' unc':'')+'" id="ft-'+x.id+'"><button type="button" class="fin-t-row" onclick="mnyEdit(\''+x.id+'\')"><span class="ft-d">'+esc(usDate(x.date).slice(0,5))+'</span><span class="ft-m"><b>'+esc(x.desc)+'</b><small><i class="ft-cat '+k+'">'+esc(x.cat)+'</i>'+esc(mnyAcctName(x.acct))+((x.biz||'Hunting')!=='Hunting'?' \u00b7 '+esc(x.biz):'')+(x.rid?' \u00b7 \ud83d\udcce receipt':'')+(x.note?' \u00b7 '+esc(x.note):'')+'</small></span><span class="ft-a '+(x.amt>=0?'pos':'')+'">'+(x.amt>=0?'+':'\u2212')+money(Math.abs(x.amt)).slice(0)+'</span></button>'+(MNY.edit===x.id?mnyEditor(x):'')+'</div>';
+  }).join('')+(rows.length>400?'<div class="report-hint">Showing the newest 400. Search or filter to narrow it down.</div>':'');
+}
+function mnyEdit(id){MNY.edit=MNY.edit===id?null:id;mnyTxnList();}
+function mnyVendor(d){return String(d||'').toUpperCase().replace(/[#*]+\s*\d+.*$/,'').replace(/\d{3,}/g,' ').replace(/\s+/g,' ').trim().split(' ').slice(0,3).join(' ');}
+function mnyEditor(x){
+  var cats=mnyAllCats().map(function(c){return c[0];});
+  return '<div class="fin-ed"><div class="fin-ed-g"><label>Category<select id="fe-cat">'+cats.map(function(c){return '<option'+(x.cat===c?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'<option value="__new">+ New category\u2026</option></select></label>'+
+    '<label>Business<select id="fe-biz">'+['Hunting','Cattle','Personal'].map(function(b){return '<option'+((x.biz||'Hunting')===b?' selected':'')+'>'+b+'</option>';}).join('')+'</select></label></div>'+
+    '<label>Note<input id="fe-note" value="'+esc(x.note||'')+'" placeholder="What was it for?"></label>'+
+    '<label class="check-line"><input type="checkbox" id="fe-rule" checked> <span>Always put <b>'+esc(mnyVendor(x.desc))+'</b> in this category</span></label>'+
+    '<div class="fin-ed-b">'+(x.rid?'<button type="button" class="btn-small" onclick="mnyViewReceipt(\''+x.id+'\')">View receipt</button>':'<label class="btn-small fin-file">Add receipt photo<input type="file" accept="image/*" onchange="mnyAttach(\''+x.id+'\',this)"></label>')+
+    '<button type="button" class="btn-small del" id="fe-del" onclick="mnyDelete(\''+x.id+'\')">Delete</button><button type="button" class="btn-small btn-gold" onclick="mnySaveEdit(\''+x.id+'\')">Save</button></div></div>';
+}
+async function mnySaveEdit(id){
+  var x=MNY.data.txns.filter(function(t){return t.id===id;})[0];if(!x)return;
+  var cat=val('fe-cat');
+  if(cat==='__new'){cat=mnyNewCat();if(!cat)return;}
+  x.cat=cat;x.biz=val('fe-biz');x.note=val('fe-note').trim();
+  var n=0;
+  if(document.getElementById('fe-rule').checked){
+    var vend=mnyVendor(x.desc);
+    if(vend){MNY.data.rules=MNY.data.rules.filter(function(r){return r.match!==vend;});MNY.data.rules.unshift({match:vend,cat:cat,biz:x.biz});
+      MNY.data.txns.forEach(function(t){if(t.id!==x.id&&t.cat==='Uncategorized'&&mnyVendor(t.desc)===vend){t.cat=cat;t.biz=x.biz;n++;}});}
+  }
+  MNY.edit=null;
+  if(await mnySave(n?'Saved, and sorted '+n+' more from the same store':'Saved'))mnyRender();
+}
+function mnyNewCat(){
+  var el=document.getElementById('fe-newcat');
+  if(!el){document.querySelector('.fin-ed').insertAdjacentHTML('afterbegin','<label>New category name<input id="fe-newcat" placeholder="e.g. Dog food"></label><div class="fin-ed-g"><label>It is<select id="fe-newkind"><option value="out">an expense</option><option value="in">income</option></select></label></div>');return null;}
+  var nm=el.value.trim();if(!nm){toast('Type a name for the new category.',true);return null;}
+  if(!mnyAllCats().some(function(c){return c[0]===nm;}))MNY.data.cats.push([nm,val('fe-newkind')]);
+  return nm;
+}
+async function mnyDelete(id){
+  var b=document.getElementById('fe-del');
+  if(!b.classList.contains('sure')){b.classList.add('sure');b.textContent='Tap again to delete';setTimeout(function(){if(b){b.classList.remove('sure');b.textContent='Delete';}},4000);return;}
+  MNY.data.txns=MNY.data.txns.filter(function(t){return t.id!==id;});MNY.edit=null;
+  if(await mnySave('Deleted'))mnyRender();
+}
+// ── receipt photos (shrunk, then encrypted on this device) ──
+function mnyShrink(file){
+  return new Promise(function(res,rej){
+    var img=new Image(),u=URL.createObjectURL(file);
+    img.onload=function(){var s=Math.min(1,1400/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.72));};
+    img.onerror=function(){rej(new Error('Could not read that photo.'));};img.src=u;
+  });
+}
+async function mnyPutReceipt(file){
+  var data=await mnyShrink(file),env=await mnySeal({img:data});
+  var r=await procPost({action:'finReceiptPut',submissionId:newId(),data:env});
+  if(!r||!r.ok)throw new Error(r?handleProcError(r):'no signal');
+  return r.id;
+}
+async function mnyAttach(id,inp){
+  var f=inp.files&&inp.files[0];if(!f)return;
+  var x=MNY.data.txns.filter(function(t){return t.id===id;})[0];
+  try{toast('Saving the receipt\u2026');x.rid=await mnyPutReceipt(f);if(await mnySave('Receipt photo added'))mnyRender();}catch(e){toast('\u2717 Receipt not saved: '+e.message,true);}
+}
+async function mnyViewReceipt(id){
+  var x=MNY.data.txns.filter(function(t){return t.id===id;})[0];if(!x||!x.rid)return;
+  toast('Opening the receipt\u2026');
+  try{var r=await procGet({action:'finReceipt',id:x.rid});if(!r||!r.ok)throw new Error(r?handleProcError(r):'no signal');
+    var d=await mnyOpen(r.data,MNY.key);
+    var o=document.createElement('div');o.className='fin-ov';o.innerHTML='<div class="fin-ov-in"><button type="button" class="btn-small" onclick="this.closest(\'.fin-ov\').remove()">Close</button><img alt="Receipt for '+esc(x.desc)+'" src="'+d.img+'"></div>';
+    o.addEventListener('click',function(e){if(e.target===o)o.remove();});document.body.appendChild(o);
+  }catch(e){toast('\u2717 Could not open the receipt: '+e.message,true);}
+}
+// ── add / import ──
+function mnyAcctOptions(sel){return MNY.data.accounts.map(function(a){return '<option value="'+a.id+'"'+(sel===a.id?' selected':'')+'>'+esc(a.name)+'</option>';}).join('');}
+function mnyAdd(v){
+  var cats=mnyAllCats().filter(function(c){return c[1]!=='none';}).map(function(c){return c[0];});
+  v.innerHTML='<div class="fin-2"><div class="fin-panel"><h3 class="gf-sec">Import a CSV</h3><p class="fin-p">Download a CSV from your bank or card website, then pick it here. Nothing is saved until you check the preview and tap Import.</p>'+
+    '<label>Into account<select id="fi-acct">'+mnyAcctOptions(MNY.lastAcct)+'</select></label>'+
+    '<label class="btn-submit fin-file big">Choose CSV file<input type="file" id="fi-file" accept=".csv,text/csv,.txt" onchange="mnyReadCsv(this)"></label><div id="fi-prev"></div></div>'+
+    '<div class="fin-panel"><h3 class="gf-sec">Add a purchase by hand</h3><p class="fin-p">For a card you rarely use, or cash. Add the receipt photo if you have it.</p>'+
+    '<label>Account<select id="fm-acct">'+mnyAcctOptions(MNY.lastAcct)+'</select></label>'+
+    '<div class="fin-ed-g"><label>Date<input type="date" id="fm-date" value="'+localToday()+'"></label><label>Amount<input type="number" id="fm-amt" step="0.01" min="0" inputmode="decimal" placeholder="0.00"></label></div>'+
+    '<div class="gf-seg fin-io"><button type="button" class="on" id="fm-out" onclick="mnyIO(\'out\')">Money out</button><button type="button" id="fm-in" onclick="mnyIO(\'in\')">Money in</button><button type="button" id="fm-ref" onclick="mnyIO(\'ref\')">Refund</button></div>'+
+    '<label>Store / description<input id="fm-desc" placeholder="e.g. Tractor Supply"></label>'+
+    '<div class="fin-ed-g"><label>Category<select id="fm-cat">'+cats.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select></label><label>Business<select id="fm-biz"><option>Hunting</option><option>Cattle</option><option>Personal</option></select></label></div>'+
+    '<label>Note<input id="fm-note" placeholder="Optional"></label>'+
+    '<label class="btn-small fin-file">\ud83d\udcf7 Receipt photo (optional)<input type="file" id="fm-photo" accept="image/*" onchange="document.getElementById(\'fm-ph\').textContent=this.files[0]?this.files[0].name:\'\'"></label><span class="fin-p" id="fm-ph"></span>'+
+    '<button type="button" class="btn-submit" onclick="mnyAddManual()">Save purchase</button></div></div>';
+  document.getElementById('fm-desc').addEventListener('input',function(){var c=mnyAutoCat(this.value,-1);if(c.cat!=='Uncategorized')document.getElementById('fm-cat').value=c.cat;});
+  MNY.io='out';
+}
+function mnyIO(k){MNY.io=k;['out','in','ref'].forEach(function(x){document.getElementById('fm-'+x).classList.toggle('on',x===k);});}
+function mnyAutoCat(desc,amt){
+  var D=String(desc||'').toUpperCase();
+  var r=(MNY.data.rules||[]).filter(function(x){return D.indexOf(x.match)>=0;})[0];if(r)return {cat:r.cat,biz:r.biz||'Hunting'};
+  var d=MNY_RULES.filter(function(x){return D.indexOf(x[0])>=0;})[0];
+  if(d){var k=mnyKind(d[1]);if(k==='in'&&amt<0)return {cat:'Uncategorized',biz:'Hunting'};return {cat:d[1],biz:'Hunting'};}
+  return {cat:'Uncategorized',biz:'Hunting'};
+}
+function mnyId(){return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+async function mnyAddManual(){
+  var a=parseFloat(val('fm-amt')),d=val('fm-date'),desc=val('fm-desc').trim();
+  if(!(a>0)){toast('Enter the amount.',true);return;}if(!d||!desc){toast('Enter the date and what it was.',true);return;}
+  var amt=MNY.io==='in'||MNY.io==='ref'?a:-a;
+  var x={id:mnyId(),acct:val('fm-acct'),date:d,desc:desc,amt:Math.round(amt*100)/100,cat:val('fm-cat'),biz:val('fm-biz'),note:val('fm-note').trim(),src:'manual',seq:Date.now()};
+  var ph=document.getElementById('fm-photo').files[0];
+  try{if(ph){toast('Saving the receipt photo\u2026');x.rid=await mnyPutReceipt(ph);}}catch(e){toast('\u2717 Photo not saved ('+e.message+'). The purchase will still save.',true);}
+  MNY.data.txns.push(x);MNY.lastAcct=x.acct;
+  if(await mnySave('Added '+desc+' '+money(a))){MNY.view='txn';MNY.q='';MNY.cat='';mnyRender();}
+  else MNY.data.txns.pop();
+}
+// CSV
+function mnyParseCsv(t){
+  t=t.replace(/^\ufeff/,'');var rows=[],row=[],f='',q=false;
+  for(var i=0;i<t.length;i++){var c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else q=false;}else f+=c;}
+    else if(c==='"')q=true;else if(c===','){row.push(f);f='';}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);f='';if(row.some(function(x){return x.trim();}))rows.push(row);row=[];}else f+=c;}
+  row.push(f);if(row.some(function(x){return x.trim();}))rows.push(row);
+  return rows;
+}
+function mnyNum(s){s=String(s||'').trim();if(!s)return null;var neg=/^\(.*\)$/.test(s)||/-/.test(s)||/\bDR\b/i.test(s);s=s.replace(/[^0-9.]/g,'');if(!s)return null;var n=parseFloat(s);if(isNaN(n))return null;return neg?-n:n;}
+function mnyDate(s){
+  s=String(s||'').trim();var m;
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)))return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
+  if((m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/))){var y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+m[1].padStart(2,'0')+'-'+m[2].padStart(2,'0');}
+  var d=new Date(s);return isNaN(d)?'':d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function mnyGuess(head){
+  var H=head.map(function(h){return h.toLowerCase().trim();}),find=function(re,not){for(var i=0;i<H.length;i++)if(re.test(H[i])&&!(not&&not.test(H[i])))return i;return -1;};
+  var date=find(/^(trans(action)?\.?\s*date|date)$/);if(date<0)date=find(/date/,/post/);if(date<0)date=find(/date/);
+  var amount=find(/^(amount|amt|transaction amount)$/);if(amount<0)amount=find(/amount/,/balance/);
+  return {date:date,desc:find(/(description|payee|merchant|name|memo|details)/),amount:amount,debit:find(/(debit|withdraw|charge)/),credit:find(/(credit|deposit)/,/card/)};
+}
+function mnyReadCsv(inp){
+  var f=inp.files&&inp.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    var rows=mnyParseCsv(String(rd.result||''));
+    var hi=0;for(var i=0;i<Math.min(rows.length,15);i++){if(rows[i].some(function(c){return /date/i.test(c);})){hi=i;break;}}
+    var head=rows[hi]||[],body=rows.slice(hi+1).filter(function(r){return r.length>=2;});
+    var acct=MNY.data.accounts.filter(function(a){return a.id===val('fi-acct');})[0]||{};
+    MNY.imp={name:f.name,head:head,body:body,map:mnyGuess(head),flip:/credit/i.test(acct.type||'')};
+    mnyImpPreview();
+  };
+  rd.readAsText(f);
+}
+function mnyImpRows(){
+  var I=MNY.imp,m=I.map,out=[];
+  I.body.forEach(function(r){
+    var d=mnyDate(r[m.date]),desc=String(r[m.desc]||'').replace(/\s+/g,' ').trim(),amt=null;
+    if(m.amount>=0)amt=mnyNum(r[m.amount]);
+    else{var db=mnyNum(r[m.debit]),cr=mnyNum(r[m.credit]);if(db)amt=-Math.abs(db);else if(cr)amt=Math.abs(cr);}
+    if(amt===null||!d||!desc)return;
+    if(I.flip)amt=-amt;
+    out.push({date:d,desc:desc,amt:Math.round(amt*100)/100});
+  });
+  return out;
+}
+function mnyImpPreview(){
+  var I=MNY.imp,box=document.getElementById('fi-prev');if(!I||!box)return;
+  var cols=I.head.map(function(h,i){return '<option value="'+i+'">'+esc(h||('Column '+(i+1)))+'</option>';}).join('');
+  var sel=function(k,lbl,none){return '<label>'+lbl+'<select onchange="MNY.imp.map.'+k+'=+this.value;mnyImpPreview()">'+(none?'<option value="-1">(none)</option>':'')+cols.replace('value="'+I.map[k]+'"','value="'+I.map[k]+'" selected')+'</select></label>';};
+  var rows=mnyImpRows(),acct=val('fi-acct'),seen={},have={};
+  MNY.data.txns.forEach(function(t){if(t.acct===acct){var k=t.date+'|'+t.amt.toFixed(2)+'|'+t.desc.toUpperCase();have[k]=(have[k]||0)+1;}});
+  var fresh=[],dup=0;
+  rows.forEach(function(r){var k=r.date+'|'+r.amt.toFixed(2)+'|'+r.desc.toUpperCase();seen[k]=(seen[k]||0)+1;if(seen[k]<=(have[k]||0))dup++;else fresh.push(r);});
+  MNY.imp.fresh=fresh;
+  var spend=fresh.filter(function(r){return r.amt<0;}).reduce(function(a,r){return a-r.amt;},0),inc=fresh.filter(function(r){return r.amt>0;}).reduce(function(a,r){return a+r.amt;},0);
+  var dates=fresh.map(function(r){return r.date;}).sort();
+  box.innerHTML='<div class="fin-imp"><div class="fin-sub">'+esc(I.name)+' \u00b7 '+I.body.length+' rows read</div>'+
+    '<div class="fin-ed-g">'+sel('date','Date column')+sel('desc','Description column')+'</div>'+
+    '<div class="fin-ed-g">'+sel('amount','Amount column',true)+(I.map.amount<0?sel('debit','Money out column',true)+sel('credit','Money in column',true):'')+'</div>'+
+    '<label class="check-line"><input type="checkbox" '+(I.flip?'checked':'')+' onchange="MNY.imp.flip=this.checked;mnyImpPreview()"> <span>Purchases show as <b>positive</b> numbers in this file (most credit cards, like Discover)</span></label>'+
+    '<div class="fin-imp-sum"><b>'+fresh.length+' new line'+(fresh.length===1?'':'s')+'</b>'+(dup?' \u00b7 '+dup+' already imported, skipped':'')+(dates.length?' \u00b7 '+esc(usDate(dates[0]))+' to '+esc(usDate(dates[dates.length-1])):'')+'<br>Money out '+money(spend)+' \u00b7 Money in '+money(inc)+'</div>'+
+    (fresh.length?'<div class="gf-tw"><table class="gf-t"><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th></tr></thead><tbody>'+fresh.slice(0,8).map(function(r){var c=mnyAutoCat(r.desc,r.amt);return '<tr><td>'+esc(usDate(r.date).slice(0,5))+'</td><td>'+esc(r.desc)+'</td><td class="'+(r.amt>=0?'pos':'')+'">'+money(r.amt)+'</td><td>'+esc(c.cat)+'</td></tr>';}).join('')+'</tbody></table></div>'+(fresh.length>8?'<div class="fin-p">\u2026and '+(fresh.length-8)+' more</div>':''):'<div class="report-hint">Nothing new to import from this file. Check the columns above if that looks wrong.</div>')+
+    (fresh.length?'<button type="button" class="btn-submit" onclick="mnyImport()">Import '+fresh.length+' line'+(fresh.length===1?'':'s')+'</button>':'')+'</div>';
+}
+async function mnyImport(){
+  var I=MNY.imp,acct=val('fi-acct');if(!I||!I.fresh||!I.fresh.length)return;
+  var base=Date.now(),added=I.fresh.map(function(r,i){var c=mnyAutoCat(r.desc,r.amt);return {id:mnyId()+i,acct:acct,date:r.date,desc:r.desc,amt:r.amt,cat:c.cat,biz:c.biz,src:'csv',seq:base+i};});
+  MNY.data.txns=MNY.data.txns.concat(added);
+  MNY.data.imports.push({acct:acct,file:I.name,when:localToday(),n:added.length});
+  var unc=added.filter(function(x){return x.cat==='Uncategorized';}).length;
+  if(await mnySave('Imported '+added.length+' lines'+(unc?' \u00b7 '+unc+' need a category':''))){MNY.imp=null;MNY.lastAcct=acct;MNY.view=unc?'txn':'over';MNY.cat=unc?'Uncategorized':'';MNY.q='';mnyRender();}
+  else{MNY.data.txns=MNY.data.txns.slice(0,MNY.data.txns.length-added.length);MNY.data.imports.pop();}
+}
+// ── accounts ──
+function mnyAccounts(v){
+  var S=seasonStartIso();
+  v.innerHTML='<div class="fin-accts">'+MNY.data.accounts.map(function(a){
+    var t=MNY.data.txns.filter(function(x){return x.acct===a.id;}),ts=t.filter(function(x){return x.date>=S;}),T=mnyTotals(ts);
+    var last=MNY.data.imports.filter(function(i){return i.acct===a.id;}).pop();
+    return '<div class="fin-acct"><div class="rx-top"><b>'+esc(a.name)+'</b><span class="rx-chip">'+esc(a.type)+'</span></div>'+
+      '<div class="rx-ln">'+t.length+' lines \u00b7 this season in '+money(T.inn)+', out '+money(T.out)+(last?' \u00b7 last import '+esc(usDate(last.when))+' ('+last.n+')':' \u00b7 no imports yet')+'</div>'+
+      '<div class="fin-ed-b"><button type="button" class="btn-small" onclick="MNY.acct=\''+a.id+'\';MNY.view=\'txn\';mnyRender()">See lines</button><button type="button" class="btn-small" onclick="mnyRename(\''+a.id+'\',this)">Rename</button>'+(t.length?'':'<button type="button" class="btn-small del" onclick="mnyRemoveAcct(\''+a.id+'\',this)">Remove</button>')+'</div></div>';
+  }).join('')+'</div>'+
+  '<div class="fin-panel"><h3 class="gf-sec">Add an account</h3><div class="fin-ed-g"><label>Name<input id="fa-name" placeholder="e.g. Discover card"></label><label>Type<select id="fa-type"><option>Checking</option><option>Savings</option><option>Credit card</option><option>Cash</option></select></label></div>'+
+  '<button type="button" class="btn-submit" onclick="mnyAddAcct()">Add account</button></div>'+
+  '<p class="fin-p" style="margin-top:14px">Change your Financials password: <button type="button" class="btn-small" onclick="mnyChangePw()">Change password</button></p><div id="fin-pwbox"></div>';
+}
+async function mnyAddAcct(){
+  var n=val('fa-name').trim();if(!n){toast('Name the account.',true);return;}
+  var id='a'+Date.now().toString(36);MNY.data.accounts.push({id:id,name:n,type:val('fa-type'),added:localToday()});MNY.lastAcct=id;
+  if(await mnySave('Added '+n))mnyRender();else MNY.data.accounts.pop();
+}
+function mnyRename(id,btn){
+  var a=MNY.data.accounts.filter(function(x){return x.id===id;})[0],box=btn.closest('.fin-acct');
+  if(box.querySelector('.fin-rn'))return;
+  box.insertAdjacentHTML('beforeend','<div class="fin-rn fin-ed-g"><input id="fr-'+id+'" value="'+esc(a.name)+'"><button type="button" class="btn-small btn-gold" onclick="mnyRename2(\''+id+'\')">Save</button></div>');
+}
+async function mnyRename2(id){var a=MNY.data.accounts.filter(function(x){return x.id===id;})[0],n=val('fr-'+id).trim();if(!n)return;a.name=n;if(await mnySave('Renamed'))mnyRender();}
+async function mnyRemoveAcct(id,b){
+  if(!b.classList.contains('sure')){b.classList.add('sure');b.textContent='Tap again to remove';return;}
+  MNY.data.accounts=MNY.data.accounts.filter(function(x){return x.id!==id;});if(await mnySave('Removed'))mnyRender();
+}
+function mnyChangePw(){
+  document.getElementById('fin-pwbox').innerHTML='<div class="fin-panel"><label>Current password<input type="password" id="fc-old" autocomplete="current-password"></label><label>New password<input type="password" id="fc-new" autocomplete="new-password" placeholder="8+ characters"></label><label>New again<input type="password" id="fc-new2" autocomplete="new-password"></label><button type="button" class="btn-submit" onclick="mnyChangePw2()">Change password</button></div>';
+}
+async function mnyChangePw2(){
+  var o=val('fc-old'),n=val('fc-new'),n2=val('fc-new2');
+  try{var k=await mnyDerive(o,MNY.salt,MNY.iter);await mnyOpen(await mnySeal({t:1}),k);}catch(e){toast('Current password is wrong.',true);return;}
+  if(n.length<8||n!==n2){toast(n.length<8?'Use at least 8 characters.':'The new passwords don\u2019t match.',true);return;}
+  var keep=[MNY.key,MNY.salt];MNY.salt=crypto.getRandomValues(new Uint8Array(16));MNY.key=await mnyDerive(n,MNY.salt,MNY.iter);
+  if(await mnySave('Password changed'))mnyRender();else{MNY.key=keep[0];MNY.salt=keep[1];}
+}
+window.addEventListener('DOMContentLoaded',function(){
+  var inner=document.querySelector('.content-inner');
+  if(inner&&!document.getElementById('card-fin')){
+    var d=document.createElement('div');d.className='form-card sc-card fin-card';d.id='card-fin';
+    d.innerHTML='<div class="card-title">Financials</div><div id="fin-body"></div>';
+    inner.appendChild(d);
+  }
+});
 
 </script>
 </body>
