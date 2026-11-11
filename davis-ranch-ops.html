@@ -3870,7 +3870,7 @@ function invSplit(){var r=document.querySelector('input[name="inv-type"]:checked
 function splitMath(n,dep){
   var p=procPricing||{price:0,minHunters:8},half=Math.round(p.price*50)/100,others=Math.max(0,n-1);
   var unfilled=Math.max(0,p.minHunters-n),minShare=unfilled?Math.round(unfilled*p.price/n*100)/100:0,depShare=Math.round((dep||0)/n*100)/100;
-  var org=p.price+others*half+minShare,each=p.price-half+minShare;
+  var minLeft=Math.round((unfilled*p.price-minShare*n)*100)/100,org=p.price+others*half+minShare+minLeft,each=p.price-half+minShare;
   return {p:p,half:half,others:others,unfilled:unfilled,minShare:minShare,depShare:depShare,org:org,each:each,
     orgDue:org-depShare-((dep||0)-depShare*n),eachDue:each-depShare};
 }
