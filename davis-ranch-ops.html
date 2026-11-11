@@ -876,6 +876,35 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .gf-pin{display:flex;flex-direction:column;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:16px}
 .gf-pin span{color:var(--fg-soft);font-size:.88rem}
 @media(min-width:980px){.gf-card{max-width:1120px!important}}
+/* ── receipts list: one card per hunter ── */
+.rx-gh{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-soft);font-weight:600;margin:18px 4px 8px}
+.rx-gh:first-child{margin-top:4px}
+.rc.rx{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin-bottom:9px}
+.rc.rx.grp{background:linear-gradient(135deg,rgba(224,168,74,.14),var(--card2) 70%);border-color:rgba(224,168,74,.5)}
+.rx-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:400}
+.rx-top b{font-size:1.05rem;color:var(--fg)}
+.rx-due{font-weight:800;color:var(--gold-light);white-space:nowrap;font-variant-numeric:tabular-nums}
+.rx-due.muted{color:var(--fg-soft);font-weight:500;font-size:.85rem}
+.rx-ids{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0 4px}
+.rx-chip{font-size:.74rem;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--fg-mid)}
+.rx-chip.r{border-color:rgba(83,197,86,.45);color:var(--success)}
+.rx-chip.i{border-color:rgba(224,168,74,.5);color:var(--gold-light)}
+.rx-chip.v{border-color:rgba(241,119,120,.5);color:var(--red);text-decoration:line-through}
+.rx-chip.w{border-color:rgba(233,162,59,.55);color:var(--warn)}
+.rx-ln{color:var(--fg-soft);font-size:.84rem}
+.rx-note{font-size:.8rem;color:var(--warn);margin-top:6px}
+.rx-btns{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px;margin-top:10px}
+.rx-btns.two,.rx-btns.n2{grid-template-columns:1fr 1fr}.rx-btns.n1{grid-template-columns:1fr}
+.rx-btns button{font:700 .84rem var(--font-body);padding:11px 4px;border-radius:10px;border:1px solid rgba(224,168,74,.45);background:transparent;color:var(--fg);cursor:pointer;margin:0;width:auto;display:block}
+.rx-btns button.p{background:linear-gradient(145deg,var(--gold-light),var(--gold));color:#1A1207;border-color:transparent}
+.rx-more{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:8px}
+.rx-more:empty{display:none}
+.rx-lk{font-size:.8rem;font-weight:600;color:var(--gold-light);text-decoration:none}
+.rx-lk:hover{text-decoration:underline}
+.rx-reopen{width:auto!important;margin:0!important;padding:6px 10px!important;font-size:.76rem!important}
+.rc.rx .ie{margin-top:10px}
+.rc.rx .rc-reopen{display:inline!important;width:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;color:var(--fg-soft)!important;font:600 .78rem var(--font-body)!important;text-decoration:underline;cursor:pointer}
+.rc.rx .rc-reopen.sure{color:var(--warn)!important;font-weight:800!important}
 </style>
 </head>
 <body>
@@ -1186,7 +1215,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
           <div class="field"><label>Group</label><select id="rp-group" onchange="renderReceiptList()"><option value="">All groups</option></select></div>
           <div class="field"><label>Released</label><input type="date" id="rp-date" onchange="renderReceiptList()"></div>
         </div>
-        <input type="search" class="reprint-search" id="reprint-search" placeholder="Search name or receipt #" oninput="renderReceiptList()" style="display:none">
+        <input type="search" class="reprint-search" id="reprint-search" placeholder="Last name, receipt # or invoice #" oninput="renderReceiptList()" style="display:none">
         <div id="c-receipts-list"></div>
         <div class="receipts-foot">
           <button type="button" class="btn-small btn-gold" id="btn-print-all" onclick="printAll()">Print All</button>
@@ -4148,6 +4177,98 @@ window.addEventListener('DOMContentLoaded',function(){
     inner.appendChild(d);faceIcons(d);
   }
 });
+
+/* ═══ ONE CARD PER HUNTER: receipt + invoice together in the receipts list ═══ */
+function rxQ(){var s=document.getElementById('reprint-search');return receiptMode==='reprint'?(s.value||'').toLowerCase().trim():'';}
+function rxBaseR(){
+  if(receiptMode!=='reprint')return receiptData;
+  var g=document.getElementById('rp-group').value,d=document.getElementById('rp-date').value;
+  return receiptData.filter(function(r){return (!g||r.group===g)&&(!d||r.dateReleased===d);});
+}
+function rxBaseI(){
+  if(receiptMode!=='reprint')return invoiceData;
+  var g=document.getElementById('rp-group').value,d=document.getElementById('rp-date').value;
+  return invoiceData.filter(function(v){return (!g||v.group===g)&&(!d||v.date===d);});
+}
+function rxOwner(x){return String(x||'').toLowerCase().trim();}
+function rxRHit(r,q){return String(r.receiptNo).indexOf(q)!==-1||rxOwner(r.owner).indexOf(q)!==-1||rxOwner(r.group).indexOf(q)!==-1;}
+function rxIHit(v,q){return String(v.invoiceNo).toLowerCase().indexOf(q)!==-1||rxOwner(v.billTo&&v.billTo.name).indexOf(q)!==-1||rxOwner(v.group).indexOf(q)!==-1;}
+// a search for a name, receipt # or invoice # brings up the whole card: his receipt and his invoices
+shownReceipts=function(){
+  var q=rxQ(),R=rxBaseR();if(!q)return R;
+  var I=rxBaseI().filter(function(v){return rxIHit(v,q);});
+  return R.filter(function(r){return rxRHit(r,q)||I.some(function(v){return v.group===r.group&&rxOwner(v.billTo.name)===rxOwner(r.owner);});});
+};
+shownInvoices=function(){
+  var q=rxQ(),I=rxBaseI();if(!q)return I;
+  var R=rxBaseR().filter(function(r){return rxRHit(r,q);});
+  return I.filter(function(v){return rxIHit(v,q)||R.some(function(r){return v.group===r.group&&rxOwner(v.billTo.name)===rxOwner(r.owner);});});
+};
+function rxIsGroupInv(v){return v.type==='Group'||(v.type==='Void'&&!v.leader&&v.huntersBilled>1);}
+function rxLast(n){var p=String(n||'').trim().split(/\s+/);return p[p.length-1].toLowerCase();}
+function rxPdfLinks(list){
+  return list.filter(function(x){return x&&x.url;}).map(function(x){return '<a class="rx-lk" href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>';}).join('');
+}
+function rxGroupCard(v,i,voids){
+  var isVoid=v.type==='Void';
+  var ids='<span class="rx-chip '+(isVoid?'v':'i')+'">Invoice '+esc(v.invoiceNo)+'</span><span class="rx-chip">'+v.huntersBilled+' hunters billed</span>';
+  return '<div class="rc rx grp"><div class="rx-top rc-line1"><b>'+(isVoid?'VOID — ':'')+'Group invoice · '+esc(v.billTo.name)+'</b><span class="rx-due">'+(isVoid?'void':money(v.balance)+' due')+'</span></div>'+
+    '<div class="rx-ids">'+ids+'</div><div class="rx-ln">'+esc(usDate(v.date))+' · '+v.huntersBilled+' × '+money(v.price)+' · covers the receipts below</div>'+
+    '<div class="rx-btns two"><button type="button" class="rc-print p" data-i="'+i+'" onclick="printInvoice(this)">'+(isVoid?'Print (VOID)':'Print invoice')+'</button>'+
+    (isVoid?'':'<button type="button" class="rc-fix" data-i="'+i+'" onclick="invFix(this)">Fix invoice</button>')+'</div>'+
+    (isVoid?'':'<div class="ie" id="ie-'+i+'" style="display:none"></div>')+
+    '<div class="rx-more">'+rxPdfLinks([{url:v.pdfUrl,label:'Invoice PDF in Drive'}])+(v.pdfError?'<span class="rc-pdf-err">PDF copy not saved: '+esc(v.pdfError)+'</span>':'')+'</div></div>';
+}
+function rxHunterCard(r,ri,invs,onGroup){
+  var active=invs.filter(function(x){return x.v.type!=='Void';}).pop()||null,voids=invs.filter(function(x){return x.v.type==='Void';});
+  var name=r?r.owner:(active||voids[0]).v.billTo.name,pending=r&&r.pending;
+  var ids='';
+  if(r)ids+='<span class="rx-chip '+(pending?'w':'r')+'">Receipt #'+esc(r.receiptNo)+(pending?' · waiting for numbers':'')+'</span>';
+  voids.forEach(function(x){ids+='<span class="rx-chip v">Invoice '+esc(x.v.invoiceNo)+'</span>';});
+  if(active)ids+='<span class="rx-chip i">Invoice '+esc(active.v.invoiceNo)+'</span>';
+  var due=active?'<span class="rx-due">'+money(active.v.balance)+' due</span>':onGroup?'<span class="rx-due muted">on group invoice</span>':voids.length?'<span class="rx-due muted">invoice void</span>':'';
+  var extras=active?(active.v.lines||[]).slice(1).filter(function(l){return l.rate>0&&!/group minimum|group booking/i.test(l.desc);}).map(function(l){return ' · + '+esc(l.desc)+(l.qty>1?' ×'+l.qty:'');}).join(''):'';
+  var line=r?(pending?'Printed blank · enter birds from the paper copy under Waiting for numbers':esc(speciesText(r))+' · released '+esc(usDate(r.dateReleased)))+extras:'No receipt in this list'+extras;
+  var note=voids.length?'<div class="rx-note">Invoice '+voids.map(function(x){return esc(x.v.invoiceNo);}).join(', ')+' was voided'+(active?' and replaced by '+esc(active.v.invoiceNo):'')+'.</div>':'';
+  var b1=active?'<button type="button" class="rc-print p" data-i="'+active.i+'" onclick="printInvoice(this)">'+(r?'Print both':'Print invoice')+'</button>':
+    r?'<button type="button" class="rc-print p" data-i="'+ri+'" onclick="printOne(this)">'+(pending?'Print blank':'Print receipt')+'</button>':
+    '<button type="button" class="rc-print p" data-i="'+voids[0].i+'" onclick="printInvoice(this)">Print (VOID)</button>';
+  var b2=r?(pending?'<button type="button" onclick="rxToPending()">Enter birds</button>':(r.receiptNo?'<button type="button" class="rc-fix" data-i="'+ri+'" onclick="rcFix(this)">Fix birds</button>':'')):'';
+  var b3=active?'<button type="button" class="rc-fix" data-i="'+active.i+'" onclick="invFix(this)">Fix invoice</button>':'';
+  var nb=[b1,b2,b3].filter(Boolean).length;
+  var more=[];
+  if(r&&!pending)more.push('<a class="rx-lk" href="'+esc(smsHref(r))+'">Text receipt'+(r.phone?'':' (add number)')+'</a>');
+  var pdfs=rxPdfLinks([{url:r&&r.pdfUrl,label:'Receipt PDF'},{url:active&&active.v.pdfUrl,label:'Invoice PDF'}]);
+  if(pdfs)more.push(pdfs);
+  var errs=(r&&r.pdfError?'<span class="rc-pdf-err">Receipt PDF not saved: '+esc(r.pdfError)+'</span>':'')+(active&&active.v.pdfError?'<span class="rc-pdf-err">Invoice PDF not saved: '+esc(active.v.pdfError)+'</span>':'');
+  return '<div class="rc rx"><div class="rx-top rc-line1"><b>'+esc(name)+'</b>'+due+'</div><div class="rx-ids">'+ids+'</div><div class="rx-ln">'+line+'</div>'+note+
+    '<div class="rx-btns n'+nb+'">'+b1+b2+b3+'</div>'+
+    (active?'<div class="ie" id="ie-'+active.i+'" style="display:none"></div>':'')+(r?'<div class="ie" id="re-fx-'+ri+'" style="display:none"></div>':'')+
+    ((more.length||errs||(r&&!pending&&r.receiptNo))?'<div class="rx-more">'+more.join('')+errs+
+      (r&&!pending&&r.receiptNo?'<button type="button" class="rc-reopen rx-reopen" data-i="'+ri+'" onclick="reopenReceipt(this)">Still hunting? Make this receipt blank again</button>':'')+'</div>':'')+
+    '</div>';
+}
+function rxToPending(){var p=document.getElementById('pend-box');if(p&&p.innerHTML.trim()){closeReceipts();p.scrollIntoView({behavior:'smooth',block:'start'});}else toast('Pick the group at the top of Check Out to enter his birds under Waiting for numbers.');}
+renderReceiptList=function(){
+  var R=shownReceipts(),I=shownInvoices();
+  var box=document.getElementById('c-receipts-list'),pa=document.getElementById('btn-print-all');
+  var nAll=R.length+I.length;
+  pa.textContent=nAll>1?'Print All ('+nAll+')':'Print All';pa.disabled=!nAll;
+  if(!nAll){box.innerHTML='<div class="report-hint" style="padding:8px 0">Nothing found. Try a last name, receipt # or invoice #.</div>';return;}
+  var groups=[],G={};
+  var grp=function(g){g=g||'';if(!G[g]){G[g]={name:g,hunters:{},order:[],ginv:[]};groups.push(G[g]);}return G[g];};
+  var hunter=function(g,name){var x=grp(g),k=rxOwner(name);if(!x.hunters[k]){x.hunters[k]={name:name,r:null,ri:-1,invs:[]};x.order.push(k);}return x.hunters[k];};
+  R.forEach(function(r,ri){var h=hunter(r.group,r.owner);if(!h.r){h.r=r;h.ri=ri;}else{var h2=hunter(r.group,r.owner+' #'+r.receiptNo);h2.name=r.owner;h2.r=r;h2.ri=ri;}});
+  I.forEach(function(v,i){if(rxIsGroupInv(v))grp(v.group).ginv.push({v:v,i:i});else hunter(v.group,v.billTo.name).invs.push({v:v,i:i});});
+  box.innerHTML=groups.map(function(x){
+    var keys=x.order.slice().sort(function(a,b){return rxLast(x.hunters[a].name).localeCompare(rxLast(x.hunters[b].name))||a.localeCompare(b);});
+    var hasG=x.ginv.some(function(g){return g.v.type!=='Void';});
+    var dates=keys.map(function(k){var h=x.hunters[k];return h.r?h.r.dateReleased:'';}).concat(x.ginv.map(function(g){return g.v.date;})).filter(Boolean).sort();
+    return '<div class="rx-gh">'+esc(x.name||'No group')+' · '+keys.length+' hunter'+(keys.length===1?'':'s')+(dates.length?' · '+esc(usDate(dates[dates.length-1]).slice(0,5)):'')+'</div>'+
+      x.ginv.map(function(g){return rxGroupCard(g.v,g.i);}).join('')+
+      keys.map(function(k){var h=x.hunters[k];return rxHunterCard(h.r,h.ri,h.invs,hasG);}).join('');
+  }).join('');
+};
 
 </script>
 </body>
