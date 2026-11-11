@@ -4498,7 +4498,7 @@ function mnyFilters(){
   var r=[['season','This season'],['year','This year'],['12','Last 12 mo'],['all','All time']];
   return '<div class="fin-flt"><select id="fin-range" aria-label="Dates" onchange="MNY.range=this.value;mnyRender()">'+r.map(function(x){return '<option value="'+x[0]+'"'+(MNY.range===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select>'+
     '<select id="fin-acct" aria-label="Account" onchange="MNY.acct=this.value;mnyRender()"><option value="">All accounts</option>'+MNY.data.accounts.map(function(a){return '<option value="'+a.id+'"'+(MNY.acct===a.id?' selected':'')+'>'+esc(a.name)+'</option>';}).join('')+'</select>'+
-    '<select id="fin-biz" aria-label="Business" onchange="MNY.biz=this.value;mnyRender()">'+['Hunting','Cattle','Personal','All'].map(function(x){return '<option'+(MNY.biz===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select></div>';
+    '<select id="fin-biz" aria-label="Business" onchange="MNY.biz=this.value;mnyRender()">'+[['Hunting','Hunting'],['Personal','Personal'],['All','Hunting + personal']].map(function(x){return '<option value="'+x[0]+'"'+(MNY.biz===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></div>';
 }
 // ── overview / reports ──
 function mnyTotals(rows){
@@ -4516,7 +4516,7 @@ function mnyOverview(v){
   var rows=mnyRows(),T=mnyTotals(rows),net=T.inn-T.out,R=mnyRange();
   if(!MNY.data.txns.length){v.innerHTML='<div class="fin-empty"><b>No transactions yet</b><span>Import a CSV from your bank or card, or add a purchase by hand.</span><button type="button" class="btn-submit" onclick="MNY.view=\'add\';mnyRender()">Add or import</button></div>';return;}
   var unc=rows.filter(function(x){return x.cat==='Uncategorized';});
-  var html='<div class="fin-sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'all businesses':MNY.biz)+(MNY.acct?' \u00b7 '+esc(mnyAcctName(MNY.acct)):' \u00b7 all accounts')+'</div>'+
+  var html='<div class="fin-sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'hunting + personal':MNY.biz)+(MNY.acct?' \u00b7 '+esc(mnyAcctName(MNY.acct)):' \u00b7 all accounts')+'</div>'+
     '<div class="gf-tiles fin-tiles"><div><span>Money in</span><b class="pos">'+mnyMoney0(T.inn)+'</b><small>income</small></div><div><span>Money out</span><b>'+mnyMoney0(T.out)+'</b><small>expenses</small></div>'+
     '<div class="'+(net<0?'warn':'')+'"><span>Net</span><b class="'+(net>=0?'pos':'neg')+'">'+mnyMoney0(net)+'</b><small>'+(T.inn?Math.round(net/T.inn*100)+'% margin':'')+'</small></div><div><span>Lines</span><b>'+rows.length+'</b><small>'+(unc.length?unc.length+' need a category':'all sorted')+'</small></div></div>';
   if(unc.length)html+='<button type="button" class="fin-nudge" onclick="MNY.view=\'txn\';MNY.q=\'\';MNY.cat=\'Uncategorized\';mnyRender()">'+unc.length+' line'+(unc.length===1?'':'s')+' need a category \u203a</button>';
@@ -4581,7 +4581,7 @@ function mnyPrint(){
   var rows=mnyRows(),T=mnyTotals(rows),R=mnyRange(),f=procFacility||{name:'Davis Ranch Hunting LLC'};
   var tr=function(a,b,c){return '<tr'+(c?' class="'+c+'"':'')+'><td>'+a+'</td><td class="n">'+b+'</td></tr>';};
   var mk=Object.keys(T.months).sort();
-  var html='<style>'+GF_CSS+'</style><div class="g"><h1>'+esc(f.name)+' \u2014 Profit &amp; Loss</h1><div class="sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'All businesses':MNY.biz)+' \u00b7 '+esc(MNY.acct?mnyAcctName(MNY.acct):'All accounts')+' \u00b7 Printed '+esc(usDate(localToday()))+'</div>'+
+  var html='<style>'+GF_CSS+'</style><div class="g"><h1>'+esc(f.name)+' \u2014 Profit &amp; Loss</h1><div class="sub">'+esc(R.label)+' \u00b7 '+esc(MNY.biz==='All'?'Hunting + personal':MNY.biz)+' \u00b7 '+esc(MNY.acct?mnyAcctName(MNY.acct):'All accounts')+' \u00b7 Printed '+esc(usDate(localToday()))+'</div>'+
     '<table class="kv"><tr><td>Income<br><b>'+money(T.inn)+'</b></td><td>Expenses<br><b>'+money(T.out)+'</b></td><td>Net profit<br><b>'+money(T.inn-T.out)+'</b></td></tr></table>'+
     '<h2>Income</h2><table>'+Object.keys(T.byIn).sort(function(a,b){return T.byIn[b]-T.byIn[a];}).map(function(c){return tr(esc(c),money(T.byIn[c]));}).join('')+tr('Total income',money(T.inn),'tot')+'</table>'+
     '<h2>Expenses</h2><table>'+Object.keys(T.byOut).sort(function(a,b){return T.byOut[b]-T.byOut[a];}).map(function(c){return tr(esc(c),money(T.byOut[c]));}).join('')+tr('Total expenses',money(T.out),'tot')+'</table>'+
@@ -4619,7 +4619,7 @@ function mnyVendor(d){return String(d||'').toUpperCase().replace(/[#*]+\s*\d+.*$
 function mnyEditor(x){
   var cats=mnyAllCats().map(function(c){return c[0];});
   return '<div class="fin-ed"><div class="fin-ed-g"><label>Category<select id="fe-cat">'+cats.map(function(c){return '<option'+(x.cat===c?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'<option value="__new">+ New category\u2026</option></select></label>'+
-    '<label>Business<select id="fe-biz">'+['Hunting','Cattle','Personal'].map(function(b){return '<option'+((x.biz||'Hunting')===b?' selected':'')+'>'+b+'</option>';}).join('')+'</select></label></div>'+
+    '<label>Business<select id="fe-biz">'+['Hunting','Personal'].map(function(b){return '<option'+((x.biz||'Hunting')===b?' selected':'')+'>'+b+'</option>';}).join('')+'</select></label></div>'+
     '<label>Note<input id="fe-note" value="'+esc(x.note||'')+'" placeholder="What was it for?"></label>'+
     '<label class="check-line"><input type="checkbox" id="fe-rule" checked> <span>Always put <b>'+esc(mnyVendor(x.desc))+'</b> in this category</span></label>'+
     '<div class="fin-ed-b">'+(x.rid?'<button type="button" class="btn-small" onclick="mnyViewReceipt(\''+x.id+'\')">View receipt</button>':'<label class="btn-small fin-file">Add receipt photo<input type="file" accept="image/*" onchange="mnyAttach(\''+x.id+'\',this)"></label>')+
@@ -4693,7 +4693,7 @@ function mnyAdd(v){
     '<div class="fin-ed-g"><label>Date<input type="date" id="fm-date" value="'+localToday()+'"></label><label>Amount<input type="number" id="fm-amt" step="0.01" min="0" inputmode="decimal" placeholder="0.00"></label></div>'+
     '<div class="gf-seg fin-io"><button type="button" class="on" id="fm-out" onclick="mnyIO(\'out\')">Money out</button><button type="button" id="fm-in" onclick="mnyIO(\'in\')">Money in</button><button type="button" id="fm-ref" onclick="mnyIO(\'ref\')">Refund</button></div>'+
     '<label>Store / description<input id="fm-desc" placeholder="e.g. Tractor Supply"></label>'+
-    '<div class="fin-ed-g"><label>Category<select id="fm-cat">'+cats.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select></label><label>Business<select id="fm-biz"><option>Hunting</option><option>Cattle</option><option>Personal</option></select></label></div>'+
+    '<div class="fin-ed-g"><label>Category<select id="fm-cat">'+cats.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select></label><label>Business<select id="fm-biz"><option>Hunting</option><option>Personal</option></select></label></div>'+
     '<label>Note<input id="fm-note" placeholder="Optional"></label>'+
     '<label class="btn-small fin-file">\ud83d\udcf7 Receipt photo (optional)<input type="file" id="fm-photo" accept="image/*" onchange="document.getElementById(\'fm-ph\').textContent=this.files[0]?this.files[0].name:\'\'"></label><span class="fin-p" id="fm-ph"></span>'+
     '<button type="button" class="btn-submit" onclick="mnyAddManual()">Save purchase</button></div></div>';
