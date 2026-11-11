@@ -510,7 +510,7 @@ html,body{background:var(--bg);font-family:var(--font-body);font-size:16px;line-
 .rep-doc .foot{margin-top:12pt;font-size:8pt;color:#444;}
 #print-area{display:none;}
 @media print{
-  html,body{background:var(--card2) !important;}
+  html,body{background:#fff !important;}
   body > *:not(#print-area){display:none !important;}
   #print-area{display:block !important;}
   @page{margin:0.5in;}
@@ -598,16 +598,16 @@ button,a,label,.tile,.rec,.kpi{-webkit-tap-highlight-color:transparent;}
 .ck-ok{border-color:var(--border);color:var(--fg-mid);}
 
 /* big check-out tile + photo tiles */
-.big{position:relative;display:flex;align-items:center;gap:14px;width:100%;text-align:left;border-radius:22px;padding:18px;min-height:112px;border:1px solid rgba(224,168,74,.45);color:var(--fg);cursor:pointer;overflow:hidden;isolation:isolate;font-family:var(--font-body);background:#111;}
-.big::before{content:'';position:absolute;inset:0;background:var(--img) center 45%/cover;z-index:-2;transition:transform .6s ease;}
-.big::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(11,11,11,.95) 0%,rgba(11,11,11,.72) 55%,rgba(11,11,11,.25) 100%);}
-.big:hover::before,.tile:hover::before{transform:scale(1.06);}
-.big .bi{flex:0 0 56px;height:56px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,var(--gold-light),var(--gold));color:#1A1207;box-shadow:0 8px 24px rgba(224,168,74,.35);}
-.big .bi svg{width:26px;height:26px;}
-.big b{display:block;font:600 1.25rem/1.2 var(--font-display);}
-.big small{display:block;color:#D2CABD;font-size:.85rem;margin-top:2px;}
-.big .arr{margin-left:auto;color:var(--gold-light);}
-.big .arr svg{width:22px;height:22px;}
+.bigtile{position:relative;display:flex;align-items:center;gap:14px;width:100%;text-align:left;border-radius:22px;padding:18px;min-height:112px;border:1px solid rgba(224,168,74,.45);color:var(--fg);cursor:pointer;overflow:hidden;isolation:isolate;font-family:var(--font-body);background:#111;}
+.bigtile::before{content:'';position:absolute;inset:0;background:var(--img) center 45%/cover;z-index:-2;transition:transform .6s ease;}
+.bigtile::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(11,11,11,.95) 0%,rgba(11,11,11,.72) 55%,rgba(11,11,11,.25) 100%);}
+.bigtile:hover::before,.tile:hover::before{transform:scale(1.06);}
+.bigtile .bi{flex:0 0 56px;height:56px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,var(--gold-light),var(--gold));color:#1A1207;box-shadow:0 8px 24px rgba(224,168,74,.35);}
+.bigtile .bi svg{width:26px;height:26px;}
+.bigtile b{display:block;font:600 1.25rem/1.2 var(--font-display);}
+.bigtile small{display:block;color:#D2CABD;font-size:.85rem;margin-top:2px;}
+.bigtile .arr{margin-left:auto;color:var(--gold-light);}
+.bigtile .arr svg{width:22px;height:22px;}
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px;}
 .tile{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;min-height:158px;border-radius:20px;padding:14px;border:1px solid var(--line);overflow:hidden;isolation:isolate;cursor:pointer;text-align:left;color:var(--fg);font-family:var(--font-body);background:#111;}
 .tile::before{content:'';position:absolute;inset:0;background:var(--img) var(--pos,center)/cover;z-index:-2;transition:transform .6s ease;}
@@ -618,9 +618,9 @@ button,a,label,.tile,.rec,.kpi{-webkit-tap-highlight-color:transparent;}
 .tile small{color:#C9C1B4;font-size:.8rem;}
 .tile small.todo{color:var(--warn);font-weight:600;}
 .tile small.done{color:var(--success);font-weight:600;}
-.big:active,.tile:active,.rec:active,.kpi:active{transform:scale(.97);}
-.big,.tile,.rec{transition:transform .15s ease,box-shadow .25s ease,border-color .25s ease;}
-.big:hover,.tile:hover,.rec:hover{box-shadow:0 0 0 1px rgba(224,168,74,.5),0 12px 34px rgba(224,168,74,.12);}
+.bigtile:active,.tile:active,.rec:active,.kpi:active{transform:scale(.97);}
+.bigtile,.tile,.rec{transition:transform .15s ease,box-shadow .25s ease,border-color .25s ease;}
+.bigtile:hover,.tile:hover,.rec:hover{box-shadow:0 0 0 1px rgba(224,168,74,.5),0 12px 34px rgba(224,168,74,.12);}
 .recs{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;}
 .rec{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;background:none;border:0;border-top:1px solid var(--line);color:var(--fg);font:500 1rem var(--font-body);cursor:pointer;text-align:left;}
 .rec:first-child{border-top:0;}
@@ -766,11 +766,11 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .tabbar button span{display:grid;}
 /* new full-size photos */
 .hx::before{background-position:74% 38%;}
-.big::before{background-position:78% 40%;}
+.bigtile::before{background-position:78% 40%;}
 @media(min-width:980px){.hx::before{background-image:url(img/hero.webp);background-position:80% 35%;}}
 /* slow gold sheen across the check-out tile */
-.big .sheen{position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(245,201,120,.16) 50%,transparent 65%);background-size:250% 100%;animation:sheen 5.5s ease-in-out infinite;}
-.big > span:not(.sheen){position:relative;z-index:1;}
+.bigtile .sheen{position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(245,201,120,.16) 50%,transparent 65%);background-size:250% 100%;animation:sheen 5.5s ease-in-out infinite;}
+.bigtile > span:not(.sheen){position:relative;z-index:1;}
 @keyframes sheen{0%,55%{background-position:120% 0}100%{background-position:-120% 0}}
 /* ── in camp / check-in / up next ── */
 #camp-slot{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
@@ -830,6 +830,8 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .pill.done{color:var(--success);border-color:rgba(83,197,86,.35);}
 .sc-note{font-size:.8rem;color:var(--fg-soft);margin-top:14px;line-height:1.45;}
 @media(min-width:980px){.sc-card{max-width:900px!important;}}
+.inv-type.three{grid-template-columns:1fr;}
+@media(min-width:620px){.inv-type.three{grid-template-columns:repeat(3,minmax(0,1fr));}}
 </style>
 </head>
 <body>
@@ -879,7 +881,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
       <div id="camp-slot"></div>
       <div id="check-slot"></div>
       <div class="sec-h">Today</div>
-      <button type="button" class="big" style="--img:url(img/lodge-s.webp)" onclick="navTo('receipts')"><span class="sheen"></span>
+      <button type="button" class="bigtile" style="--img:url(img/lodge-s.webp)" onclick="navTo('receipts')"><span class="sheen"></span>
         <span class="bi" data-ic="receipt"></span>
         <span><b id="big-title">Check out</b><small>Give birds, receipts &amp; invoices</small></span>
         <span class="arr" data-ic="chev"></span>
@@ -2661,7 +2663,7 @@ function knownLeader(g){var v=tripInvoices(g).filter(function(x){return x.leader
 function invoicedByName(g){var m={};tripInvoices(g).forEach(function(v){if(v.type==='Individual'){var k=String(v.billTo.name||'').toLowerCase();if(!m[k])m[k]=v;}});return m;}
 
 /* ── final receipts ── */
-function money(n){return '$'+Number(n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function money(n){n=Number(n||0);return (n<0?'\u2212':'')+'$'+Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
 function openFinal(){
   var g=document.getElementById('c-group').value;
   if(!g){alert('Pick the group first.');return;}
@@ -2795,7 +2797,7 @@ function finChanged(snap){
     }).catch(function(){ff.innerHTML='Could not check \u2014 no signal.';});
   },450);
 }
-function invType(){var r=document.querySelector('input[name="inv-type"]:checked');return r?r.value:'group';}
+function invType(){var r=document.querySelector('input[name="inv-type"]:checked');return r?(r.value==='split'?'individual':r.value):'group';}
 function invPreview(){
   var el=document.getElementById('inv-preview');
   var ind=invType()==='individual';
@@ -2874,7 +2876,7 @@ async function makeFinalReceipts(){
     var exFor=function(h){var k=hunterKey(h.name,h.address),ix=-1;finRows.forEach(function(r,i){if(r.k===k)ix=i;});return ix<0?[]:readExtras('ex-f-'+ix);};
     var allEx=[];finRows.forEach(function(r,i){readExtras('ex-f-'+i).forEach(function(e){allEx.push(e);});});
     var ires;
-    try{ires=await procPost({action:'invoice',submissionId:finalSubmissionId,group:g,date:date,huntersSignedIn:count,type:invType(),
+    try{ires=await procPost({action:'invoice',submissionId:finalSubmissionId,group:g,date:date,huntersSignedIn:count,type:invType(),split:typeof invSplit==='function'&&invSplit(),
       hunters:invBillList.map(function(h){return {name:h.name,address:h.address,cityStateZip:h.cityStateZip,phone:h.phone,extras:exFor(h)};}),
       extras:allEx,deposit:parseFloat(document.getElementById('inv-deposit').value)||0,
       billTo:{name:leader.name,address:leader.address,cityStateZip:leader.cityStateZip,phone:leader.phone},
@@ -3346,7 +3348,7 @@ async function submitEarly(){
       hunters:picked.map(function(x){var h=x.h,rc=procRecent[h.key];
         return {owner:h.name,ownerAddress:x.address,ownerCityStateZip:x.csz,phone:h.phone,license:h.license,count:x.count,deliveredTo:x.deliveredTo,combineWith:rc?rc.receiptNo:'',extras:readExtras('ex-e-'+x.i)};}),
       invoice:{make:wantInv,leader:lead?{name:lead.name,address:lead.address,cityStateZip:lead.cityStateZip,phone:lead.phone}:{},huntersSignedIn:count,
-        deposit:parseFloat(val('e-dep'))||0,groupHunters:earlyList.map(function(h){return {name:h.name};})}});
+        split:!!(document.getElementById('e-split')&&document.getElementById('e-split').checked),deposit:parseFloat(val('e-dep'))||0,groupHunters:earlyList.map(function(h){return {name:h.name};})}});
   }catch(e){res=null;}
   btn.disabled=false;btn.textContent=blank?'Check Out & Print Blank':'Check Out';
   if(!res||!res.ok){alert('Not checked out: '+(res?handleProcError(res):'could not reach the records sheet. Nothing was changed. Check your signal and try again.'));return;}
@@ -3858,6 +3860,88 @@ window.addEventListener('DOMContentLoaded',function(){
     d.innerHTML='<div class="card-title">Season Calendar</div><div id="sc-body"></div>';inner.appendChild(d);
   }
 });
+
+/* ═══ SPLIT PAYMENT: organizer pays his package + half for everyone else; each hunter pays the other half ═══ */
+function faceSchedFor(g,date){
+  date=date||localToday();
+  return faceSchedule().filter(function(r){return r.group===g&&date>=addDays(r.arrive,-3)&&date<=addDays(r.depart,2);})[0]||null;
+}
+function invSplit(){var r=document.querySelector('input[name="inv-type"]:checked');return !!(r&&r.value==='split');}
+function splitMath(n,dep){
+  var p=procPricing||{price:0,minHunters:8},half=Math.round(p.price*50)/100,others=Math.max(0,n-1);
+  var unfilled=Math.max(0,p.minHunters-n),minShare=unfilled?Math.round(unfilled*p.price/n*100)/100:0,depShare=Math.round((dep||0)/n*100)/100;
+  var org=p.price+others*half+minShare,each=p.price-half+minShare;
+  return {p:p,half:half,others:others,unfilled:unfilled,minShare:minShare,depShare:depShare,org:org,each:each,
+    orgDue:org-depShare-((dep||0)-depShare*n),eachDue:each-depShare};
+}
+function splitPreviewHtml(n,dep,orgName){
+  var m=splitMath(n,dep);
+  return '<b>Split payment</b> &middot; '+esc(m.p.package||'')+' '+money(m.p.price)+'<br>'+
+    esc(orgName||'Organizer')+': own package + half for '+m.others+' other'+(m.others===1?'':'s')+' ('+m.others+' \u00d7 '+money(m.half)+')'+
+    (m.minShare?' + '+money(m.minShare)+' minimum share':'')+(m.depShare?' \u2212 '+money(m.depShare)+' deposit share':'')+' = <b>'+money(m.orgDue)+'</b><br>'+
+    'Each other hunter: '+money(m.p.price)+' \u2212 '+money(m.half)+' paid through the group'+(m.minShare?' + '+money(m.minShare):'')+(m.depShare?' \u2212 '+money(m.depShare):'')+' = <b>'+money(m.eachDue)+'</b> + their own extras'+
+    (m.unfilled?'<br>Group minimum '+m.p.minHunters+' ('+n+' signed in): '+m.unfilled+' unfilled spot'+(m.unfilled===1?'':'s')+' shared by everyone':'')+
+    '<br><small>Nothing on the invoices says leader or organizer.</small>';
+}
+var _invPreviewBase=invPreview;
+invPreview=function(){
+  if(!invSplit())return _invPreviewBase();
+  var el=document.getElementById('inv-preview');
+  document.getElementById('inv-bill-label').textContent='Who organized it (pays his package + half for everyone else)';
+  var n=parseInt(document.getElementById('inv-count').value,10)||0,dep=parseFloat(document.getElementById('inv-deposit').value)||0;
+  if(!n){el.innerHTML='Enter how many hunters signed in.';finSummary();return;}
+  var lead=invBillList[parseInt(document.getElementById('inv-bill').value,10)];
+  el.innerHTML=splitPreviewHtml(n,dep,lead&&lead.name);finSummary();
+};
+var _openFinalBase=openFinal;
+openFinal=function(){
+  var r=_openFinalBase.apply(this,arguments);
+  try{var s=faceSchedFor(document.getElementById('c-group').value);
+    if(s&&s.split){var x=document.querySelector('input[name="inv-type"][value="split"]');if(x){x.checked=true;invPreview();}}}catch(e){}
+  return r;
+};
+var _openEarlyBase=openEarly;
+openEarly=function(){
+  var r=_openEarlyBase.apply(this,arguments);
+  try{var s=faceSchedFor(document.getElementById('c-group').value),c=document.getElementById('e-split');if(c&&s&&s.split){c.checked=true;earlyPlan();}}catch(e){}
+  return r;
+};
+window.addEventListener('DOMContentLoaded',function(){
+  var ind=document.querySelector('input[name="inv-type"][value="individual"]');
+  if(ind){
+    var box=ind.closest('.inv-type');box.classList.add('three');
+    box.insertAdjacentHTML('beforeend','<label><input type="radio" name="inv-type" value="split" onchange="invPreview()"><span>Split payment<small>Organizer pays his package + half for everyone; each hunter pays the other half</small></span></label>');
+  }
+  var ef=document.getElementById('e-inv-fields');
+  if(ef)ef.insertAdjacentHTML('afterbegin','<label class="check-line"><input type="checkbox" id="e-split" onchange="earlyPlan()"> <span><b>Split payment</b> &mdash; this hunter pays his half; the other half is on the organizer&rsquo;s invoice</span></label>');
+});
+var _finSummaryBase=finSummary;
+finSummary=function(){
+  var r=_finSummaryBase.apply(this,arguments);
+  try{
+    if(!invSplit()||!document.getElementById('inv-make').checked)return r;
+    var n=parseInt(val('inv-count'),10)||0;if(!n)return r;
+    var m=splitMath(n,parseFloat(val('inv-deposit'))||0),lead=invBillList[parseInt(document.getElementById('inv-bill').value,10)],ln=lead?lead.name:'';
+    finRows.forEach(function(row,i){
+      if(row.done||row.iv)return;var am=document.getElementById('fsa-'+i);if(!am)return;
+      var ex=extrasTotal(readExtras('ex-f-'+i)),org=row.h.name===ln;
+      am.textContent=money((org?m.orgDue:m.eachDue)+ex)+(org?' (organizer)':' (their half)');
+    });
+  }catch(e){}
+  return r;
+};
+var _earlyPlanSplit=earlyPlan;
+earlyPlan=function(){
+  _earlyPlanSplit.apply(this,arguments);
+  var c=document.getElementById('e-split'),el=document.getElementById('e-plan');
+  if(!(c&&c.checked&&el&&document.getElementById('e-inv').checked))return;
+  var parts=el.innerHTML.split('<br>').filter(function(x){return !/^Invoice |Unfilled spots|Split payment:|stay on .*invoice/.test(x.replace(/<[^>]+>/g,''));});
+  var n=parseInt(val('e-count'),10)||0;
+  if(n){var m=splitMath(n,0);
+    earlyPicked().forEach(function(x){parts.push('Invoice '+esc(x.h.name)+' (his half): <b>'+money(m.eachDue+extrasTotal(readExtras('ex-e-'+x.i)))+'</b>');});
+    parts.push('<b>Split payment:</b> '+money(m.half)+' of each package is on the organizer&rsquo;s invoice; unfilled spots and the deposit are shared evenly.');}
+  el.innerHTML=parts.join('<br>');
+};
 
 </script>
 </body>
