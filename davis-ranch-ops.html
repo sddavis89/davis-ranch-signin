@@ -1010,6 +1010,10 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .fin-rev{margin:10px 0}.fin-rev summary{cursor:pointer;font-weight:600;color:var(--gold-light);padding:6px 0}
 .fin-rev .gf-tw{max-height:420px;overflow:auto}.fin-rev td small{display:block;font-size:.74rem;color:var(--fg-soft);max-width:340px}
 .fin-rev tr.unc td{color:#F0C36A}.fin-rev tr.grp td{font-weight:700;color:var(--gold-light);padding-top:12px}
+/* GFP: field / facility */
+.gf-mode{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:10px}
+.gf-day{display:flex;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600;flex:1 1 220px}
+.gf-day input{flex:1;min-height:46px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;font:500 1rem var(--font-body);letter-spacing:0;text-transform:none}
 </style>
 </head>
 <body>
@@ -3781,7 +3785,7 @@ var FACE_BANNER={
   reports:['dogs','Season Reports','2026 season totals'],
   planning:['hero','Dashboard','The season at a glance'],
   schedule:['lodge','Season Calendar','Who is here, who is next'],
-  gfp:['harvest','GFP Inspection','Guest register, birds per hunter, releases'],
+  gfp:['harvest','GFP Inspection','Field check and facility check, ready to hand over'],
   fin:['lodge','Financials','Locked with your own password']
 };
 var faceCur=null;
@@ -4140,7 +4144,7 @@ earlyPlan=function(){
   el.innerHTML=parts.join('<br>');
 };
 
-/* ═══ GFP INSPECTION: guest register + birds per hunter + releases, on screen, printed or as a PDF ═══ */
+/* ═══ GFP INSPECTION: field check (today in the field) and facility check (cleaned birds by owner), on screen, printed or as a PDF ═══ */
 var gfRange='',gfData=null,gfBusy=false;
 function gfGroups(){
   var gs={};faceSchedule().forEach(function(r){gs[r.group]=1;});
@@ -4166,7 +4170,7 @@ function gfSetRange(k){
   gfLoad();
 }
 function gfOpen(){
-  var sel=document.getElementById('gf-group');
+  var sel=document.getElementById('gf-group'),dd=document.getElementById('gf-day');if(dd&&!dd.value)dd.value=localToday();
   if(!sel.options.length||sel.options.length<2){
     sel.innerHTML='<option value="">All groups</option>'+gfGroups().map(function(g){return '<option value="'+esc(g)+'">'+esc(g)+'</option>';}).join('');
   }
@@ -4181,83 +4185,160 @@ function gfLoad(){
     return;
   }
   var D=gfDates(),g=val('gf-group');
+  if(gfMode==='field'){   // the day picked, against the whole trip so far
+    var day=gfDay();D={from:addDays(day,-7),to:day};
+    var tr=g?faceCamp().rows.filter(function(x){return x.group===g&&x.arrive<=day&&x.depart>=addDays(day,-1);}).pop():null;
+    if(tr)D.from=tr.arrive;
+  }
   st.className='submit-status';
-  body.innerHTML='<div class="report-hint">Pulling the waivers, Bird Log and releases&hellip;</div>';
-  procGet({action:'report',from:D.from,to:D.to,group:g,sections:'guests,releases,purchases,harvest,daily,season'}).then(function(r){
+  body.innerHTML='<div class="report-hint">Pulling the waivers, harvest and Bird Log&hellip;</div>';
+  procGet({action:'report',from:D.from,to:D.to,group:g,sections:'guests,harvest,daily,birdlog'}).then(function(r){
     if(!r||!r.ok){body.innerHTML='<div class="proc-msg err">'+esc(r?handleProcError(r):'Could not load.')+'</div>';return;}
-    if(!r.guests){body.innerHTML='<div class="proc-msg err">Paste the newest Davis Ranch script and deploy a New version to get the guest register.</div>';return;}
+    if(!r.guests){body.innerHTML='<div class="proc-msg err">Paste the newest Davis Ranch script and deploy a New version to get the report.</div>';return;}
     if(r.facility)procFacility=r.facility;
-    gfData=r;body.innerHTML=gfScreen(r);
+    r.mode=gfMode;r.day=gfMode==='field'?gfDay():'';
+    gfData=r;body.innerHTML=gfMode==='field'?gfField(r):gfFacility(r);
   }).catch(function(){body.innerHTML='<div class="proc-msg err">Could not reach the records sheet. Check your signal and try again.</div>';});
+}
+var gfMode='field';
+function gfDay(){var el=document.getElementById('gf-day');return (el&&el.value)||localToday();}
+function gfSetMode(m){
+  gfMode=m;
+  document.querySelectorAll('#gf-mode button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-m')===m);});
+  document.getElementById('gf-range').style.display=m==='field'?'none':'';
+  document.getElementById('gf-daywrap').style.display=m==='field'?'':'none';
+  gfData=null;gfLoad();
 }
 function gfPin(){var v=val('gf-pin').trim();if(!v)return;setPin(v);gfLoad();}
 function gfMD(iso){return iso?(+iso.slice(5,7))+'/'+(+iso.slice(8,10)):'';}
 function gfSpan(days){if(!days.length)return '';return days.length===1?gfMD(days[0]):gfMD(days[0])+'–'+gfMD(days[days.length-1]);}
 function gfBirds(x){var k=Object.keys(x.days).sort();return k.length?k.map(function(d){return gfMD(d)+': '+x.days[d];}).join(' · '):'';}
-function gfStats(r){
-  var g=r.guests,s=r.season||{};
-  return {hunters:g.length,noLic:g.filter(function(x){return !x.license;}),noWaiver:g.filter(function(x){return !x.waiver&&!x.guide;}),
-    released:s.released||0,harvested:s.harvested||0,cleaned:s.cleaned||0,discarded:s.discarded||0,given:g.reduce(function(a,x){return a+x.total;},0),
-    bad:(r.daily||[]).filter(function(d){return !d.match&&(d.harvested||d.cleaned);})};
+function gfFac(){
+  var f=procFacility||{name:'Davis Ranch Hunting LLC'};
+  return {name:f.name,biz:(f.address||'')+(f.phone?' · '+f.phone:''),clean:f.cleanAt||''};
 }
-function gfScreen(r){
-  var S=gfStats(r),f=procFacility||{name:'Davis Ranch Hunting LLC'},left=Math.max(0,S.cleaned-S.given);
-  var head='<div class="gf-head"><div><div class="eyebrow">Shooting preserve records</div><b>'+esc(f.name)+'</b><small>'+esc(f.address||'')+(f.phone?' · '+esc(f.phone):'')+'</small></div>'+
+var GF_DAILY=3,GF_POSS=15;
+function gfPossLimit(days){return Math.min(GF_POSS,GF_DAILY*Math.max(1,days));}
+// ── FIELD CHECK: who's hunting today, their license, birds today, trip so far, possession ──
+function gfFieldData(r){
+  var day=r.day,hv=(r.harvest||[]).filter(function(x){return x.date===day;});
+  var shot=hv.reduce(function(a,x){return a+x.qty;},0),gshot={};
+  hv.forEach(function(x){Object.keys(x.guides||{}).forEach(function(n){gshot[n]=(gshot[n]||0)+x.guides[n];});});
+  var GD={};(r.guides||[]).forEach(function(g){GD[g.name.toLowerCase()]=g;});
+  var people=r.guests.filter(function(x){return !x.guide&&(x.huntDays.indexOf(day)>=0||x.days[day]);}).map(function(x){
+    var sofar=Object.keys(x.days).filter(function(d){return d<=day;}).reduce(function(a,d){return a+x.days[d];},0);
+    var hunted=x.huntDays.filter(function(d){return d<=day;}).length||Object.keys(x.days).filter(function(d){return d<=day;}).length||1;
+    return {x:x,today:x.days[day]||0,sofar:sofar,poss:gfPossLimit(hunted),hunted:hunted};
+  });
+  var guides=Object.keys(gshot).map(function(n){var g=GD[n.toLowerCase()]||{name:n};var reg=r.guests.filter(function(y){return y.guide&&y.name.toLowerCase()===n.toLowerCase();})[0];
+    return {name:g.name,license:g.license||'',address:[g.address,g.csz].filter(Boolean).join(', '),shot:gshot[n],kept:reg?reg.total:0};});
+  var limit=(people.length+guides.length)*GF_DAILY,given=people.reduce(function(a,p){return a+p.today;},0);
+  return {day:day,shot:shot,people:people,guides:guides,limit:limit,given:given};
+}
+function gfFieldFlags(F){
+  var fl=[];
+  var nol=F.people.filter(function(p){return !p.x.license;}).map(function(p){return p.x.name;}).concat(F.guides.filter(function(g){return !g.license;}).map(function(g){return g.name+' (guide)';}));
+  if(nol.length)fl.push('No license # on file: '+nol.join(', '));
+  if(F.shot>F.limit)fl.push('Shot today ('+F.shot+') is over the party limit ('+F.limit+').');
+  F.people.forEach(function(p){if(p.today>GF_DAILY)fl.push(p.x.name+' shows '+p.today+' for today (limit '+GF_DAILY+').');if(p.sofar>p.poss)fl.push(p.x.name+' has '+p.sofar+', over possession '+p.poss+'.');});
+  return fl;
+}
+function gfField(r){
+  var F=gfFieldData(r),f=gfFac(),fl=gfFieldFlags(F);
+  var head='<div class="gf-head"><div><div class="eyebrow">Field check</div><b>'+esc(f.name)+'</b><small>'+esc(f.biz)+'</small></div>'+
+    '<div class="gf-when">'+esc(usDate(F.day))+'<br>'+esc(r.group||'All groups')+'</div></div>';
+  var tiles='<div class="gf-tiles">'+[['Hunters today',F.people.length,F.people.filter(function(p){return !p.x.license;}).length?'missing license #':'all licensed'],
+    ['Guides today',F.guides.length,F.guides.length?'on their own license':'none logged'],['Shot today',F.shot,'whole party'],['Party limit',F.limit,(F.people.length+F.guides.length)+' licensed × '+GF_DAILY]].map(function(t,i){
+      return '<div class="'+(i===2&&F.shot>F.limit?'warn':'')+'"><span>'+t[0]+'</span><b>'+t[1]+'</b><small>'+esc(t[2])+'</small></div>';}).join('')+'</div>';
+  var ok=fl.length?'<div class="gf-flags"><b>Check before you hand it over</b>'+fl.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>':'<div class="gf-ok">✓ Everyone has a license # and the party is within its limit.</div>';
+  var rows=F.people.map(function(p){var x=p.x;
+    return '<div class="gf-h'+(x.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(x.name)+'</b><span class="gf-lic">'+(x.license?'License / CID '+esc(x.license):'No license #')+'</span></div>'+
+      '<div class="gf-h2">'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</div>'+
+      '<div class="gf-h3"><span>Today <b>'+(p.today||'–')+'</b></span><span>Trip so far <b>'+p.sofar+'</b> ('+esc(gfBirds({days:Object.keys(x.days).filter(function(d){return d<=F.day;}).reduce(function(o,d){o[d]=x.days[d];return o;},{})})||'none yet')+')</span><span>Possession limit <b>'+p.poss+'</b></span></div>'+
+      ((x.gifts||[]).length?'<div class="gf-h2">Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</div>':'')+'</div>';}).join('');
+  var gr=F.guides.map(function(g){return '<div class="gf-h'+(g.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(g.name)+' (guide)</b><span class="gf-lic">'+(g.license?'License / CID '+esc(g.license):'No license #')+'</span></div>'+
+    '<div class="gf-h2">'+esc(g.address)+'</div><div class="gf-h3"><span>Shot today <b>'+g.shot+'</b></span><span>Birds go to short hunters or on his own receipt</span></div></div>';}).join('');
+  return head+tiles+ok+
+    '<h3 class="gf-sec">Hunters in the field</h3>'+(rows||'<div class="report-hint">No hunters signed in for this day.</div>')+
+    (gr?'<h3 class="gf-sec">Guides in the field</h3>'+gr:'')+
+    '<p class="fin-p" style="margin-top:12px">Today&rsquo;s birds are counted for the whole party until they&rsquo;re cleaned and given out at the facility; then each bird is on that hunter&rsquo;s receipt.</p>';
+}
+// ── FACILITY CHECK: birds cleaned, who they belong to, receipts, dates, delivered to ──
+function gfFacData(r){
+  var by={};(r.birdlog||[]).forEach(function(x){var k=(x.owner+'|'+String(x.address||'').toLowerCase().replace(/[^a-z0-9]/g,'')+'|'+x.group).toLowerCase();(by[k]=by[k]||[]).push(x);});
+  var held=(r.birdlog||[]).filter(function(x){return /Held/.test(x.status||'');});
+  var daily=r.daily||[],cleaned=daily.reduce(function(a,d){return a+d.cleaned;},0),harv=daily.reduce(function(a,d){return a+d.harvested;},0),disc=daily.reduce(function(a,d){return a+d.discarded;},0);
+  var onRc=(r.birdlog||[]).filter(function(x){return x.receiptNo;}).reduce(function(a,x){return a+x.birds;},0),heldN=held.reduce(function(a,x){return a+x.birds;},0);
+  return {held:held,heldN:heldN,onRc:onRc,loose:Math.max(0,cleaned-onRc-heldN),cleaned:cleaned,harv:harv,disc:disc,people:r.guests,bad:daily.filter(function(d){return !d.match&&(d.harvested||d.cleaned);})};
+}
+function gfFacility(r){
+  var X=gfFacData(r),f=gfFac();
+  var head='<div class="gf-head"><div><div class="eyebrow">Facility check · wildlife processing records</div><b>'+esc(f.name)+'</b><small>'+(f.clean?'Cleaning facility: '+esc(f.clean)+'<br>':'')+'Business: '+esc(f.biz)+'</small></div>'+
     '<div class="gf-when">'+esc(usDate(r.from))+' – '+esc(usDate(r.to))+'<br>'+esc(r.group||'All groups')+'</div></div>';
-  var tiles='<div class="gf-tiles">'+[['Hunters',S.hunters,S.noLic.length?S.noLic.length+' missing license #':'all licensed'],['Released',S.released,'birds put out'],
-    ['Harvested',S.harvested,'roosters shot'],['To hunters',S.given,'on receipts'],['Not given yet',left,'cleaned, waiting']].map(function(t,i){
-      return '<div class="'+(i===0&&S.noLic.length?'warn':'')+'"><span>'+t[0]+'</span><b>'+t[1]+'</b><small>'+esc(t[2])+'</small></div>';}).join('')+'</div>';
-  var flags=[];
-  if(S.noLic.length)flags.push('No license # on the waiver: '+S.noLic.map(function(x){return esc(x.name);}).join(', '));
-  if(S.noWaiver.length)flags.push('On the Bird Log but no waiver found: '+S.noWaiver.map(function(x){return esc(x.name);}).join(', '));
-  S.bad.forEach(function(d){flags.push(esc(gfMD(d.date))+' '+esc(d.group)+': harvested '+d.harvested+', cleaned '+d.cleaned+(d.discarded?' + '+d.discarded+' discarded':''));});
-  var fl=flags.length?'<div class="gf-flags"><b>Check before you hand it over</b>'+flags.map(function(x){return '<span>'+x+'</span>';}).join('')+'</div>':'<div class="gf-ok">✓ Every hunter has a license # and every day&rsquo;s harvest matches cleaning.</div>';
+  var tiles='<div class="gf-tiles">'+[['Hunters',X.people.length,'with birds or signed in'],['Cleaned',X.cleaned,X.disc?X.disc+' too shot up':'birds'],['On receipts',X.onRc,'given to owners'],['Held here',X.heldN,'cleaned, not picked up']].concat(X.loose?[['Not on anyone',X.loose,'give out at check out']]:[]).map(function(t,i){
+    return '<div class="'+(i===4?'warn':'')+'"><span>'+t[0]+'</span><b>'+t[1]+'</b><small>'+esc(t[2])+'</small></div>';}).join('')+'</div>';
+  var fl=[];
+  var nol=X.people.filter(function(x){return !x.license;});if(nol.length)fl.push('No license # on file: '+nol.map(function(x){return x.name;}).join(', '));
+  var now=X.people.filter(function(x){return !x.waiver&&!x.guide;});if(now.length)fl.push('On the Bird Log without a waiver on file: '+now.map(function(x){return x.name;}).join(', '));
+  X.bad.forEach(function(d){fl.push(gfMD(d.date)+' '+d.group+': harvested '+d.harvested+', cleaned '+d.cleaned+(d.discarded?' + '+d.discarded+' discarded':''));});
+  if(X.loose)fl.push(X.loose+' cleaned bird'+(X.loose===1?' isn\u2019t':'s aren\u2019t')+' on anyone yet (guide birds or not handed out). Give them to short hunters or put them on the guides\u2019 receipts at check out.');
+  var ok=fl.length?'<div class="gf-flags"><b>Check before you hand it over</b>'+fl.map(function(x){return '<span>'+esc(x)+'</span>';}).join('')+'</div>':'<div class="gf-ok">✓ Every bird is on a hunter, every hunter has a license #, and harvest matches cleaning.</div>';
   var grp='',reg='';
-  r.guests.forEach(function(x,i){
-    if(x.group!==grp){grp=x.group;reg+='<div class="sec-h">'+esc(grp)+' · '+r.guests.filter(function(y){return y.group===grp;}).length+' hunters</div>';}
+  X.people.forEach(function(x){
+    if(x.group!==grp){grp=x.group;reg+='<div class="sec-h">'+esc(grp)+' · '+X.people.filter(function(y){return y.group===grp;}).length+'</div>';}
     reg+='<div class="gf-h'+(x.license?'':' nolic')+'"><div class="gf-h1"><b>'+esc(x.name)+(x.guide?' (guide)':'')+'</b><span class="gf-lic">'+(x.license?'License / CID '+esc(x.license):'No license #')+'</span></div>'+
       '<div class="gf-h2">'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</div>'+
-      '<div class="gf-h3"><span>'+(x.huntDays.length?'Hunted '+esc(gfSpan(x.huntDays)):(x.signed?'Signed in '+esc(gfMD(x.signed)):''))+'</span><span>'+(x.total?esc(gfBirds(x))+' · <b>'+x.total+' birds</b>':'No birds taken')+'</span>'+
-      (x.receipts.length?'<span>Receipt #'+esc(x.receipts.join(', #'))+(x.released?' · released '+esc(gfMD(x.released)):'')+'</span>':'')+'</div>'+
+      '<div class="gf-h3"><span>'+(x.total?'Cleaned '+esc(gfBirds(x))+' · <b>'+x.total+' birds</b>':'No birds taken')+'</span>'+
+      (x.receipts.length?'<span>Receipt #'+esc(x.receipts.join(', #'))+(x.released?' · released '+esc(gfMD(x.released)):'')+(x.deliveredTo?' to '+esc(x.deliveredTo):'')+'</span>':(x.total?'<span>Held here — no receipt yet</span>':''))+'</div>'+
       ((x.gifts||[]).length?'<div class="gf-h2">Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</div>':'')+'</div>';
   });
-  var rel=r.releases||[],pur=r.purchases||[],sum=function(a,k){return a.reduce(function(t,x){return t+(+x[k]||0);},0);};
   var T=function(h,rows,tot){return rows.length?'<div class="gf-tw"><table class="gf-t"><thead><tr>'+h.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead><tbody>'+
     rows.map(function(rw){return '<tr>'+rw.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';}).join('')+(tot?'<tr class="tot">'+tot.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>':'')+'</tbody></table></div>':'<div class="report-hint">None in these dates.</div>';};
-  return head+tiles+fl+
-    '<h3 class="gf-sec">Guest register</h3>'+(reg||'<div class="report-hint">No hunters signed in for these dates.</div>')+
-    '<h3 class="gf-sec">Birds released</h3>'+T(['Date','Field','Group','Birds'],rel.map(function(x){return [esc(usDate(x.date)),esc(x.field),esc(x.group),x.qty];}),['Total','','',sum(rel,'qty')])+
-    '<h3 class="gf-sec">Source of birds</h3>'+T(['Date','Supplier','Birds'],pur.map(function(x){return [esc(usDate(x.date)),esc(x.supplier),x.qty];}),['Total','',sum(pur,'qty')])+
-    '<h3 class="gf-sec">Daily harvest</h3>'+T(['Date','Group','Released','Harvested','Cleaned','Given out'],(r.daily||[]).map(function(d){return [esc(gfMD(d.date)),esc(d.group),d.released,d.harvested,d.cleaned+(d.discarded?' +'+d.discarded+' disc.':''),d.given];}));
+  var daily=r.daily||[],sm=function(k){return daily.reduce(function(a,d){return a+d[k];},0);};
+  return head+tiles+ok+
+    '<h3 class="gf-sec">Birds by owner</h3>'+(reg||'<div class="report-hint">No hunters for these dates.</div>')+
+    (X.held.length?'<h3 class="gf-sec">Held at the facility</h3>'+T(['Owner','Group','Birds','Cleaned'],X.held.map(function(x){return [esc(x.owner),esc(x.group),x.birds,esc(x.received.map(gfMD).join(', '))];})):'')+
+    '<h3 class="gf-sec">Cleaned by day</h3>'+T(['Date','Group','Shot','Cleaned','Given out'],daily.map(function(d){return [esc(gfMD(d.date)),esc(d.group),d.harvested,d.cleaned+(d.discarded?' +'+d.discarded+' disc.':''),d.given];}),['Total','',sm('harvested'),sm('cleaned'),sm('given')]);
 }
+function gfScreen(r){return r.mode==='field'?gfField(r):gfFacility(r);}
 // printable / PDF version (white paper)
 var GF_CSS='.g{font-family:Georgia,serif;color:#000;font-size:9.5pt;max-width:10in;margin:0 auto}.g h1{font-size:15pt;margin:0}.g h2{font-size:11.5pt;margin:14pt 0 4pt;border-bottom:1.5px solid #000;padding-bottom:2pt}'+
   '.g .sub{margin:2pt 0 8pt;line-height:1.4}.g table{width:100%;border-collapse:collapse;margin-bottom:4pt;color:#000;font:inherit}.g th,.g td{border:1px solid #888;padding:3pt 5pt;text-align:left;vertical-align:top}.g th{background:#eee;font-size:8.5pt}'+
   '.g td.n,.g th.n{text-align:right;white-space:nowrap}.g tr{page-break-inside:avoid}.g tr.tot td{font-weight:bold;border-top:2px solid #000}.g .kv td{padding:4pt 6pt}.g .kv b{font-size:13pt}'+
-  '.g .flag{border:1px solid #b00;padding:5pt 7pt;margin:6pt 0;color:#900}.g .sig{margin-top:22pt}.g .sig td{border:none;border-top:1px solid #000;padding-top:3pt;width:33%}.g .grp td{background:#f4f4f4;font-weight:bold}';
-function gfDoc(r){
-  var S=gfStats(r),f=procFacility||{name:'Davis Ranch Hunting LLC'},left=Math.max(0,S.cleaned-S.given);
-  var rows='',grp='',n=0;
-  r.guests.forEach(function(x){
-    if(x.group!==grp){grp=x.group;rows+='<tr class="grp"><td colspan="8">'+esc(grp)+'</td></tr>';}
-    rows+='<tr><td class="n">'+(++n)+'</td><td>'+esc(x.name)+(x.guide?' (guide)':'')+((x.gifts||[]).length?'<br><small>Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</small>':'')+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on waiver</i>')+'</td><td>'+esc(gfSpan(x.huntDays))+'</td><td>'+esc(gfBirds(x)||'—')+'</td><td class="n">'+x.total+'</td><td>'+esc(x.receipts.join(', '))+'</td></tr>';
-  });
-  var rel=r.releases||[],pur=r.purchases||[],sum=function(a,k){return a.reduce(function(t,x){return t+(+x[k]||0);},0);};
-  var tb=function(h,rws,tot){return rws.length?'<table><tr>'+h.map(function(c){return '<th'+(/^(Birds|Qty|Released|Harvested|Cleaned|Given)/.test(c)?' class="n"':'')+'>'+c+'</th>';}).join('')+'</tr>'+rws.join('')+(tot||'')+'</table>':'<div class="sub"><i>None in these dates.</i></div>';};
-  var flags=[];
-  if(S.noLic.length)flags.push('No license # on the waiver: '+S.noLic.map(function(x){return esc(x.name);}).join(', '));
-  if(S.noWaiver.length)flags.push('On the Bird Log without a waiver on file: '+S.noWaiver.map(function(x){return esc(x.name);}).join(', '));
-  return '<div class="g"><h1>'+esc(f.name)+' — Shooting Preserve Records</h1><div class="sub">'+esc(f.address||'')+(f.phone?' · '+esc(f.phone):'')+'<br><b>Dates:</b> '+esc(usDate(r.from))+' to '+esc(usDate(r.to))+' · <b>Group:</b> '+esc(r.group||'All groups')+' · Printed '+esc(usDate(localToday()))+' '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div>'+
-    '<table class="kv"><tr><td>Hunters<br><b>'+S.hunters+'</b></td><td>Birds released<br><b>'+S.released+'</b></td><td>Harvested<br><b>'+S.harvested+'</b></td><td>Given to hunters<br><b>'+S.given+'</b></td><td>Cleaned, not yet given<br><b>'+left+'</b></td></tr></table>'+
-    (flags.length?'<div class="flag">'+flags.join('<br>')+'</div>':'')+
-    '<h2>Guest register</h2><table><tr><th class="n">#</th><th>Hunter</th><th>Address</th><th>License / CID #</th><th>Hunt dates</th><th>Birds by day</th><th class="n">Total</th><th>Receipt #</th></tr>'+rows+
-    '<tr class="tot"><td></td><td colspan="5">'+S.hunters+' hunters</td><td class="n">'+S.given+'</td><td></td></tr></table>'+
-    '<h2>Birds released</h2>'+tb(['Date','Field','Group','Birds'],rel.map(function(x){return '<tr><td>'+esc(usDate(x.date))+'</td><td>'+esc(x.field)+'</td><td>'+esc(x.group)+'</td><td class="n">'+x.qty+'</td></tr>';}),'<tr class="tot"><td colspan="3">Total</td><td class="n">'+sum(rel,'qty')+'</td></tr>')+
-    '<h2>Source of birds</h2>'+tb(['Date','Supplier','Birds'],pur.map(function(x){return '<tr><td>'+esc(usDate(x.date))+'</td><td>'+esc(x.supplier)+'</td><td class="n">'+x.qty+'</td></tr>';}),'<tr class="tot"><td colspan="2">Total</td><td class="n">'+sum(pur,'qty')+'</td></tr>')+
-    '<h2>Daily harvest</h2>'+tb(['Date','Group','Released','Harvested','Cleaned','Given out'],(r.daily||[]).map(function(d){return '<tr><td>'+esc(usDate(d.date))+'</td><td>'+esc(d.group)+'</td><td class="n">'+d.released+'</td><td class="n">'+d.harvested+'</td><td class="n">'+d.cleaned+(d.discarded?' (+'+d.discarded+' discarded)':'')+'</td><td class="n">'+d.given+'</td></tr>';}))+
-    '<table class="sig"><tr><td>Operator signature</td><td>Inspected by</td><td>Date</td></tr></table></div>';
+  '.g .flag{border:1px solid #b00;padding:5pt 7pt;margin:6pt 0;color:#900}.g .sig{margin-top:22pt}.g .sig td{border:none;border-top:1px solid #000;padding-top:3pt;width:33%}.g .grp td{background:#f4f4f4;font-weight:bold}.g small{font-size:8pt}';
+function gfDocHead(r,title){
+  var f=gfFac();
+  return '<h1>'+esc(f.name)+' — '+title+'</h1><div class="sub">Business: '+esc(f.biz)+(f.clean?'<br>Cleaning facility: '+esc(f.clean):'')+'<br><b>'+(r.mode==='field'?'Day:</b> '+esc(usDate(r.day)):'Dates:</b> '+esc(usDate(r.from))+' to '+esc(usDate(r.to)))+' · <b>Group:</b> '+esc(r.group||'All groups')+' · Printed '+esc(usDate(localToday()))+' '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</div>';
 }
-function gfName(){var r=gfData;return 'GFP Records '+(r.group||'All groups')+' '+usDate(r.from).replace(/\//g,'-')+' to '+usDate(r.to).replace(/\//g,'-');}
+function gfDoc(r){
+  var sig='<table class="sig"><tr><td>Operator signature</td><td>Checked by</td><td>Date</td></tr></table></div>';
+  if(r.mode==='field'){
+    var F=gfFieldData(r),fl=gfFieldFlags(F),n=0;
+    var rows=F.people.map(function(p){var x=p.x;return '<tr><td class="n">'+(++n)+'</td><td>'+esc(x.name)+((x.gifts||[]).length?'<br><small>Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</small>':'')+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on file</i>')+'</td><td class="n">'+(p.today||'–')+'</td><td class="n">'+p.sofar+'</td><td class="n">'+p.poss+'</td></tr>';}).join('');
+    var gr=F.guides.map(function(g){return '<tr><td class="n">'+(++n)+'</td><td>'+esc(g.name)+' (guide)</td><td>'+esc(g.address)+'</td><td>'+(g.license?esc(g.license):'<i>none on file</i>')+'</td><td class="n">'+g.shot+' shot</td><td class="n">–</td><td class="n">–</td></tr>';}).join('');
+    return '<div class="g">'+gfDocHead(r,'Field Check')+
+      '<table class="kv"><tr><td>Hunters today<br><b>'+F.people.length+'</b></td><td>Guides today<br><b>'+F.guides.length+'</b></td><td>Shot today (party)<br><b>'+F.shot+'</b></td><td>Party limit<br><b>'+F.limit+'</b></td></tr></table>'+
+      (fl.length?'<div class="flag">'+fl.map(esc).join('<br>')+'</div>':'')+
+      '<h2>In the field</h2><table><tr><th class="n">#</th><th>Name</th><th>Address</th><th>License / CID #</th><th class="n">Birds today</th><th class="n">Trip so far</th><th class="n">Possession limit</th></tr>'+rows+gr+'</table>'+
+      '<div class="sub"><i>Birds shot today are counted for the whole party until cleaned at the facility and put on each hunter&rsquo;s receipt.</i></div>'+sig;
+  }
+  var X=gfFacData(r),rws='',grp='',m=0;
+  X.people.forEach(function(x){
+    if(x.group!==grp){grp=x.group;rws+='<tr class="grp"><td colspan="8">'+esc(grp)+'</td></tr>';}
+    rws+='<tr><td class="n">'+(++m)+'</td><td>'+esc(x.name)+(x.guide?' (guide)':'')+((x.gifts||[]).length?'<br><small>Given by guide: '+x.gifts.map(function(g){return esc(giftLine(g));}).join('; ')+'</small>':'')+'</td><td>'+esc([x.address,x.csz].filter(Boolean).join(', '))+'</td><td>'+(x.license?esc(x.license):'<i>none on file</i>')+'</td><td>'+esc(gfBirds(x)||'—')+'</td><td class="n">'+x.total+'</td><td>'+esc(x.receipts.join(', ')||(x.total?'held':''))+'</td><td>'+esc(x.released?usDate(x.released)+(x.deliveredTo?' to '+x.deliveredTo:''):'')+'</td></tr>';
+  });
+  var daily=r.daily||[],sm=function(k){return daily.reduce(function(a,d){return a+d[k];},0);};
+  var fl=[];X.bad.forEach(function(d){fl.push(gfMD(d.date)+' '+d.group+': harvested '+d.harvested+', cleaned '+d.cleaned+(d.discarded?' + '+d.discarded+' discarded':''));});
+  if(X.loose)fl.push(X.loose+' cleaned birds not yet on an owner (to be given out or put on the guides\u2019 receipts).');
+  return '<div class="g">'+gfDocHead(r,'Wildlife Processing Records')+
+    '<table class="kv"><tr><td>Hunters<br><b>'+X.people.length+'</b></td><td>Birds cleaned<br><b>'+X.cleaned+'</b></td><td>On receipts<br><b>'+X.onRc+'</b></td><td>Held at facility<br><b>'+X.heldN+'</b></td></tr></table>'+
+    (fl.length?'<div class="flag">'+fl.map(esc).join('<br>')+'</div>':'')+
+    '<h2>Birds by owner</h2><table><tr><th class="n">#</th><th>Owner</th><th>Address</th><th>License / CID #</th><th>Cleaned (date: birds)</th><th class="n">Total</th><th>Receipt #</th><th>Released / delivered to</th></tr>'+rws+
+    '<tr class="tot"><td></td><td colspan="4">'+X.people.length+' owners</td><td class="n">'+X.people.reduce(function(a,x){return a+x.total;},0)+'</td><td colspan="2"></td></tr></table>'+
+    '<h2>Cleaned by day</h2><table><tr><th>Date</th><th>Group</th><th class="n">Shot</th><th class="n">Cleaned</th><th class="n">Given out</th></tr>'+daily.map(function(d){return '<tr><td>'+esc(usDate(d.date))+'</td><td>'+esc(d.group)+'</td><td class="n">'+d.harvested+'</td><td class="n">'+d.cleaned+(d.discarded?' (+'+d.discarded+' discarded)':'')+'</td><td class="n">'+d.given+'</td></tr>';}).join('')+
+    '<tr class="tot"><td colspan="2">Total</td><td class="n">'+sm('harvested')+'</td><td class="n">'+sm('cleaned')+'</td><td class="n">'+sm('given')+'</td></tr></table>'+sig;
+}
+function gfName(){var r=gfData;return r.mode==='field'?'GFP Field Check '+(r.group||'All groups')+' '+usDate(r.day).replace(/\//g,'-'):'GFP Facility Records '+(r.group||'All groups')+' '+usDate(r.from).replace(/\//g,'-')+' to '+usDate(r.to).replace(/\//g,'-');}
 function gfPrint(){
   if(!gfData){toast('Load the report first.',true);return;}
   var area=document.getElementById('print-area');
@@ -4290,7 +4371,8 @@ window.addEventListener('DOMContentLoaded',function(){
   if(inner&&!document.getElementById('card-gfp')){
     var d=document.createElement('div');d.className='form-card sc-card gf-card';d.id='card-gfp';
     d.innerHTML='<div class="card-title">GFP Inspection</div>'+
-      '<div class="gf-bar"><div class="gf-seg" id="gf-range"><button type="button" data-r="trip" onclick="gfSetRange(\'trip\')">This group</button><button type="button" data-r="week" onclick="gfSetRange(\'week\')">Last 7 days</button><button type="button" data-r="season" onclick="gfSetRange(\'season\')">Whole season</button></div>'+
+      '<div class="gf-seg gf-mode" id="gf-mode"><button type="button" data-m="field" class="on" onclick="gfSetMode(\'field\')">Field check</button><button type="button" data-m="facility" onclick="gfSetMode(\'facility\')">Facility check</button></div>'+
+      '<div class="gf-bar"><label class="gf-day" id="gf-daywrap">Day<input type="date" id="gf-day" onchange="gfLoad()"></label><div class="gf-seg" id="gf-range" style="display:none"><button type="button" data-r="trip" onclick="gfSetRange(\'trip\')">This group</button><button type="button" data-r="week" onclick="gfSetRange(\'week\')">Last 7 days</button><button type="button" data-r="season" onclick="gfSetRange(\'season\')">Whole season</button></div>'+
       '<select id="gf-group" aria-label="Group" onchange="gfLoad()"></select></div>'+
       '<div class="gf-act"><button type="button" class="btn-small btn-gold" onclick="gfPdf(true)"><span data-ic="share"></span>Send PDF</button><button type="button" class="btn-small" onclick="gfPrint()"><span data-ic="print"></span>Print</button><button type="button" class="btn-small" onclick="gfPdf(false)"><span data-ic="drive"></span>Save to Drive</button></div>'+
       '<div class="submit-status" id="gf-status"></div><div id="gf-body"></div>';
