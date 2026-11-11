@@ -3066,7 +3066,7 @@ function datesText(r){return (r.datesReceived||[]).map(usDate).join(', ');}
 function receiptText(r){
   var f=procFacility;
   return f.name+' – Wildlife Processing Facility Receipt #'+r.receiptNo+'\n'+
-    (f.address?f.address+'\n':'')+(f.phone?f.phone+'\n':'')+
+    (f.address?(f.cleanAt?'Business: ':'')+f.address+'\n':'')+(f.phone?f.phone+'\n':'')+(f.cleanAt?'Cleaning facility: '+f.cleanAt+'\n':'')+
     'Owner: '+r.owner+'\n'+
     (r.ownerAddress?r.ownerAddress+', '+r.ownerCityStateZip+'\n':'')+
     (r.license?'License / Authorization #: '+r.license+'\n':'')+
@@ -3086,7 +3086,7 @@ function receiptHtml(r){
     var blank='<span class="blank"></span>',wide='<span class="blank wide"></span>';
     return '<div class="receipt-doc">'+lbl+
       '<h1>WILDLIFE PROCESSING FACILITY RECEIPT</h1>'+
-      '<div class="fac"><b>'+esc(f.name)+'</b>'+(f.address?'<br>'+esc(f.address):'')+(f.phone?'<br>'+esc(f.phone):'')+'</div>'+
+      '<div class="fac"><b>'+esc(f.name)+'</b>'+(f.address?'<br>'+(f.cleanAt?'Business: ':'')+esc(f.address):'')+(f.phone?(f.cleanAt?' &middot; ':'<br>')+esc(f.phone):'')+(f.cleanAt?'<br><b>Cleaning facility:</b> '+esc(f.cleanAt):'')+'</div>'+
       '<table>'+row('Receipt #',r.receiptNo)+row('Owner Name',r.owner)+row('Owner Address',r.ownerAddress)+row('City, State ZIP',r.ownerCityStateZip)+row('License / Authorization #',r.license||'')+
         '<tr><td>Number &amp; Species</td><td>'+blank+' Rooster Pheasant'+'</td></tr>'+
         '<tr><td>Date(s) Received</td><td>'+wide+'</td></tr>'+
@@ -3100,7 +3100,7 @@ function receiptHtml(r){
   }
   return '<div class="receipt-doc">'+
     '<h1>WILDLIFE PROCESSING FACILITY RECEIPT</h1>'+
-    '<div class="fac"><b>'+esc(f.name)+'</b>'+(f.address?'<br>'+esc(f.address):'')+(f.phone?'<br>'+esc(f.phone):'')+'</div>'+
+    '<div class="fac"><b>'+esc(f.name)+'</b>'+(f.address?'<br>'+(f.cleanAt?'Business: ':'')+esc(f.address):'')+(f.phone?(f.cleanAt?' &middot; ':'<br>')+esc(f.phone):'')+(f.cleanAt?'<br><b>Cleaning facility:</b> '+esc(f.cleanAt):'')+'</div>'+
     '<table>'+
       row('Receipt #',r.receiptNo)+
       row('Owner Name',r.owner)+
