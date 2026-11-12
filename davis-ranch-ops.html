@@ -5829,29 +5829,39 @@ try{BRIEF.on=localStorage.getItem('dr_brief_auto')!=='0';}catch(e){}
 function briefDay(iso){return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}
 function briefWeekday(iso){return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'long'});}
 function briefSay(t){return String(t||'').replace(/\bmph\b/g,'miles an hour').replace(/(\d+)\s*to\s*(\d+)/g,'$1 to $2').replace(/°/g,' degrees').replace(/[—–]/g,', ').replace(/\s+·\s+/g,', ').replace(/\s+/g,' ').trim();}
+// Rancher-style morning rundown. Each sentence gets a short pause, like a sip of coffee.
+function briefPick3(list,seed){return list[Math.abs(seed)%list.length];}
 function briefText(){
-  var t=localToday(),h=new Date().getHours(),parts=[];
-  parts.push((h<12?'Good morning':h<17?'Good afternoon':'Good evening')+'. It’s '+briefDay(t)+'.');
+  var t=localToday(),h=new Date().getHours(),parts=[],seed=Math.floor(new Date(t+'T12:00:00').getTime()/864e5);
+  parts.push(h<12?briefPick3(['Mornin’.','Alright, mornin’.','Coffee’s on. Mornin’.','Mornin’. Here’s the rundown.'],seed):h<17?'Afternoon. Here’s where things stand.':'Evenin’. Here’s where things stand.');
+  parts.push(briefDay(t)+'.');
   var w=HEADS.wx;
   if(w){
-    var s=[];
-    if(w.now!=null)s.push('Right now it’s '+w.now+' degrees'+(w.nowTxt?' and '+String(w.nowTxt).toLowerCase():''));
-    if(w.high!=null)s.push('high of '+w.high);
-    if(w.low!=null)s.push('low tonight of '+w.low);
-    parts.push(s.join(', ')+'.');
-    if(w.wind)parts.push('Wind '+(w.windDir?'out of the '+w.windDir+' ':'')+briefSay(w.wind)+(w.rain?', with a '+w.rain+' percent chance of rain':'')+'.');
-    try{parts.push('Sunset is at '+wxSun(t)+'.');}catch(e){}
+    if(w.now!=null)parts.push('It’s '+w.now+' out there right now'+(w.nowTxt?', '+String(w.nowTxt).toLowerCase():'')+'.');
+    var hl=[];if(w.high!=null)hl.push('Gonna get up to about '+w.high);if(w.low!=null)hl.push((hl.length?'and ':'')+'down to '+w.low+' tonight');
+    if(hl.length)parts.push(hl.join(', ')+(w.low!=null&&w.low<25?', so it’ll be a cold one.':'.'));
+    var wn=String(w.wind||'').match(/\d+/g),wmax=wn?Math.max.apply(null,wn.map(Number)):0;
+    if(w.wind)parts.push('Wind’s '+(w.windDir?'out of the '+w.windDir+', ':'')+String(w.wind).replace(/\s*mph/i,'').trim()+'.'+(wmax>=25?' Gonna be a windy one.':''));
+    if(w.rain>=50)parts.push('Rain chance is '+w.rain+' percent. Might wanna grab the rain gear.');
+    else if(w.rain>=30)parts.push('Maybe a '+w.rain+' percent chance of rain.');
+    else if(wmax&&wmax<=12&&(w.low==null||w.low>=25))parts.push('Decent day for it.');
+    try{parts.push('Sun’s down at '+String(wxSun(t)).replace(/\s*[AP]M$/i,'')+'.');}catch(e){}
   }
   var c=faceCamp();
-  c.inCamp.forEach(function(r){var st=faceStay(r,t);
-    parts.push(st==='Arrival night'?faceName(r)+' arrives tonight.':st==='Checkout day'?faceName(r)+' checks out today.':faceName(r)+' is in camp, '+st.toLowerCase()+', leaving '+briefWeekday(r.depart)+'.');});
-  if(!c.inCamp.length&&c.next){var dn=daysApart(c.next.arrive,t);parts.push('No one’s in camp. Next up is '+faceName(c.next)+(dn===0?', arriving today.':dn===1?', arriving tomorrow.':', arriving '+briefWeekday(c.next.arrive)+'.'));}
-  var done=headsDone(),list=headsList().filter(function(x){return !done[x.id];});
-  if(list.length){parts.push(list.length===1?'One thing to remember:':'A few things to remember:');list.slice(0,3).forEach(function(x){parts.push(briefSay(x.t)+'.');});}
-  var ob=(typeof outboxGet==='function')?outboxGet().length:0;if(ob)parts.push('You have '+ob+' entr'+(ob===1?'y':'ies')+' saved on this phone, waiting for signal.');
+  c.inCamp.forEach(function(r){var st=faceStay(r,t),n=faceName(r);
+    parts.push(st==='Arrival night'?n+' rolls in tonight.':st==='Checkout day'?n+' heads out today.':n+'’s in camp, '+st.toLowerCase()+', headin’ out '+briefWeekday(r.depart)+'.');});
+  if(!c.inCamp.length&&c.next){var dn=daysApart(c.next.arrive,t);parts.push('Nobody in camp. Next up is '+faceName(c.next)+(dn===0?', comin’ in today.':dn===1?', comin’ in tomorrow.':', comin’ in '+briefWeekday(c.next.arrive)+'.'));}
+  var done=headsDone(),all=headsList().filter(function(x){return !done[x.id];});
+  // the weather's already covered above; just pass along the advice
+  if(all.some(function(x){return x.id==='wx-cold';}))parts.push('Check the dog waters for ice.');
+  if(all.some(function(x){return x.id==='wx-rain';}))parts.push('Keep the shells and gear dry.');
+  var list=all.filter(function(x){return !/^wx-/.test(x.id);});
+  if(list.length){parts.push(list.length===1?'One thing to keep in mind.':'Couple things to keep in mind.');list.slice(0,3).forEach(function(x){parts.push(briefSay(x.t)+'.');});}
+  var ob=(typeof outboxGet==='function')?outboxGet().length:0;if(ob)parts.push('You’ve got '+ob+' entr'+(ob===1?'y':'ies')+' sittin’ on this phone, waitin’ on signal.');
   var hunt=c.inCamp.some(function(r){return /^Hunt day/.test(faceStay(r,t));});
-  parts.push(hunt?'Have a good hunt.':'Have a good one.');
-  return parts.join(' ').replace(/\.\./g,'.');
+  parts.push('Alright. That’s about it.');
+  parts.push(hunt?briefPick3(['Go get ’em.','Shoot straight.','Have a good hunt.'],seed):briefPick3(['Have a good one.','Get after it.','Talk to you tomorrow.'],seed));
+  return parts.join(' ').replace(/\.\./g,'.').replace(/\s+/g,' ');
 }
 var BRIEF_MEN=['Evan','Nathan','Tom','Aaron','Alex','Fred','Daniel','Arthur','Oliver','Reed','Rocko','Eddy','Ralph','Guy','Christopher','Davis','Andrew','Brian','Eric','Roger','Steffan','Google UK English Male'];
 function briefVoices(){
@@ -5937,7 +5947,7 @@ function briefPhone(parts){
   };
   next();
 }
-function briefRate(){var r=0.95;try{r=parseFloat(localStorage.getItem('dr_brief_rate'))||0.95;}catch(e){}return r;}
+function briefRate(){var r=0.9;try{r=parseFloat(localStorage.getItem('dr_brief_rate'))||0.9;}catch(e){}return r;}
 // More › Spoken briefing: pick the voice and speed, with a preview
 function briefSettings(){
   closeSheet&&closeSheet();
@@ -5953,7 +5963,7 @@ function briefSettings(){
     '<p class="bv-tip" id="bv-note">'+esc(note)+'</p>'+
     '<div class="bv-l">Phone voices <small>(work with no signal)</small></div>'+
     (all.length?'<div class="bv-list">'+all.map(function(x){return row('phone',x.v.name,x.v.name,x.v.lang+(x.good?' \u00b7 natural':'')+(x.man?' \u00b7 man':''),cv==='phone'&&pv&&x.v.name===pv.name);}).join('')+'</div>':'<div class="report-hint">No phone voices found yet. Close this and open it again in a moment.</div>')+
-    '<div class="bv-l">Speed</div><div class="bv-sp">'+[[0.85,'Slower'],[0.95,'Normal'],[1.05,'Faster']].map(function(o){return '<button type="button" class="btn-small'+(Math.abs(r-o[0])<0.01?' btn-gold':'')+'" onclick="briefSetRate('+o[0]+',this)">'+o[1]+'</button>';}).join('')+'</div>'+
+    '<div class="bv-l">Speed</div><div class="bv-sp">'+[[0.82,'Slower'],[0.9,'Normal'],[1.0,'Faster']].map(function(o){return '<button type="button" class="btn-small'+(Math.abs(r-o[0])<0.01?' btn-gold':'')+'" onclick="briefSetRate('+o[0]+',this)">'+o[1]+'</button>';}).join('')+'</div>'+
     '<button type="button" class="btn-submit" style="margin-top:16px" onclick="document.getElementById(\'brief-sheet\').remove();briefStop();briefPlay()">Play the briefing</button></div>';
   document.body.appendChild(d);
 }
