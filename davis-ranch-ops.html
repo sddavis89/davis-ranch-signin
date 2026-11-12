@@ -1114,7 +1114,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <div class="kpis">
       <div class="kpi"><span id="k1-l">Shot today</span><b data-count id="k-shot">&ndash;</b><em id="k-shot-n">&nbsp;</em></div>
       <div class="kpi"><span id="k2-l">Cleaned</span><b data-count id="k-clean">&ndash;</b><em id="k-clean-n">&nbsp;</em></div>
-      <div class="kpi"><span>Bags left</span><b data-count id="k-bags">&ndash;</b><em id="k-bags-n">&nbsp;</em></div>
+      <div class="kpi"><span>In the pens</span><b data-count id="k-pens">&ndash;</b><em id="k-pens-n">&nbsp;</em></div>
     </div>
   </header>
   <div class="hbody">
@@ -1251,6 +1251,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <div class="form-card" id="card-cleaning">
       <div class="card-title">Bird Cleaning</div>
       <div class="card-desc">Track cleaning crew and birds processed</div>
+      <div class="cl-bags" id="cl-bags"><span class="cl-bl">Vac bags left</span><b data-count id="k-bags">&ndash;</b><em id="k-bags-n">&nbsp;</em></div>
       <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="c-date" onchange="refreshDayNote('c')"></div>
       <div class="field"><label>Group <span class="req">*</span></label><select id="c-group-clean" class="group-pick" onchange="refreshDayNote('c')"><option value="">&#8212; Select group &#8212;</option><option>Texas</option><option>Michigan</option><option>Edwards</option><option>Verbeke</option><option>FarmHouse</option><option>Hendrik</option><option>Jared Hendrickson</option></select></div>
       <div class="day-note" id="c-day"><div id="c-day-text"></div>
@@ -4002,6 +4003,8 @@ function faceBags(){
     faceSet('r-inv',low.length?'Low: '+low.join(', '):'Stocked');
   }).catch(function(){faceSet('k-bags-n','offline','');});
 }
+function facePens(){var b=HEADS&&HEADS.st&&HEADS.st.birds,el=document.getElementById('k-pens');if(!el)return;
+  if(!b){faceSet('k-pens-n','','');return;}faceCount(el,b.inPens||0);faceSet('k-pens-n',b.bought?'by the records':'log bird purchases',b.bought?'':'warn');}
 function faceRefresh(){faceHeader();faceBags();if(typeof loadChecklist==='function')loadChecklist();}
 var _faceRenderChecklist=renderChecklist;
 renderChecklist=function(st){try{faceCampFromStatus(st);}catch(e){}_faceRenderChecklist(st);try{faceFromStatus(st);}catch(e){console.log('face',e);}};
@@ -5422,7 +5425,11 @@ function headsList(){
   // smart ones first
   D.rows.forEach(function(x){
     var r=x.r,k=r.group.replace(/\W/g,'');
-    if(x.type==='Arrival day'&&slot!=='Evening'){
+    var ORD=((HEADS.st&&HEADS.st.birds&&HEADS.st.birds.orders)||{}),ordT=ORD[today],ordN=ORD[addDays(today,1)];
+    var ordTxt=function(o){return o.qty+' bird'+(o.qty===1?'':'s')+' ordered'+(o.supplier?' from '+o.supplier:'');};
+    if(x.type==='Arrival day'&&slot!=='Evening'&&ordT){var Bo=headsBirds(r,x.days,x.days);
+      out.push({id:'birds-'+k,ic:'truck',big:1,t:'Bird pickup today: '+ordTxt(ordT),s:'For '+gname(r)+'. It\u2019s logged as a purchase for today'+(Bo&&Bo.get?' (the suggestion was about '+Bo.get+')':'')+'.',ask:r.booked?null:r});}
+    else if(x.type==='Arrival day'&&slot!=='Evening'){
       var B=headsBirds(r,x.days,x.days);
       if(!B)out.push({id:'birds-'+k,ic:'truck',big:1,t:'Bird pickup today for '+gname(r),s:'How many hunters are arriving? Enter it and I’ll suggest how many birds.',ask:r});
       else{var two=x.days>=3?headsBirds(r,x.days,x.days-1):null;
@@ -5431,9 +5438,10 @@ function headsList(){
             (two&&two.get&&B.get?' Or about '+two.get+' now for days 1–'+(x.days-1)+' and a second load on day '+(x.days-1)+'.':'')+(r.booked?'':' How many are arriving?'),ask:r.booked?null:r,buy:{n:B.get||'',group:r.group}});}
     }
     if(x.type==='Day before arrival'){var B2=headsBirds(r,x.days,x.days);
-      out.push({id:'tmrw-'+k,ic:'cal',big:1,t:gname(r)+' arrives tomorrow',s:B2?(B2.get?'Bird pickup tomorrow: about '+B2.get+' birds.':'Bird pickup tomorrow. The pens may already have enough ('+B2.pens+' by the records).'):'Bird pickup tomorrow. How many hunters are arriving?',ask:r.booked?null:r});}
+      out.push({id:'tmrw-'+k,ic:'cal',big:1,t:gname(r)+' arrives tomorrow',s:ordN?'Bird pickup tomorrow: '+ordTxt(ordN)+'.':B2?(B2.get?'Bird pickup tomorrow: about '+B2.get+' birds.':'Bird pickup tomorrow. The pens may already have enough ('+B2.pens+' by the records).'):'Bird pickup tomorrow. How many hunters are arriving?',ask:r.booked?null:r});}
     if(x.type==='Hunt day'&&x.days>=3&&x.hn===x.days-1&&slot!=='Evening'){var B3=headsBirds(r,x.days,1);
-      out.push({id:'load2-'+k,ic:'truck',big:1,t:'Second bird load for tomorrow?',s:B3?(B3.get?'About '+B3.get+' birds covers '+gname(r)+'’s last day'+(B3.pens?' ('+B3.pens+' in the pens by the records)':'')+'.':'The pens may already have enough for '+gname(r)+'’s last day ('+B3.pens+' by the records).'):'For '+gname(r)+'’s last day.',buy:{n:B3&&B3.get||'',group:r.group}});}
+      if(ordT)out.push({id:'load2-'+k,ic:'truck',big:1,t:'Second bird load today: '+ordTxt(ordT),s:'Covers '+gname(r)+'\u2019s last day tomorrow.'});
+      else out.push({id:'load2-'+k,ic:'truck',big:1,t:'Second bird load for tomorrow?',s:B3?(B3.get?'About '+B3.get+' birds covers '+gname(r)+'’s last day'+(B3.pens?' ('+B3.pens+' in the pens by the records)':'')+'.':'The pens may already have enough for '+gname(r)+'’s last day ('+B3.pens+' by the records).'):'For '+gname(r)+'’s last day.',buy:{n:B3&&B3.get||'',group:r.group}});}
     if((x.type==='Arrival day'||(x.type==='Hunt day'&&x.hn===1))&&r.booked){var sg=faceSigned(r);
       if(sg<r.booked)out.push({id:'waiv-'+k,ic:'alert',t:(r.booked-sg)+' of '+gname(r)+' still need to sign a waiver',s:sg+' of '+r.booked+' signed in so far.'});}
   });
@@ -5529,7 +5537,7 @@ function wxHuntStrip(w){
       '<span class="wx-dr'+(wet?' warn':'')+'">'+(d.rain?d.rain+'% rain':'Dry')+'</span><span class="wx-dx">'+esc(d.txt)+'</span></div>';}).join('')+'</div></div>';
 }
 var _renderChecklistH=renderChecklist;
-renderChecklist=function(st){var r=_renderChecklistH.apply(this,arguments);if(st&&st.ok){HEADS.st=st;headsRender();}return r;};
+renderChecklist=function(st){var r=_renderChecklistH.apply(this,arguments);if(st&&st.ok){HEADS.st=st;headsRender();try{facePens();}catch(e){}}return r;};
 window.addEventListener('DOMContentLoaded',function(){headsRender();wxLoad();});
 setInterval(function(){if(!faceCur){headsRender();}},10*60*1000);   // the list changes as the day goes on
 
@@ -5558,8 +5566,8 @@ function headsBuy(hid,id,btn){
   opsSend({task:'purchase',submissionId:newId(),date:localToday(),supplier:lb.supplier,qty:n,costPerBird:cost,totalCost:Math.round(n*cost*100)/100,notes:'Logged from the bird pickup reminder'}).then(function(res){
     btn.disabled=false;btn.textContent='Log it';
     if(!res||!res.ok){toast('\u2717 Not saved: '+(res?opsError(res,true):'no signal'),true);return;}
-    var b=HEADS.st&&HEADS.st.birds;if(b){b.bought=(b.bought||0)+n;b.inPens=(b.inPens||0)+n;}
-    toast(res.queued?'\ud83d\udcf6 '+n+' birds saved on this phone, they send when there\u2019s signal':'\u2713 '+n+' birds logged from '+lb.supplier);headsMark(hid);
+    var b=HEADS.st&&HEADS.st.birds;if(b){b.bought=(b.bought||0)+n;b.inPens=(b.inPens||0)+n;b.orders=b.orders||{};var o=b.orders[localToday()]||(b.orders[localToday()]={qty:0,supplier:''});o.qty+=n;if(o.supplier.indexOf(lb.supplier)<0)o.supplier=o.supplier?o.supplier+', '+lb.supplier:lb.supplier;}
+    try{facePens();}catch(e){}toast(res.queued?'\ud83d\udcf6 '+n+' birds saved on this phone, they send when there\u2019s signal':'\u2713 '+n+' birds logged from '+lb.supplier);headsMark(hid);
   }).catch(function(){btn.disabled=false;btn.textContent='Log it';toast('\u2717 No signal. Not saved.',true);});
 }
 function headsAskBox(r,id){
@@ -5801,5 +5809,15 @@ setInterval(function(){if(outboxGet().length)outboxFlush();},45000);
 <script>
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
 </script>
+<script>
+// Bird Cleaning shows the vac bags left (moved from Home)
+var _faceViewB=faceView;faceView=function(v){_faceViewB(v);if(v==='cleaning'){faceBagsAt=0;faceBags();}};
+</script>
+<style>
+.cl-bags{display:flex;align-items:baseline;gap:10px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:4px 0 14px}
+.cl-bags .cl-bl{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600}
+.cl-bags b{font:500 1.6rem/1 var(--font-display);color:#fff}.cl-bags em{font-style:normal;font-size:.8rem;margin-left:auto}
+.cl-bags em.ok{color:#8FD9A8}.cl-bags em.warn{color:#F0C36A}.cl-bags em.bad{color:#F5A3A4}
+</style>
 </body>
 </html>
