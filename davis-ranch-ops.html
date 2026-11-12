@@ -1508,7 +1508,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<i class="chev" data-ic="chev"></i></button>
-    <button type="button" class="rec" onclick="briefAuto(!BRIEF.on)"><i class="ri" data-ic="speak"></i>Spoken briefing<span id="brief-set">On first tap each day</span><i class="chev" data-ic="chev"></i></button>
+    <button type="button" class="rec" onclick="briefSettings()"><i class="ri" data-ic="speak"></i>Spoken briefing<span id="brief-set">On first tap each day</span><i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
@@ -5853,7 +5853,16 @@ function briefText(){
   parts.push(hunt?'Have a good hunt.':'Have a good one.');
   return parts.join(' ').replace(/\.\./g,'.');
 }
+var BRIEF_MEN=['Evan','Nathan','Tom','Aaron','Alex','Fred','Daniel','Arthur','Oliver','Reed','Rocko','Eddy','Ralph','Guy','Christopher','Davis','Andrew','Brian','Eric','Roger','Steffan','Google UK English Male'];
+function briefVoices(){
+  var v=((window.speechSynthesis&&speechSynthesis.getVoices())||[]).filter(function(x){return /^en/i.test(x.lang);});
+  var man=function(x){return BRIEF_MEN.some(function(n){return x.name.indexOf(n)>=0;});},good=function(x){return /premium|enhanced|natural|neural/i.test(x.name)||/premium|enhanced/i.test(x.voiceURI||'');};
+  return v.map(function(x){return {v:x,man:man(x),good:good(x),us:/US/i.test(x.lang)};}).sort(function(a,b){return (b.man-a.man)||(b.good-a.good)||(b.us-a.us)||a.v.name.localeCompare(b.v.name);});
+}
 function briefVoice(){
+  var want='';try{want=localStorage.getItem('dr_brief_voice')||'';}catch(e){}
+  var all=briefVoices();if(want){var w=all.filter(function(x){return x.v.name===want;})[0];if(w)return w.v;}
+  if(all.length&&(all[0].man||all[0].good))return all[0].v;
   var v=(window.speechSynthesis&&speechSynthesis.getVoices())||[],pick=null;
   ['Samantha','Google US English','Microsoft Aria','Microsoft Jenny','Alex','Karen','Daniel'].some(function(n){pick=v.filter(function(x){return x.name.indexOf(n)>=0;})[0];return !!pick;});
   return pick||v.filter(function(x){return /^en(-|_)US/i.test(x.lang);})[0]||v.filter(function(x){return /^en/i.test(x.lang);})[0]||null;
@@ -5862,11 +5871,41 @@ function briefPlay(){
   if(!window.speechSynthesis){toast('This browser can’t read out loud.',true);return;}
   if(BRIEF.speaking){speechSynthesis.cancel();briefBtn(false);return;}
   speechSynthesis.cancel();
-  var u=new SpeechSynthesisUtterance(briefText()),vo=briefVoice();if(vo)u.voice=vo;u.lang='en-US';u.rate=1;u.pitch=1;
-  u.onend=u.onerror=function(){briefBtn(false);};
-  briefBtn(true);speechSynthesis.speak(u);
+  var vo=briefVoice(),rate=briefRate(),parts=briefText().split(/(?<=[.:])\s+(?=[A-Z0-9])/).filter(Boolean),i=0;
+  briefBtn(true);
+  var next=function(){
+    if(!BRIEF.speaking||i>=parts.length){briefBtn(false);return;}
+    var u=new SpeechSynthesisUtterance(parts[i++]);if(vo){u.voice=vo;u.lang=vo.lang;}else u.lang='en-US';u.rate=rate;u.pitch=1;
+    u.onend=function(){setTimeout(next,220);};u.onerror=function(){briefBtn(false);};
+    speechSynthesis.speak(u);
+  };
+  next();
   try{localStorage.setItem('dr_brief_day',localToday());}catch(e){}
 }
+function briefRate(){var r=0.95;try{r=parseFloat(localStorage.getItem('dr_brief_rate'))||0.95;}catch(e){}return r;}
+// More → Spoken briefing: pick the voice and speed, with a preview
+function briefSettings(){
+  closeSheet&&closeSheet();
+  var old=document.getElementById('brief-sheet');if(old)old.remove();
+  var all=briefVoices(),want='';try{want=localStorage.getItem('dr_brief_voice')||'';}catch(e){}
+  var cur=briefVoice(),r=briefRate();
+  var d=document.createElement('div');d.id='brief-sheet';d.className='bv';
+  d.innerHTML='<div class="bv-card" role="dialog" aria-label="Spoken briefing"><div class="bv-h"><b>Spoken briefing</b><button type="button" class="icon-btn" onclick="document.getElementById(\'brief-sheet\').remove()" aria-label="Close">\u2715</button></div>'+
+    '<label class="bv-row"><input type="checkbox" id="bv-auto"'+(BRIEF.on?' checked':'')+' onchange="briefAuto(this.checked)"> Play on my first tap each day</label>'+
+    '<div class="bv-l">Voice <small>(the ones on this phone or computer; men\u2019s voices first)</small></div>'+
+    (all.length?'<div class="bv-list">'+all.map(function(x){var sel=cur&&x.v.name===cur.name;return '<label class="bv-v'+(sel?' on':'')+'"><input type="radio" name="bv" value="'+esc(x.v.name)+'"'+(sel?' checked':'')+' onchange="briefPick(this.value)"><span>'+esc(x.v.name)+'<small>'+esc(x.v.lang)+(x.good?' \u00b7 natural':'')+(x.man?' \u00b7 man':'')+'</small></span><button type="button" class="btn-small" onclick="event.preventDefault();briefPreview(\''+esc(x.v.name).replace(/'/g,"\\'")+'\')">Preview</button></label>';}).join('')+'</div>':'<div class="report-hint">No voices found yet. Close this and open it again in a moment.</div>')+
+    '<div class="bv-l">Speed</div><div class="bv-sp">'+[[0.85,'Slower'],[0.95,'Normal'],[1.05,'Faster']].map(function(o){return '<button type="button" class="btn-small'+(Math.abs(r-o[0])<0.01?' btn-gold':'')+'" onclick="briefSetRate('+o[0]+',this)">'+o[1]+'</button>';}).join('')+'</div>'+
+    '<p class="bv-tip">Want a more natural man\u2019s voice? On iPhone: Settings \u203a Accessibility \u203a Spoken Content \u203a Voices \u203a English, then download an <b>Enhanced</b> or <b>Premium</b> voice. On a Mac: System Settings \u203a Accessibility \u203a Spoken Content \u203a System voice \u203a Manage Voices. Then come back here and pick it.</p>'+
+    '<button type="button" class="btn-submit" onclick="document.getElementById(\'brief-sheet\').remove();briefPlay()">Play the briefing</button></div>';
+  document.body.appendChild(d);
+}
+function briefPick(name){try{localStorage.setItem('dr_brief_voice',name);}catch(e){}document.querySelectorAll('#brief-sheet .bv-v').forEach(function(l){l.classList.toggle('on',l.querySelector('input').value===name);});briefPreview(name);}
+function briefPreview(name){
+  if(!window.speechSynthesis)return;speechSynthesis.cancel();BRIEF.speaking=false;
+  var v=briefVoices().filter(function(x){return x.v.name===name;})[0],u=new SpeechSynthesisUtterance('Good morning. Here\u2019s your quick look at the day at Davis Hunting Company.');
+  if(v){u.voice=v.v;u.lang=v.v.lang;}u.rate=briefRate();speechSynthesis.speak(u);
+}
+function briefSetRate(r,btn){try{localStorage.setItem('dr_brief_rate',String(r));}catch(e){}btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.toggle('btn-gold',b===btn);});var n='';try{n=localStorage.getItem('dr_brief_voice')||'';}catch(e){}var cv=briefVoice();briefPreview(n||(cv?cv.name:''));}
 function briefBtn(on){BRIEF.speaking=on;var b=document.getElementById('brief-btn');if(b){b.classList.toggle('on',on);b.setAttribute('aria-label',on?'Stop the briefing':'Play the briefing');}}
 function briefAuto(on){BRIEF.on=on;try{localStorage.setItem('dr_brief_auto',on?'1':'0');}catch(e){}var el=document.getElementById('brief-set');if(el)el.textContent=on?'On first tap each day':'Off';toast(on?'Briefing plays on your first tap each day':'Briefing off (tap the speaker on Home to hear it)');}
 // first tap of the day: play once the morning's info has loaded
@@ -5882,11 +5921,21 @@ function briefFirstTap(e){
 window.addEventListener('DOMContentLoaded',function(){
   document.addEventListener('pointerdown',briefFirstTap,true);
   var el=document.getElementById('brief-set');if(el)el.textContent=BRIEF.on?'On first tap each day':'Off';
-  if(window.speechSynthesis)speechSynthesis.getVoices();   // load the voices early
+  if(window.speechSynthesis){speechSynthesis.getVoices();try{speechSynthesis.addEventListener('voiceschanged',function(){if(document.getElementById('brief-sheet')){briefSettings();}});}catch(e){}}   // load the voices early
 });
 </script>
 <style>
 .hx-btns{display:flex;gap:8px}
+.bv{position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}
+.bv-card{background:var(--bg2,#17130d);border:1px solid var(--line);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:88vh;overflow:auto;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+@media(min-width:700px){.bv{align-items:center}.bv-card{border-radius:20px}}
+.bv-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.bv-h b{font-size:1.1rem}
+.bv-row{display:flex;gap:10px;align-items:center;padding:8px 0;font-weight:600}.bv-row input{width:22px;height:22px;accent-color:var(--gold)}
+.bv-l{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600;margin:12px 0 6px}.bv-l small{letter-spacing:0;text-transform:none;font-weight:400}
+.bv-list{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}
+.bv-v{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:12px;cursor:pointer}.bv-v.on{border-color:var(--gold)}
+.bv-v input{accent-color:var(--gold)}.bv-v small{display:block;font-size:.72rem;color:var(--fg-soft)}
+.bv-sp{display:flex;gap:8px}.bv-tip{font-size:.8rem;color:var(--fg-soft);line-height:1.45;margin:14px 0}
 #brief-btn.on{background:var(--gold);color:#1A1207;box-shadow:0 0 0 4px rgba(224,168,74,.25)}
 #sheet-more .rec span{margin-left:auto;margin-right:6px;font-size:.78rem;color:var(--fg-soft)}
 </style>
