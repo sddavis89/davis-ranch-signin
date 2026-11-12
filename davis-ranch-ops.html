@@ -1058,6 +1058,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
 .hu-ok:hover{background:var(--gold);color:#1A1207}
 .hu-all{color:var(--success);font-weight:600;font-size:.9rem;padding:6px 0}
 .hu-ask{display:flex;gap:8px;margin-top:8px}.hu-ask input{width:96px;min-height:40px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:6px 10px;font:600 1rem var(--font-body)}
+.hu-buy{align-items:center;flex-wrap:wrap}.hu-bl{font-size:.8rem;color:var(--fg-soft)}.hu-bs{display:block;font-size:.74rem;color:var(--fg-soft);margin-top:4px}.hu-bs a{color:var(--gold-light)}
 .sc-ask{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:-4px 0 10px;font-size:.78rem;color:var(--fg-soft);letter-spacing:.08em;text-transform:uppercase}.sc-ask .hu-ask{margin:0}
 .wx-hunt{grid-column:1/-1;margin-top:8px;border-top:1px solid var(--line);padding-top:10px}
 .wx-hl{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-light);font-weight:600;margin-bottom:8px}
@@ -1914,6 +1915,7 @@ function submitPurchase(){
   const date=document.getElementById('p-date').value,supplier=document.getElementById('p-supplier').value.trim(),qty=document.getElementById('p-qty').value,cost=document.getElementById('p-cost').value;
   if(!date||!supplier||!qty||!cost){alert('Please fill in all required fields.');return;}
   const btn=document.querySelector('#card-purchase .btn-submit');
+  try{localStorage.setItem('dr_lastbuy',JSON.stringify({supplier:supplier,cost:parseFloat(cost)}));}catch(e){}
   saveOps('p',{task:'purchase',date,supplier,qty:parseInt(qty),costPerBird:parseFloat(cost),totalCost:parseFloat((parseFloat(qty)*parseFloat(cost)).toFixed(2)),notes:document.getElementById('p-notes').value},'p-status',btn,'Purchase of '+parseInt(qty)+' birds logged',function(){
     document.getElementById('p-supplier').value='';
     document.getElementById('p-qty').value='';
@@ -5414,12 +5416,12 @@ function headsList(){
       else{var two=x.days>=3?headsBirds(r,x.days,x.days-1):null;
         out.push({id:'birds-'+k,ic:'truck',big:1,t:B.get?'Bird pickup today: about '+B.get+' birds for '+gname(r):'Bird pickup today for '+gname(r)+'? The pens may already have enough',
           s:B.hunters+' '+B.how+' × '+x.days+' days × '+B.per+' a hunter a day'+(B.fromSeason?' (this season)':'')+' = '+B.total+(B.pens?', and the records show '+B.pens+' still in the pens':'')+'.'+
-            (two&&two.get&&B.get?' Or about '+two.get+' now for days 1–'+(x.days-1)+' and a second load on day '+(x.days-1)+'.':'')+(r.booked?'':' How many are arriving?'),ask:r.booked?null:r});}
+            (two&&two.get&&B.get?' Or about '+two.get+' now for days 1–'+(x.days-1)+' and a second load on day '+(x.days-1)+'.':'')+(r.booked?'':' How many are arriving?'),ask:r.booked?null:r,buy:{n:B.get||'',group:r.group}});}
     }
     if(x.type==='Day before arrival'){var B2=headsBirds(r,x.days,x.days);
       out.push({id:'tmrw-'+k,ic:'cal',big:1,t:gname(r)+' arrives tomorrow',s:B2?(B2.get?'Bird pickup tomorrow: about '+B2.get+' birds.':'Bird pickup tomorrow. The pens may already have enough ('+B2.pens+' by the records).'):'Bird pickup tomorrow. How many hunters are arriving?',ask:r.booked?null:r});}
     if(x.type==='Hunt day'&&x.days>=3&&x.hn===x.days-1&&slot!=='Evening'){var B3=headsBirds(r,x.days,1);
-      out.push({id:'load2-'+k,ic:'truck',big:1,t:'Second bird load for tomorrow?',s:B3?(B3.get?'About '+B3.get+' birds covers '+gname(r)+'’s last day'+(B3.pens?' ('+B3.pens+' in the pens by the records)':'')+'.':'The pens may already have enough for '+gname(r)+'’s last day ('+B3.pens+' by the records).'):'For '+gname(r)+'’s last day.'});}
+      out.push({id:'load2-'+k,ic:'truck',big:1,t:'Second bird load for tomorrow?',s:B3?(B3.get?'About '+B3.get+' birds covers '+gname(r)+'’s last day'+(B3.pens?' ('+B3.pens+' in the pens by the records)':'')+'.':'The pens may already have enough for '+gname(r)+'’s last day ('+B3.pens+' by the records).'):'For '+gname(r)+'’s last day.',buy:{n:B3&&B3.get||'',group:r.group}});}
     if((x.type==='Arrival day'||(x.type==='Hunt day'&&x.hn===1))&&r.booked){var sg=faceSigned(r);
       if(sg<r.booked)out.push({id:'waiv-'+k,ic:'alert',t:(r.booked-sg)+' of '+gname(r)+' still need to sign a waiver',s:sg+' of '+r.booked+' signed in so far.'});}
   });
@@ -5446,7 +5448,7 @@ function headsRender(){
   var g={Morning:'Good morning',Midday:'Afternoon check',Evening:'This evening'}[headsSlot()];
   if(!all.length){el.innerHTML='';return;}
   el.innerHTML='<div class="hu"><div class="hu-h"><span class="eyebrow">'+g+' · heads up</span>'+(Object.keys(done).length?'<button type="button" class="hu-undo" onclick="headsUndo()">Show cleared</button>':'')+'</div>'+
-    (show.length?show.map(function(x){return '<div class="hu-i'+(x.big?' big':'')+'">'+(x.ic?'<span class="hu-ic" data-ic="'+x.ic+'"></span>':'<span class="hu-dot"></span>')+'<span class="hu-t"><b>'+esc(x.t)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+(x.ask?headsAskBox(x.ask,'hk-'+x.id):'')+'</span>'+
+    (show.length?show.map(function(x){return '<div class="hu-i'+(x.big?' big':'')+'">'+(x.ic?'<span class="hu-ic" data-ic="'+x.ic+'"></span>':'<span class="hu-dot"></span>')+'<span class="hu-t"><b>'+esc(x.t)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+(x.ask?headsAskBox(x.ask,'hk-'+x.id):'')+(x.buy?headsBuyBox(x,'hb-'+x.id):'')+'</span>'+
       '<button type="button" class="hu-ok" aria-label="Done" onclick="headsMark(\''+x.id+'\')">✓</button></div>';}).join(''):'<div class="hu-all">✓ All caught up for now.</div>')+
     (left.length>3?'<button type="button" class="hu-more" onclick="HEADS.open=!HEADS.open;headsRender()">'+(HEADS.open?'Show less':'+'+(left.length-3)+' more today')+'</button>':'')+'</div>';
   faceIcons(el);
@@ -5520,6 +5522,34 @@ window.addEventListener('DOMContentLoaded',function(){headsRender();wxLoad();});
 setInterval(function(){if(!faceCur){headsRender();}},10*60*1000);   // the list changes as the day goes on
 
 // "How many arriving?" in the app (saves to the Schedule tab, Hunters Booked)
+// "Picked up __ birds": logs the purchase (same supplier and price as last time) and keeps the pen count right
+function headsLastBuy(){
+  var b=(HEADS.st&&HEADS.st.birds&&HEADS.st.birds.last)||null;
+  if(!b||!b.supplier){try{b=JSON.parse(localStorage.getItem('dr_lastbuy')||'null');}catch(e){b=null;}}
+  return b&&b.supplier?b:null;
+}
+function headsBuyBox(x,id){
+  var lb=headsLastBuy();
+  return '<span class="hu-ask hu-buy"><span class="hu-bl">Picked up</span><input type="number" min="1" max="2000" inputmode="numeric" id="'+id+'" value="'+(x.buy.n||'')+'" placeholder="Birds"><button type="button" class="btn-small btn-gold" onclick="headsBuy(\''+x.id+'\',\''+id+'\',this)">Log it</button></span>'+
+    (lb?'<small class="hu-bs">'+esc(lb.supplier)+' at '+money(lb.cost)+' a bird, like last time. <a href="#" onclick="headsBuyForm(\''+id+'\');return false;">Different?</a></small>':'<small class="hu-bs">First pickup: you\u2019ll pick the supplier and price once.</small>');
+}
+function headsBuyForm(id){
+  var n=val(id);navTo('purchase');
+  setTimeout(function(){var d=document.getElementById('p-date'),q=document.getElementById('p-qty');if(d)d.value=localToday();if(q){q.value=n;q.dispatchEvent(new Event('input'));}var lb=headsLastBuy();
+    if(lb){var sp=document.getElementById('p-supplier'),c=document.getElementById('p-cost');if(sp&&!sp.value)sp.value=lb.supplier;if(c&&!c.value){c.value=lb.cost;c.dispatchEvent(new Event('input'));}}},150);
+}
+function headsBuy(hid,id,btn){
+  var n=parseInt(val(id),10);if(!(n>0)){toast('Enter how many birds you picked up.',true);return;}
+  var lb=headsLastBuy();if(!lb){headsBuyForm(id);return;}
+  btn.disabled=true;btn.textContent='Saving\u2026';
+  var cost=parseFloat(lb.cost)||0;
+  opsPost({task:'purchase',submissionId:newId(),date:localToday(),supplier:lb.supplier,qty:n,costPerBird:cost,totalCost:Math.round(n*cost*100)/100,notes:'Logged from the bird pickup reminder'}).then(function(res){
+    btn.disabled=false;btn.textContent='Log it';
+    if(!res||!res.ok){toast('\u2717 Not saved: '+(res?opsError(res,true):'no signal'),true);return;}
+    var b=HEADS.st&&HEADS.st.birds;if(b){b.bought=(b.bought||0)+n;b.inPens=(b.inPens||0)+n;}
+    toast('\u2713 '+n+' birds logged from '+lb.supplier);headsMark(hid);
+  }).catch(function(){btn.disabled=false;btn.textContent='Log it';toast('\u2717 No signal. Not saved.',true);});
+}
 function headsAskBox(r,id){
   return '<span class="hu-ask"><input type="number" min="1" max="60" inputmode="numeric" id="'+id+'" placeholder="Hunters" value="'+(r.booked||'')+'"><button type="button" class="btn-small btn-gold" onclick="headsSaveBooked(\''+esc(r.group).replace(/'/g,"\\'")+'\',\''+r.arrive+'\',\''+id+'\',this)">Save</button></span>';
 }
