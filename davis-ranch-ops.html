@@ -1875,7 +1875,8 @@ var pendingIds={};
 function opsPost(body){
   if(body.pin===undefined&&getPin())body.pin=getPin();
   // text/plain body = no preflight, so the sheet's answer can be read
-  return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(body)}).then(function(r){return r.text();}).then(function(t){
+  var ctl=window.AbortController?new AbortController():null;if(ctl)setTimeout(function(){ctl.abort();},25000);
+  return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(body),signal:ctl?ctl.signal:undefined}).then(function(r){return r.text();}).then(function(t){
     var s=String(t||'').trim();
     if(s==='ok')return {ok:true,legacy:true};
     try{return JSON.parse(s);}catch(e){return {ok:false,error:s.charAt(0)==='<'?'The ranch sheet answered with an error page.':(s||'No answer from the ranch sheet.')};}
@@ -1901,8 +1902,16 @@ async function saveOps(key,data,statusId,btn,okMsg,clearFn){
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   var s=document.getElementById(statusId);s.className='submit-status';
   var res=null;
-  try{res=await opsPost(data);}catch(e){res=null;}
+  if(navigator.onLine!==false||!outboxOk(data)){try{res=await opsPost(data);}catch(e){res=null;}}
   if(btn){btn.disabled=false;btn.textContent=btn.getAttribute('data-label');}
+  if(!res&&outboxOk(data)&&outboxAdd(data)){   // no signal: keep it on this phone, it sends itself later
+    delete pendingIds[key];
+    s.className='submit-status show queued';
+    s.textContent='\ud83d\udcf6 No signal \u2014 saved on this phone. It sends by itself when you have signal (it won\u2019t double up).';
+    if(clearFn)try{clearFn({ok:true,queued:true});}catch(e){}
+    clearTimeout(s._t);s._t=setTimeout(function(){s.className='submit-status';},9000);
+    return {ok:true,queued:true};
+  }
   if(!res){s.className='submit-status show error';s.textContent='✗ NOT saved — could not reach the Operations sheet. Check your signal and tap again (it won’t double up).';return null;}
   if(!res.ok){s.className='submit-status show error';s.textContent='✗ NOT saved: '+opsError(res,true);return null;}
   delete pendingIds[key];
@@ -5300,8 +5309,8 @@ function gicTap(btn){
   var names=Array.prototype.slice.call(el.querySelectorAll('.gic-b.on')).map(function(b){return b.getAttribute('data-name');});
   var m=el.querySelector('.gic-m');m.textContent='Saving…';
   var day=el.getAttribute('data-date')||localToday();
-  opsPost({task:'guideday',submissionId:newId(),date:day,group:g,names:names}).then(function(res){
-    if(res&&res.ok){m.textContent='✓ Saved';setTimeout(function(){m.textContent='';},2500);var c=el._r||gicCache.r;if(c){c.guideDays=c.guideDays||{};c.guideDays[g]=names;}if(faceCur==='guides')gdSeason();}
+  opsSend({task:'guideday',submissionId:newId(),date:day,group:g,names:names}).then(function(res){
+    if(res&&res.ok){m.textContent=res.queued?'\ud83d\udcf6 Saved on this phone, sends when there\u2019s signal':'\u2713 Saved';setTimeout(function(){m.textContent='';},2500);var c=el._r||gicCache.r;if(c){c.guideDays=c.guideDays||{};c.guideDays[g]=names;}if(faceCur==='guides')gdSeason();}
     else{var msg='✗ '+(res?opsError(res,true):'Not saved');gicRender(el,el._r||gicCache.r||{});var m2=el.querySelector('.gic-m');if(m2){m2.textContent=msg;m2.classList.add('err');}}
   }).catch(function(){m.textContent='✗ No signal — not saved';});
 }
@@ -5546,11 +5555,11 @@ function headsBuy(hid,id,btn){
   var lb=headsLastBuy();if(!lb){headsBuyForm(id);return;}
   btn.disabled=true;btn.textContent='Saving\u2026';
   var cost=parseFloat(lb.cost)||0;
-  opsPost({task:'purchase',submissionId:newId(),date:localToday(),supplier:lb.supplier,qty:n,costPerBird:cost,totalCost:Math.round(n*cost*100)/100,notes:'Logged from the bird pickup reminder'}).then(function(res){
+  opsSend({task:'purchase',submissionId:newId(),date:localToday(),supplier:lb.supplier,qty:n,costPerBird:cost,totalCost:Math.round(n*cost*100)/100,notes:'Logged from the bird pickup reminder'}).then(function(res){
     btn.disabled=false;btn.textContent='Log it';
     if(!res||!res.ok){toast('\u2717 Not saved: '+(res?opsError(res,true):'no signal'),true);return;}
     var b=HEADS.st&&HEADS.st.birds;if(b){b.bought=(b.bought||0)+n;b.inPens=(b.inPens||0)+n;}
-    toast('\u2713 '+n+' birds logged from '+lb.supplier);headsMark(hid);
+    toast(res.queued?'\ud83d\udcf6 '+n+' birds saved on this phone, they send when there\u2019s signal':'\u2713 '+n+' birds logged from '+lb.supplier);headsMark(hid);
   }).catch(function(){btn.disabled=false;btn.textContent='Log it';toast('\u2717 No signal. Not saved.',true);});
 }
 function headsAskBox(r,id){
@@ -5559,13 +5568,13 @@ function headsAskBox(r,id){
 function headsSaveBooked(group,arrive,id,btn){
   var n=parseInt(val(id),10);if(!(n>0)){toast('Enter how many hunters are arriving.',true);return;}
   btn.disabled=true;btn.textContent='Saving\u2026';
-  opsPost({task:'booked',submissionId:newId(),group:group,arrive:arrive,booked:n}).then(function(res){
+  opsSend({task:'booked',submissionId:newId(),group:group,arrive:arrive,booked:n}).then(function(res){
     btn.disabled=false;btn.textContent='Save';
     if(!res||!res.ok){toast('\u2717 Not saved: '+(res?opsError(res,true):'no signal'),true);return;}
     if(res.schedule&&res.schedule.length){faceSchedLive={schedule:res.schedule,checkouts:(faceSchedLive&&faceSchedLive.checkouts)||[]};}
     else faceSchedule().forEach(function(r){if(r.group===group&&r.arrive===arrive)r.booked=n;});
     try{localStorage.setItem('dr_sched',JSON.stringify(faceSchedLive));}catch(e){}
-    toast('\u2713 '+group+': '+n+' arriving');headsRender();faceRenderCamp();if(faceCur==='schedule')faceRenderSchedule();
+    toast((res.queued?'\ud83d\udcf6 Saved on this phone: ':'\u2713 ')+group+': '+n+' arriving');headsRender();faceRenderCamp();if(faceCur==='schedule')faceRenderSchedule();
   }).catch(function(){btn.disabled=false;btn.textContent='Save';toast('\u2717 No signal. Not saved.',true);});
 }
 // Season calendar: set the number arriving on any trip that isn't done
@@ -5696,5 +5705,101 @@ renderChecklist=function(st){var r=_renderChecklistP.apply(this,arguments);try{p
 .pay-fg input,.pay-fg select{width:100%;box-sizing:border-box;min-height:44px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 10px;font:500 1rem var(--font-body);letter-spacing:0;text-transform:none}
 .pay-fb{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}.pay-msg{color:#F5A3A4;font-size:.84rem;margin-top:6px}
 </style>
+<script>
+/* ═══ NO-SIGNAL MODE: entries saved on this phone when there's no signal, sent by themselves when it's back ═══
+   Every entry carries its own submission id, so a resend never doubles up in the sheet. */
+var OUTBOX_KEY='dr_outbox',OUTBAD_KEY='dr_outbox_bad',outboxBusy=false;
+var OUTBOX_TASKS={harvest:1,cleaning:1,release:1,purchase:1,inventory:1,guideday:1,booked:1};
+function outboxGet(k){try{return JSON.parse(localStorage.getItem(k||OUTBOX_KEY)||'[]');}catch(e){return [];}}
+function outboxPut(list,k){try{localStorage.setItem(k||OUTBOX_KEY,JSON.stringify(list));return true;}catch(e){return false;}}
+function outboxOk(body){return body&&OUTBOX_TASKS[body.task]&&body.action!=='delete'&&body.action!=='edit';}
+function outboxLabel(b){
+  var d=b.date?usDate(b.date).slice(0,5)+' ':'',g=b.group?b.group+' ':'';
+  return {harvest:'Harvest '+g+d+'('+(b.qty||0)+')',cleaning:'Cleaning '+g+d+'('+(b.totalBirds||0)+')',release:'Release '+g+d+'('+(b.qty||0)+')',purchase:'Bird purchase '+d+'('+(b.qty||0)+')',
+    inventory:'Inventory: '+(b.itemName||'item'),guideday:'Guides in camp '+g+d,booked:'Arriving count '+g}[b.task]||b.task;
+}
+function outboxAdd(body){
+  if(!body.submissionId)body.submissionId=newId();
+  if(body.pin===undefined&&getPin())body.pin=getPin();
+  var list=outboxGet();
+  if(!list.some(function(x){return x.body.submissionId===body.submissionId;}))list.push({at:Date.now(),label:outboxLabel(body),body:body});
+  var ok=outboxPut(list);outboxRender();return ok;
+}
+// send one entry; null = still no signal
+function outboxSendOne(body){
+  var ctl=window.AbortController?new AbortController():null,t=ctl?setTimeout(function(){ctl.abort();},25000):0;
+  return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(body),signal:ctl?ctl.signal:undefined}).then(function(r){return r.text();}).then(function(x){
+    clearTimeout(t);var s=String(x||'').trim();if(s==='ok')return {ok:true};
+    try{return JSON.parse(s);}catch(e){return {ok:false,error:'The ranch sheet answered with an error page.'};}
+  }).catch(function(){clearTimeout(t);return null;});
+}
+async function outboxFlush(manual){
+  if(outboxBusy)return;var list=outboxGet();if(!list.length){outboxRender();return;}
+  if(navigator.onLine===false&&!manual){outboxRender();return;}
+  outboxBusy=true;outboxRender();var sent=0;
+  try{
+    while((list=outboxGet()).length){
+      var x=list[0],res=await outboxSendOne(x.body);
+      if(!res)break;   // still no signal: try again later, in the same order
+      var rest=outboxGet().filter(function(y){return y.body.submissionId!==x.body.submissionId;});outboxPut(rest);
+      if(res.ok)sent++;
+      else{var bad=outboxGet(OUTBAD_KEY);bad.push({at:x.at,label:x.label,body:x.body,error:res.error||'Not saved.'});outboxPut(bad,OUTBAD_KEY);}
+    }
+  }finally{outboxBusy=false;}
+  var left=outboxGet().length,bad=outboxGet(OUTBAD_KEY).length;
+  if(sent)toast('✓ '+sent+' entr'+(sent===1?'y':'ies')+' sent'+(left?' · '+left+' still waiting for signal':'')+(bad?' · '+bad+' need a look':''),!!bad);
+  else if(manual&&left)toast('📶 Still no signal. They’ll send by themselves.',true);
+  outboxRender();
+  if(sent){try{loadChecklist();}catch(e){}try{if(dayState&&faceCur){refreshDayNote('h');refreshDayNote('c');}}catch(e){}}
+}
+function outboxRender(){
+  var list=outboxGet(),bad=outboxGet(OUTBAD_KEY);
+  var pill=document.getElementById('outbox-pill');
+  if(!pill){pill=document.createElement('button');pill.type='button';pill.id='outbox-pill';pill.className='ob-pill';pill.onclick=function(){navTo('');setTimeout(function(){var e=document.getElementById('outbox-slot');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});},200);outboxFlush(true);};document.body.appendChild(pill);}
+  pill.style.display=list.length||bad.length?'flex':'none';
+  pill.className='ob-pill'+(bad.length?' bad':'')+(outboxBusy?' busy':'');
+  pill.innerHTML=outboxBusy?'Sending…':(list.length?'📶 '+list.length+' waiting':'')+(list.length&&bad.length?' · ':'')+(bad.length?'⚠ '+bad.length+' to fix':'');
+  var el=document.getElementById('outbox-slot');if(!el)return;
+  if(!list.length&&!bad.length){el.innerHTML='';return;}
+  el.innerHTML='<div class="ob">'+(list.length?'<div class="ob-h"><b>📶 '+list.length+' entr'+(list.length===1?'y':'ies')+' saved on this phone</b><button type="button" class="btn-small btn-gold" onclick="outboxFlush(true)"'+(outboxBusy?' disabled':'')+'>'+(outboxBusy?'Sending…':'Send now')+'</button></div>'+
+    '<div class="ob-s">No signal when they were saved. They send by themselves as soon as you have signal; nothing doubles up.</div>'+
+    list.map(function(x){return '<div class="ob-i"><span>'+esc(x.label)+'</span><small>'+new Date(x.at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</small></div>';}).join(''):'')+
+    (bad.length?'<div class="ob-h bad"><b>⚠ '+bad.length+' couldn’t be saved in the sheet</b></div>'+bad.map(function(x,i){return '<div class="ob-i bad"><span>'+esc(x.label)+'<small>'+esc(x.error)+'</small></span><span class="ob-b"><button type="button" class="btn-small" onclick="outboxRetry('+i+')">Try again</button><button type="button" class="btn-small" onclick="outboxDrop('+i+',this)">Discard</button></span></div>';}).join('')+
+      '<div class="ob-s">Fix what it says (for example the day total or a limit), then try again, or discard it and enter it fresh.</div>':'')+'</div>';
+}
+function outboxRetry(i){var bad=outboxGet(OUTBAD_KEY),x=bad.splice(i,1)[0];outboxPut(bad,OUTBAD_KEY);if(x){var l=outboxGet();l.unshift({at:x.at,label:x.label,body:x.body});outboxPut(l);}outboxFlush(true);}
+function outboxDrop(i,btn){if(!btn.dataset.sure){btn.dataset.sure='1';btn.textContent='Tap again';return;}var bad=outboxGet(OUTBAD_KEY);bad.splice(i,1);outboxPut(bad,OUTBAD_KEY);outboxRender();}
+// for one-tap saves (guides in camp, arriving count, picked-up birds): send now, or keep it for later
+function opsSend(body){
+  if(!body.submissionId)body.submissionId=newId();
+  if(navigator.onLine===false&&outboxOk(body)){outboxAdd(body);return Promise.resolve({ok:true,queued:true});}
+  return outboxSendOne(Object.assign({pin:getPin()||undefined},body)).then(function(r){
+    if(r)return r;
+    if(outboxOk(body)){outboxAdd(body);return {ok:true,queued:true};}
+    return null;
+  });
+}
+window.addEventListener('online',function(){setTimeout(function(){outboxFlush();},1500);});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&outboxGet().length)outboxFlush();});
+window.addEventListener('DOMContentLoaded',function(){
+  var home=document.getElementById('wx-slot');
+  if(home&&!document.getElementById('outbox-slot')){var d=document.createElement('div');d.id='outbox-slot';home.parentNode.insertBefore(d,home);}
+  outboxRender();setTimeout(function(){outboxFlush();},3000);
+});
+setInterval(function(){if(outboxGet().length)outboxFlush();},45000);
+</script>
+<style>
+.ob{background:rgba(224,168,74,.1);border:1px solid rgba(224,168,74,.45);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.ob-h{display:flex;justify-content:space-between;align-items:center;gap:10px}.ob-h b{font-size:.95rem}.ob-h.bad{margin-top:10px}.ob-h.bad b{color:#F5A3A4}
+.ob-s{font-size:.78rem;color:var(--fg-soft);margin:4px 0 6px;line-height:1.35}
+.ob-i{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06);font-size:.86rem}.ob-i small{color:var(--fg-soft);display:block;font-size:.74rem}
+.ob-i.bad span small{color:#F5A3A4}.ob-b{display:flex;gap:6px;flex-shrink:0}
+.ob-pill{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:900;display:none;align-items:center;gap:6px;background:#2a2112;color:var(--gold-light);border:1px solid rgba(224,168,74,.6);border-radius:999px;padding:8px 12px;font:700 .78rem var(--font-body);box-shadow:0 6px 18px rgba(0,0,0,.4);cursor:pointer}
+.ob-pill.bad{color:#F5A3A4;border-color:rgba(241,119,120,.6)}.ob-pill.busy{opacity:.8}
+.submit-status.queued{display:block;background:rgba(224,168,74,.12);border:1px solid rgba(224,168,74,.45);color:var(--gold-light)}
+</style>
+<script>
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+</script>
 </body>
 </html>
