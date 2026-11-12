@@ -1104,7 +1104,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <header class="hx" style="--img:url(img/hero-s.webp)">
     <div class="hx-top">
       <div class="brand"><span class="mk" data-ic="feather"></span>Davis Hunting Co.</div>
-      <button type="button" class="icon-btn" onclick="openSearch()" aria-label="Find a hunter" data-ic="search"></button>
+      <span class="hx-btns"><button type="button" class="icon-btn" id="brief-btn" onclick="briefPlay()" aria-label="Play the briefing" data-ic="speak"></button><button type="button" class="icon-btn" onclick="openSearch()" aria-label="Find a hunter" data-ic="search"></button></span>
     </div>
     <div class="hx-copy">
       <div class="eyebrow" id="hx-date">&nbsp;</div>
@@ -1508,6 +1508,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<i class="chev" data-ic="chev"></i></button>
+    <button type="button" class="rec" onclick="briefAuto(!BRIEF.on)"><i class="ri" data-ic="speak"></i>Spoken briefing<span id="brief-set">On first tap each day</span><i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
@@ -5818,6 +5819,76 @@ var _faceViewB=faceView;faceView=function(v){_faceViewB(v);if(v==='cleaning'){fa
 .cl-bags .cl-bl{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600}
 .cl-bags b{font:500 1.6rem/1 var(--font-display);color:#fff}.cl-bags em{font-style:normal;font-size:.8rem;margin-left:auto}
 .cl-bags em.ok{color:#8FD9A8}.cl-bags em.warn{color:#F0C36A}.cl-bags em.bad{color:#F5A3A4}
+</style>
+<script>
+/* ═══ SPOKEN BRIEFING: a quick good-morning overview, read out loud on the first tap of the day (or the speaker button) ═══
+   Uses the phone's own voice (nothing is sent anywhere). Browsers only allow speech after a tap, so it waits for one. */
+FACE_IC.speak='<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>';
+var BRIEF={on:true,speaking:false};
+try{BRIEF.on=localStorage.getItem('dr_brief_auto')!=='0';}catch(e){}
+function briefDay(iso){return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}
+function briefWeekday(iso){return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'long'});}
+function briefSay(t){return String(t||'').replace(/\bmph\b/g,'miles an hour').replace(/(\d+)\s*to\s*(\d+)/g,'$1 to $2').replace(/°/g,' degrees').replace(/[—–]/g,', ').replace(/\s+·\s+/g,', ').replace(/\s+/g,' ').trim();}
+function briefText(){
+  var t=localToday(),h=new Date().getHours(),parts=[];
+  parts.push((h<12?'Good morning':h<17?'Good afternoon':'Good evening')+'. It’s '+briefDay(t)+'.');
+  var w=HEADS.wx;
+  if(w){
+    var s=[];
+    if(w.now!=null)s.push('Right now it’s '+w.now+' degrees'+(w.nowTxt?' and '+String(w.nowTxt).toLowerCase():''));
+    if(w.high!=null)s.push('high of '+w.high);
+    if(w.low!=null)s.push('low tonight of '+w.low);
+    parts.push(s.join(', ')+'.');
+    if(w.wind)parts.push('Wind '+(w.windDir?'out of the '+w.windDir+' ':'')+briefSay(w.wind)+(w.rain?', with a '+w.rain+' percent chance of rain':'')+'.');
+    try{parts.push('Sunset is at '+wxSun(t)+'.');}catch(e){}
+  }
+  var c=faceCamp();
+  c.inCamp.forEach(function(r){var st=faceStay(r,t);
+    parts.push(st==='Arrival night'?faceName(r)+' arrives tonight.':st==='Checkout day'?faceName(r)+' checks out today.':faceName(r)+' is in camp, '+st.toLowerCase()+', leaving '+briefWeekday(r.depart)+'.');});
+  if(!c.inCamp.length&&c.next){var dn=daysApart(c.next.arrive,t);parts.push('No one’s in camp. Next up is '+faceName(c.next)+(dn===0?', arriving today.':dn===1?', arriving tomorrow.':', arriving '+briefWeekday(c.next.arrive)+'.'));}
+  var done=headsDone(),list=headsList().filter(function(x){return !done[x.id];});
+  if(list.length){parts.push(list.length===1?'One thing to remember:':'A few things to remember:');list.slice(0,3).forEach(function(x){parts.push(briefSay(x.t)+'.');});}
+  var ob=(typeof outboxGet==='function')?outboxGet().length:0;if(ob)parts.push('You have '+ob+' entr'+(ob===1?'y':'ies')+' saved on this phone, waiting for signal.');
+  var hunt=c.inCamp.some(function(r){return /^Hunt day/.test(faceStay(r,t));});
+  parts.push(hunt?'Have a good hunt.':'Have a good one.');
+  return parts.join(' ').replace(/\.\./g,'.');
+}
+function briefVoice(){
+  var v=(window.speechSynthesis&&speechSynthesis.getVoices())||[],pick=null;
+  ['Samantha','Google US English','Microsoft Aria','Microsoft Jenny','Alex','Karen','Daniel'].some(function(n){pick=v.filter(function(x){return x.name.indexOf(n)>=0;})[0];return !!pick;});
+  return pick||v.filter(function(x){return /^en(-|_)US/i.test(x.lang);})[0]||v.filter(function(x){return /^en/i.test(x.lang);})[0]||null;
+}
+function briefPlay(){
+  if(!window.speechSynthesis){toast('This browser can’t read out loud.',true);return;}
+  if(BRIEF.speaking){speechSynthesis.cancel();briefBtn(false);return;}
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(briefText()),vo=briefVoice();if(vo)u.voice=vo;u.lang='en-US';u.rate=1;u.pitch=1;
+  u.onend=u.onerror=function(){briefBtn(false);};
+  briefBtn(true);speechSynthesis.speak(u);
+  try{localStorage.setItem('dr_brief_day',localToday());}catch(e){}
+}
+function briefBtn(on){BRIEF.speaking=on;var b=document.getElementById('brief-btn');if(b){b.classList.toggle('on',on);b.setAttribute('aria-label',on?'Stop the briefing':'Play the briefing');}}
+function briefAuto(on){BRIEF.on=on;try{localStorage.setItem('dr_brief_auto',on?'1':'0');}catch(e){}var el=document.getElementById('brief-set');if(el)el.textContent=on?'On first tap each day':'Off';toast(on?'Briefing plays on your first tap each day':'Briefing off (tap the speaker on Home to hear it)');}
+// first tap of the day: play once the morning's info has loaded
+function briefFirstTap(e){
+  document.removeEventListener('pointerdown',briefFirstTap,true);
+  if(!BRIEF.on||faceCur)return;
+  var last='';try{last=localStorage.getItem('dr_brief_day')||'';}catch(x){}
+  if(last===localToday())return;
+  if(e&&e.target&&e.target.closest&&e.target.closest('#brief-btn'))return;   // the speaker button plays it itself
+  var go=function(){briefPlay();};
+  if(HEADS.st)go();else{var n=0,iv=setInterval(function(){if(HEADS.st||++n>8){clearInterval(iv);go();}},500);}
+}
+window.addEventListener('DOMContentLoaded',function(){
+  document.addEventListener('pointerdown',briefFirstTap,true);
+  var el=document.getElementById('brief-set');if(el)el.textContent=BRIEF.on?'On first tap each day':'Off';
+  if(window.speechSynthesis)speechSynthesis.getVoices();   // load the voices early
+});
+</script>
+<style>
+.hx-btns{display:flex;gap:8px}
+#brief-btn.on{background:var(--gold);color:#1A1207;box-shadow:0 0 0 4px rgba(224,168,74,.25)}
+#sheet-more .rec span{margin-left:auto;margin-right:6px;font-size:.78rem;color:var(--fg-soft)}
 </style>
 </body>
 </html>
