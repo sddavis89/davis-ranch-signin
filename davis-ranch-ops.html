@@ -5867,45 +5867,116 @@ function briefVoice(){
   ['Samantha','Google US English','Microsoft Aria','Microsoft Jenny','Alex','Karen','Daniel'].some(function(n){pick=v.filter(function(x){return x.name.indexOf(n)>=0;})[0];return !!pick;});
   return pick||v.filter(function(x){return /^en(-|_)US/i.test(x.lang);})[0]||v.filter(function(x){return /^en/i.test(x.lang);})[0]||null;
 }
+// Natural voices (Google Chirp 3 HD, made by the script; needs signal). 'phone' = the phone's own voice.
+var BRIEF_CLOUD=[['Algenib','Gravelly and rough. Closest to a rough-neck'],['Zubenelgenubi','Casual and laid-back'],['Umbriel','Easy-going'],['Alnilam','Firm and steady'],['Orus','Firm, a little deeper'],['Charon','Clear, like a news guy']];
+var BRIEF_SILENT='data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAACAAAA/oAR0dHR0dHR0dHR0dHYmJiYmJiYmJiYmJifHx8fHx8fHx8fHx8fJaWlpaWlpaWlpaWlrGxsbGxsbGxsbGxsbHLy8vLy8vLy8vLy8vl5eXl5eXl5eXl5eXl////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQC1AAAAAAAAAP6yysejgAAAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NCxKMAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NAxKQAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80LEowAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80DEpAAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsSjAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==';
+function briefCloud(){var v='Algenib';try{v=localStorage.getItem('dr_brief_cloud')||'Algenib';}catch(e){}return v;}
+function briefAudio(){if(!BRIEF.au){BRIEF.au=new Audio();BRIEF.au.preload='auto';}return BRIEF.au;}
+// iPhones only let sound start from a tap, so "warm up" the player during the tap, then fill it once the recording arrives
+function briefUnlock(){try{var a=briefAudio();a.onended=a.onerror=null;a.src=BRIEF_SILENT;var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}catch(e){}}
+function briefCloudOk(){return procConfigured()&&!!getPin()&&navigator.onLine!==false;}
+function briefFetch(text,voice){
+  if(!briefCloudOk())return Promise.resolve(null);
+  var r=briefRate(),k=voice+'|'+r+'|'+text;
+  try{var c=JSON.parse(localStorage.getItem('dr_brief_audio')||'null');if(c&&c.k===k)return Promise.resolve(c.a);}catch(e){}
+  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort();},15000);
+  var q={action:'tts',text:text,voice:voice,rate:r,pin:getPin()};
+  var qs=Object.keys(q).map(function(x){return encodeURIComponent(x)+'='+encodeURIComponent(q[x]);}).join('&');
+  return fetch(PROCESSING_URL+'?'+qs,ctl?{signal:ctl.signal}:{}).then(function(res){return res.json();}).then(function(res){
+    clearTimeout(tm);
+    if(res&&res.ok&&res.audio){BRIEF.err='';if(text.length>200){try{localStorage.setItem('dr_brief_audio',JSON.stringify({k:k,a:res.audio}));}catch(e){}}return res.audio;}
+    BRIEF.err=(res&&res.error)||'';BRIEF.noKey=!!(res&&res.noKey);return null;
+  }).catch(function(){clearTimeout(tm);BRIEF.err='No answer from the script';return null;});
+}
+function briefParts(){return briefText().split(/(?<=[.:])\s+(?=[A-Z0-9])/).filter(Boolean);}
+function briefStop(){BRIEF.tok=(BRIEF.tok||0)+1;try{speechSynthesis.cancel();}catch(e){}try{if(BRIEF.au)BRIEF.au.pause();}catch(e){}briefBtn(false);}
 function briefPlay(){
-  if(!window.speechSynthesis){toast('This browser can’t read out loud.',true);return;}
-  if(BRIEF.speaking){speechSynthesis.cancel();briefBtn(false);return;}
+  if(BRIEF.speaking){briefStop();return;}
+  var parts=briefParts(),cv=briefCloud();
+  try{localStorage.setItem('dr_brief_day',localToday());}catch(e){}
+  if(cv!=='phone'&&briefCloudOk()){
+    briefUnlock();briefBtn(true);
+    var tok=BRIEF.tok=(BRIEF.tok||0)+1;
+    briefFetch(parts.join('\n'),cv).then(function(a){
+      if(tok!==BRIEF.tok)return;
+      if(!a){briefPhone(parts);return;}
+      var au=briefAudio();
+      au.onended=function(){if(tok===BRIEF.tok)briefBtn(false);};
+      au.onerror=function(){if(tok===BRIEF.tok)briefPhone(parts);};
+      au.src='data:audio/mpeg;base64,'+a;
+      var pr=au.play();if(pr&&pr.catch)pr.catch(function(){if(tok===BRIEF.tok)briefPhone(parts);});
+    });
+    return;
+  }
+  briefPhone(parts);
+}
+// the phone's own voice: one sentence at a time with a short pause
+function briefPhone(parts){
+  if(!window.speechSynthesis){briefBtn(false);toast('This phone can’t read out loud.',true);return;}
   speechSynthesis.cancel();
-  var vo=briefVoice(),rate=briefRate(),parts=briefText().split(/(?<=[.:])\s+(?=[A-Z0-9])/).filter(Boolean),i=0;
+  var vo=briefVoice(),rate=briefRate(),i=0,tok=BRIEF.tok=(BRIEF.tok||0)+1;
   briefBtn(true);
   var next=function(){
-    if(!BRIEF.speaking||i>=parts.length){briefBtn(false);return;}
+    if(tok!==BRIEF.tok)return;
+    if(i>=parts.length){briefBtn(false);return;}
     var u=new SpeechSynthesisUtterance(parts[i++]);if(vo){u.voice=vo;u.lang=vo.lang;}else u.lang='en-US';u.rate=rate;u.pitch=1;
-    u.onend=function(){setTimeout(next,220);};u.onerror=function(){briefBtn(false);};
+    u.onend=function(){setTimeout(next,220);};u.onerror=function(){if(tok===BRIEF.tok)briefBtn(false);};
     speechSynthesis.speak(u);
   };
   next();
-  try{localStorage.setItem('dr_brief_day',localToday());}catch(e){}
 }
 function briefRate(){var r=0.95;try{r=parseFloat(localStorage.getItem('dr_brief_rate'))||0.95;}catch(e){}return r;}
-// More → Spoken briefing: pick the voice and speed, with a preview
+// More › Spoken briefing: pick the voice and speed, with a preview
 function briefSettings(){
   closeSheet&&closeSheet();
   var old=document.getElementById('brief-sheet');if(old)old.remove();
-  var all=briefVoices(),want='';try{want=localStorage.getItem('dr_brief_voice')||'';}catch(e){}
-  var cur=briefVoice(),r=briefRate();
+  var cv=briefCloud(),all=briefVoices(),pv=briefVoice(),r=briefRate(),ok=briefCloudOk();
+  var row=function(kind,val,title,sub,sel){return '<label class="bv-v'+(sel?' on':'')+'"><input type="radio" name="bv" value="'+esc(kind+':'+val)+'"'+(sel?' checked':'')+' onchange="briefPick(this.value)"><span>'+esc(title)+'<small>'+esc(sub)+'</small></span><button type="button" class="btn-small" onclick="event.preventDefault();briefPreview(\''+esc(kind+':'+val).replace(/'/g,"\'")+'\')">Preview</button></label>';};
+  var note=!procConfigured()?'':!getPin()?'Enter your PIN in the app to use these. Until then it uses the phone voice.':BRIEF.noKey?'The natural voice isn’t turned on in the script yet, so it’s using the phone voice for now.':BRIEF.err?'Last try didn’t work ('+BRIEF.err+'), so it used the phone voice.':'Needs signal. With no signal it uses the phone voice.';
   var d=document.createElement('div');d.id='brief-sheet';d.className='bv';
-  d.innerHTML='<div class="bv-card" role="dialog" aria-label="Spoken briefing"><div class="bv-h"><b>Spoken briefing</b><button type="button" class="icon-btn" onclick="document.getElementById(\'brief-sheet\').remove()" aria-label="Close">\u2715</button></div>'+
+  d.innerHTML='<div class="bv-card" role="dialog" aria-label="Spoken briefing"><div class="bv-h"><b>Spoken briefing</b><button type="button" class="icon-btn" onclick="briefStop();document.getElementById(\'brief-sheet\').remove()" aria-label="Close">\u2715</button></div>'+
     '<label class="bv-row"><input type="checkbox" id="bv-auto"'+(BRIEF.on?' checked':'')+' onchange="briefAuto(this.checked)"> Play on my first tap each day</label>'+
-    '<div class="bv-l">Voice <small>(the ones on this phone or computer; men\u2019s voices first)</small></div>'+
-    (all.length?'<div class="bv-list">'+all.map(function(x){var sel=cur&&x.v.name===cur.name;return '<label class="bv-v'+(sel?' on':'')+'"><input type="radio" name="bv" value="'+esc(x.v.name)+'"'+(sel?' checked':'')+' onchange="briefPick(this.value)"><span>'+esc(x.v.name)+'<small>'+esc(x.v.lang)+(x.good?' \u00b7 natural':'')+(x.man?' \u00b7 man':'')+'</small></span><button type="button" class="btn-small" onclick="event.preventDefault();briefPreview(\''+esc(x.v.name).replace(/'/g,"\\'")+'\')">Preview</button></label>';}).join('')+'</div>':'<div class="report-hint">No voices found yet. Close this and open it again in a moment.</div>')+
+    '<div class="bv-l">Natural voices <small>(real-sounding men’s voices)</small></div>'+
+    '<div class="bv-list">'+BRIEF_CLOUD.map(function(x){return row('cloud',x[0],x[0],x[1],cv===x[0]);}).join('')+'</div>'+
+    '<p class="bv-tip" id="bv-note">'+esc(note)+'</p>'+
+    '<div class="bv-l">Phone voices <small>(work with no signal)</small></div>'+
+    (all.length?'<div class="bv-list">'+all.map(function(x){return row('phone',x.v.name,x.v.name,x.v.lang+(x.good?' \u00b7 natural':'')+(x.man?' \u00b7 man':''),cv==='phone'&&pv&&x.v.name===pv.name);}).join('')+'</div>':'<div class="report-hint">No phone voices found yet. Close this and open it again in a moment.</div>')+
     '<div class="bv-l">Speed</div><div class="bv-sp">'+[[0.85,'Slower'],[0.95,'Normal'],[1.05,'Faster']].map(function(o){return '<button type="button" class="btn-small'+(Math.abs(r-o[0])<0.01?' btn-gold':'')+'" onclick="briefSetRate('+o[0]+',this)">'+o[1]+'</button>';}).join('')+'</div>'+
-    '<p class="bv-tip">Want a more natural man\u2019s voice? On iPhone: Settings \u203a Accessibility \u203a Spoken Content \u203a Voices \u203a English, then download an <b>Enhanced</b> or <b>Premium</b> voice. On a Mac: System Settings \u203a Accessibility \u203a Spoken Content \u203a System voice \u203a Manage Voices. Then come back here and pick it.</p>'+
-    '<button type="button" class="btn-submit" onclick="document.getElementById(\'brief-sheet\').remove();briefPlay()">Play the briefing</button></div>';
+    '<button type="button" class="btn-submit" style="margin-top:16px" onclick="document.getElementById(\'brief-sheet\').remove();briefStop();briefPlay()">Play the briefing</button></div>';
   document.body.appendChild(d);
 }
-function briefPick(name){try{localStorage.setItem('dr_brief_voice',name);}catch(e){}document.querySelectorAll('#brief-sheet .bv-v').forEach(function(l){l.classList.toggle('on',l.querySelector('input').value===name);});briefPreview(name);}
-function briefPreview(name){
-  if(!window.speechSynthesis)return;speechSynthesis.cancel();BRIEF.speaking=false;
-  var v=briefVoices().filter(function(x){return x.v.name===name;})[0],u=new SpeechSynthesisUtterance('Good morning. Here\u2019s your quick look at the day at Davis Hunting Company.');
-  if(v){u.voice=v.v;u.lang=v.v.lang;}u.rate=briefRate();speechSynthesis.speak(u);
+function briefPick(v){
+  var i=v.indexOf(':'),kind=v.slice(0,i),name=v.slice(i+1);
+  try{if(kind==='cloud')localStorage.setItem('dr_brief_cloud',name);else{localStorage.setItem('dr_brief_cloud','phone');localStorage.setItem('dr_brief_voice',name);}}catch(e){}
+  document.querySelectorAll('#brief-sheet .bv-v').forEach(function(l){l.classList.toggle('on',l.querySelector('input').value===v);});
+  briefPreview(v);
 }
-function briefSetRate(r,btn){try{localStorage.setItem('dr_brief_rate',String(r));}catch(e){}btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.toggle('btn-gold',b===btn);});var n='';try{n=localStorage.getItem('dr_brief_voice')||'';}catch(e){}var cv=briefVoice();briefPreview(n||(cv?cv.name:''));}
+var BRIEF_SAMPLE='Good morning. Here’s your quick look at the day at Davis Hunting Company.';
+function briefPreview(v){
+  var i=v.indexOf(':'),kind=v.slice(0,i),name=v.slice(i+1);
+  briefStop();
+  if(kind==='cloud'){
+    var n=document.getElementById('bv-note');
+    if(!briefCloudOk()){if(n)n.textContent=!getPin()?'Enter your PIN in the app to hear these.':'No signal right now. Try again when you have signal.';return;}
+    briefUnlock();if(n)n.textContent='Getting '+name+'\u2026';
+    var tok=BRIEF.tok;
+    briefFetch(BRIEF_SAMPLE,name).then(function(a){
+      if(tok!==BRIEF.tok)return;
+      if(!a){if(n)n.textContent=BRIEF.noKey?'The natural voice isn’t turned on in the script yet.':'Couldn’t get that voice ('+(BRIEF.err||'no answer')+').';return;}
+      if(n)n.textContent='Playing '+name+'. Needs signal; with no signal it uses the phone voice.';
+      var au=briefAudio();au.onended=au.onerror=null;au.src='data:audio/mpeg;base64,'+a;var pr=au.play();if(pr&&pr.catch)pr.catch(function(){});
+    });
+    return;
+  }
+  if(!window.speechSynthesis)return;
+  var pv=briefVoices().filter(function(x){return x.v.name===name;})[0],u=new SpeechSynthesisUtterance(BRIEF_SAMPLE);
+  if(pv){u.voice=pv.v;u.lang=pv.v.lang;}u.rate=briefRate();speechSynthesis.speak(u);
+}
+function briefSetRate(r,btn){
+  try{localStorage.setItem('dr_brief_rate',String(r));}catch(e){}
+  btn.parentNode.querySelectorAll('button').forEach(function(b){b.classList.toggle('btn-gold',b===btn);});
+  var cv=briefCloud(),pv=briefVoice();briefPreview(cv!=='phone'?'cloud:'+cv:'phone:'+(pv?pv.name:''));
+}
 function briefBtn(on){BRIEF.speaking=on;var b=document.getElementById('brief-btn');if(b){b.classList.toggle('on',on);b.setAttribute('aria-label',on?'Stop the briefing':'Play the briefing');}}
 function briefAuto(on){BRIEF.on=on;try{localStorage.setItem('dr_brief_auto',on?'1':'0');}catch(e){}var el=document.getElementById('brief-set');if(el)el.textContent=on?'On first tap each day':'Off';toast(on?'Briefing plays on your first tap each day':'Briefing off (tap the speaker on Home to hear it)');}
 // first tap of the day: play once the morning's info has loaded
@@ -5915,6 +5986,7 @@ function briefFirstTap(e){
   var last='';try{last=localStorage.getItem('dr_brief_day')||'';}catch(x){}
   if(last===localToday())return;
   if(e&&e.target&&e.target.closest&&e.target.closest('#brief-btn'))return;   // the speaker button plays it itself
+  if(briefCloud()!=='phone'&&briefCloudOk())briefUnlock();
   var go=function(){briefPlay();};
   if(HEADS.st)go();else{var n=0,iv=setInterval(function(){if(HEADS.st||++n>8){clearInterval(iv);go();}},500);}
 }
@@ -5932,7 +6004,7 @@ window.addEventListener('DOMContentLoaded',function(){
 .bv-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.bv-h b{font-size:1.1rem}
 .bv-row{display:flex;gap:10px;align-items:center;padding:8px 0;font-weight:600}.bv-row input{width:22px;height:22px;accent-color:var(--gold)}
 .bv-l{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);font-weight:600;margin:12px 0 6px}.bv-l small{letter-spacing:0;text-transform:none;font-weight:400}
-.bv-list{display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow:auto}
+.bv-list{display:flex;flex-direction:column;gap:6px}
 .bv-v{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:12px;cursor:pointer}.bv-v.on{border-color:var(--gold)}
 .bv-v input{accent-color:var(--gold)}.bv-v small{display:block;font-size:.72rem;color:var(--fg-soft)}
 .bv-sp{display:flex;gap:8px}.bv-tip{font-size:.8rem;color:var(--fg-soft);line-height:1.45;margin:14px 0}
