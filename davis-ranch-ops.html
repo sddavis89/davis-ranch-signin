@@ -1084,6 +1084,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <button type="button" data-nav="purchase" onclick="navTo('purchase')"><i data-ic="truck"></i>Buy birds</button>
   <div class="sh">Groups</div>
   <button type="button" data-nav="receipts" onclick="navTo('receipts')"><i data-ic="receipt"></i>Check out &amp; receipts</button>
+  <button type="button" data-nav="payments" onclick="navTo('payments')"><i data-ic="cash"></i>Payments</button>
   <button type="button" data-nav="schedule" onclick="navTo('schedule')"><i data-ic="cal"></i>Season calendar</button>
   <button type="button" data-nav="guides" onclick="navTo('guides')"><i data-ic="users"></i>Guides in camp</button>
   <button type="button" onclick="openSearch()"><i data-ic="search"></i>Find a hunter</button>
@@ -1141,6 +1142,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
         <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<span>Password locked</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<span>Report in seconds</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<span>Who's here, who's next</span><i class="chev" data-ic="chev"></i></button>
+        <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<span id="r-owed">Who still owes</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<span>Check in, roster, season</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('planning')"><i class="ri" data-ic="chart"></i>Dashboard<span>Season at a glance</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="trend"></i>Daily summary<span id="r-sum"></span><i class="chev" data-ic="chev"></i></button>
@@ -1504,6 +1506,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
+    <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('reports')"><i class="ri" data-ic="trend"></i>Season reports<i class="chev" data-ic="chev"></i></button>
@@ -5577,5 +5580,121 @@ faceRenderSchedule=function(){
 };
 
 </script>
+<script>
+/* ═══ PAYMENTS: mark invoices paid (check, Venmo, cash, card) and see who still owes ═══ */
+FACE_IC.cash='<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>';
+FACE_BANNER.payments=['lodge','Payments','Who has paid, and who still owes'];
+var PAY={data:null,show:'owes',group:'',open:''};
+function payOpen(){
+  var b=document.getElementById('pay-body');if(!b)return;
+  if(!getPin()){b.innerHTML='<div class="gf-pin"><b>Enter the records PIN</b><span>Payments show names and amounts, so they&rsquo;re behind your PIN.</span><div class="proc-pin"><input type="password" id="pay-pin" inputmode="numeric" autocomplete="off" placeholder="Records PIN"><button type="button" onclick="setPin(val(\'pay-pin\').trim());payOpen()">Open</button></div></div>';return;}
+  b.innerHTML='<div class="report-hint">Loading invoices and payments&hellip;</div>';
+  procGet({action:'payments'}).then(function(r){
+    if(!r||!r.ok){b.innerHTML='<div class="proc-msg err">'+esc(r?(/Unknown action/.test(r.error||'')?'Paste the newest Davis Ranch script (2026-11-11j) and deploy a New version to use Payments.':handleProcError(r)):'Could not load.')+'</div>';return;}
+    PAY.data=r;payRender();
+  }).catch(function(){b.innerHTML='<div class="proc-msg err">Could not reach the records sheet. Check your signal and try again.</div>';});
+}
+function payRender(){
+  var b=document.getElementById('pay-body'),r=PAY.data;if(!b||!r)return;
+  var I=r.invoices.filter(function(v){return !PAY.group||v.group===PAY.group;}),groups=[];
+  r.invoices.forEach(function(v){if(groups.indexOf(v.group)<0)groups.push(v.group);});
+  var T={billed:0,paid:0,left:0,owing:0};I.forEach(function(v){T.billed+=v.total;T.paid+=v.paid+v.deposit;if(v.left>0.004){T.left+=v.left;T.owing++;}});
+  var list=I.filter(function(v){return PAY.show==='all'||v.left>0.004;});
+  var html='<div class="gf-tiles pay-tiles"><div class="'+(T.left>0?'warn':'')+'"><span>Still owed</span><b>'+mnyMoney0(T.left)+'</b><small>'+T.owing+' invoice'+(T.owing===1?'':'s')+'</small></div>'+
+    '<div><span>Paid</span><b>'+mnyMoney0(T.paid)+'</b><small>incl. deposits</small></div><div><span>Billed</span><b>'+mnyMoney0(T.billed)+'</b><small>'+I.length+' invoices</small></div></div>'+
+    '<div class="gf-bar"><div class="gf-seg" id="pay-seg"><button type="button" class="'+(PAY.show==='owes'?'on':'')+'" onclick="PAY.show=\'owes\';payRender()">Still owe</button><button type="button" class="'+(PAY.show==='all'?'on':'')+'" onclick="PAY.show=\'all\';payRender()">All</button></div>'+
+    '<select id="pay-group" aria-label="Group" onchange="PAY.group=this.value;payRender()"><option value="">All groups</option>'+groups.map(function(g){return '<option'+(g===PAY.group?' selected':'')+'>'+esc(g)+'</option>';}).join('')+'</select></div>';
+  if(!list.length)html+='<div class="gf-ok">✓ '+(PAY.show==='owes'?'Nobody owes anything'+(PAY.group?' in '+esc(PAY.group):'')+'.':'No invoices yet.')+'</div>';
+  var cur='';
+  list.forEach(function(v){
+    if(v.group!==cur){cur=v.group;var gl=I.filter(function(x){return x.group===cur;}).reduce(function(a,x){return a+Math.max(0,x.left);},0);html+='<div class="sec-h pay-gh"><span>'+esc(cur)+(gl>0.004?' · '+money(gl)+' owed':' · all paid')+'</span>'+(gl>0.004?'<button type="button" class="pay-all" onclick="payAll(this,\''+esc(cur).replace(/'/g,"\\'")+'\')">Mark all paid</button>':'')+'</div>';}
+    var st=v.status,cls=st==='Paid'?'ok':st==='Overpaid'?'warn':st==='Partly paid'?'part':'owe',op=PAY.open===v.invoiceNo;
+    html+='<div class="pay-c" id="pc-'+esc(v.invoiceNo)+'"><div class="pay-t"><b>'+esc(v.name)+'</b><span class="pay-st '+cls+'">'+esc(st)+'</span></div>'+
+      '<div class="pay-m">#'+esc(v.invoiceNo)+' · '+esc(usDate(v.date))+' · '+esc(v.type)+(v.address?' · '+esc(v.address):'')+'</div>'+
+      '<div class="pay-n"><span>Invoice <b>'+money(v.total)+'</b></span>'+(v.deposit?'<span>Deposit <b>'+money(v.deposit)+'</b></span>':'')+'<span>Paid <b>'+money(v.paid)+'</b></span><span class="pay-left">Left <b>'+money(Math.max(0,v.left))+'</b></span></div>'+
+      (v.payments.length?'<div class="pay-h">'+v.payments.map(function(x){return '<div><span>'+esc(usDate(x.date).slice(0,5))+' · '+esc(x.method)+(x.ref?' '+esc(x.method==='Check'?'#'+x.ref:x.ref):'')+'</span><b>'+money(x.amount)+'</b><button type="button" class="pay-rm" onclick="payRemove(this,'+x.id+',\''+esc(v.invoiceNo)+'\')">Remove</button></div>';}).join('')+'</div>':'')+
+      (v.left>0.004?(op?payForm(v):'<button type="button" class="btn-small btn-gold pay-go" onclick="PAY.open=\''+esc(v.invoiceNo)+'\';payRender()">Record payment</button>'):'')+'</div>';
+  });
+  b.innerHTML=html;
+  if(PAY.open){var a=document.getElementById('pf-amt');if(a)a.focus();}
+}
+// past groups that already paid: one tap per group (each invoice gets a payment line, method "Other", dated today)
+async function payAll(btn,group){
+  var owe=PAY.data.invoices.filter(function(v){return v.group===group&&v.left>0.004;});
+  if(!btn.dataset.sure){btn.dataset.sure='1';btn.textContent='Tap again: '+owe.length+' invoice'+(owe.length===1?'':'s')+' paid in full';setTimeout(function(){if(btn.isConnected){btn.dataset.sure='';btn.textContent='Mark all paid';}},5000);return;}
+  btn.disabled=true;var done=0,last=null;
+  for(var i=0;i<owe.length;i++){
+    btn.textContent='Saving '+(i+1)+' of '+owe.length+'…';
+    try{last=await procPost({action:'payment',submissionId:newId(),invoiceNo:owe[i].invoiceNo,amount:Math.round(owe[i].left*100)/100,method:'Other',ref:'Marked paid in full',date:localToday()});}catch(e){last=null;}
+    if(!last||!last.ok)break;done++;
+  }
+  if(last&&last.ok)PAY.data=last;else if(done){try{PAY.data=await procGet({action:'payments'});}catch(e){}}
+  payRender();payOwedLine();
+  toast(done===owe.length?'✓ '+group+': '+done+' invoice'+(done===1?'':'s')+' marked paid':'✗ Stopped after '+done+' of '+owe.length+(last&&last.error?': '+last.error:'. Check your signal.'),done!==owe.length);
+}
+function payForm(v){
+  return '<div class="pay-f"><div class="pay-fg"><label>Amount<input type="number" step="0.01" min="0" inputmode="decimal" id="pf-amt" value="'+Math.max(0,v.left).toFixed(2)+'"></label>'+
+    '<label>How<select id="pf-m" onchange="document.getElementById(\'pf-refl\').firstChild.textContent=this.value===\'Check\'?\'Check #\':\'Note (optional)\'">'+['Check','Venmo','Cash','Card','Other'].map(function(m){return '<option>'+m+'</option>';}).join('')+'</select></label>'+
+    '<label id="pf-refl">Check #<input id="pf-ref" autocomplete="off"></label><label>Date<input type="date" id="pf-d" value="'+localToday()+'"></label></div>'+
+    '<div class="pay-fb"><button type="button" class="btn-small" onclick="PAY.open=\'\';payRender()">Cancel</button><button type="button" class="btn-small btn-gold" id="pf-save" onclick="paySave(\''+esc(v.invoiceNo)+'\')">Save payment</button></div><div class="pay-msg" id="pf-msg"></div></div>';
+}
+function paySave(no){
+  var amt=parseFloat(val('pf-amt')),m=val('pf-m'),ref=val('pf-ref').trim(),d=val('pf-d'),msg=document.getElementById('pf-msg'),btn=document.getElementById('pf-save');
+  if(!(amt>0)){msg.textContent='Enter the amount paid.';return;}
+  if(m==='Check'&&!ref){msg.textContent='Add the check number.';return;}
+  btn.disabled=true;btn.textContent='Saving…';
+  procPost({action:'payment',submissionId:newId(),invoiceNo:no,amount:amt,method:m,ref:ref,date:d}).then(function(r){
+    if(!r||!r.ok){btn.disabled=false;btn.textContent='Save payment';msg.textContent=r?handleProcError(r):'Could not reach the records sheet.';return;}
+    PAY.data=r;PAY.open='';payRender();toast('✓ '+money(amt)+' recorded on #'+no);payOwedLine();
+  }).catch(function(){btn.disabled=false;btn.textContent='Save payment';msg.textContent='No signal. Not saved.';});
+}
+function payRemove(btn,id,no){
+  if(!btn.dataset.sure){btn.dataset.sure='1';btn.textContent='Tap again to remove';setTimeout(function(){if(btn.isConnected){btn.dataset.sure='';btn.textContent='Remove';}},4000);return;}
+  btn.disabled=true;btn.textContent='Removing…';
+  procPost({action:'paymentRemove',submissionId:newId(),id:id,invoiceNo:no}).then(function(r){
+    if(!r||!r.ok){btn.disabled=false;btn.textContent='Remove';toast('✗ '+(r?handleProcError(r):'Not removed'),true);return;}
+    PAY.data=r;payRender();toast('Payment removed (kept on the Payments tab, marked Removed).');payOwedLine();
+  }).catch(function(){btn.disabled=false;btn.textContent='Remove';toast('✗ No signal.',true);});
+}
+function payOwedLine(){var o=(HEADS.st&&HEADS.st.owed)||null,el=document.getElementById('r-owed');if(PAY.data){var t=PAY.data.totals;o={count:t.owing,amount:t.left};if(HEADS.st)HEADS.st.owed=Object.assign(HEADS.st.owed||{},o);}if(el&&o)el.textContent=o.count?money(o.amount)+' owed':'All paid';}
+var _faceViewP=faceView;
+faceView=function(v){var was=faceCur;_faceViewP(v);var c=document.getElementById('card-payments');if(c){c.style.display=v==='payments'?'block':'none';c.classList.toggle('active',v==='payments');if(v==='payments'&&was!=='payments')payOpen();}};
+window.addEventListener('DOMContentLoaded',function(){
+  var inner=document.querySelector('.content-inner');
+  if(inner&&!document.getElementById('card-payments')){var d=document.createElement('div');d.className='form-card sc-card pay-card';d.id='card-payments';d.innerHTML='<div class="card-title">Payments</div><div id="pay-body"></div>';inner.appendChild(d);}
+});
+// Heads up: money still owed (on checkout day for that group, and Monday mornings for everyone)
+var _headsListP=headsList;
+headsList=function(){
+  var out=_headsListP(),o=HEADS.st&&HEADS.st.owed,t=localToday();
+  if(o&&o.count){
+    headsDay(t).rows.forEach(function(x){if(x.type==='Checkout day'&&o.byGroup&&o.byGroup[x.r.group])out.unshift({id:'owed-'+x.r.group.replace(/\W/g,''),ic:'cash',big:1,t:faceName(x.r)+': '+money(o.byGroup[x.r.group])+' still owed',s:'Record payments as they come in on the Payments page.'});});
+    if(new Date(t+'T12:00:00').getDay()===1&&headsSlot()==='Morning')out.push({id:'owed-week',ic:'cash',t:o.count+' invoice'+(o.count===1?'':'s')+' still owe '+money(o.amount),s:'Monday money check · Payments page.'});
+  }
+  return out;
+};
+var _renderChecklistP=renderChecklist;
+renderChecklist=function(st){var r=_renderChecklistP.apply(this,arguments);try{payOwedLine();}catch(e){}return r;};
+</script>
+<style>
+.pay-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pay-tiles b{font-size:clamp(1.15rem,5.2vw,1.7rem);white-space:nowrap}
+#pay-group{min-height:46px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;font:500 1rem var(--font-body);flex:1 1 160px}
+.pay-c{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.pay-t{display:flex;justify-content:space-between;align-items:center;gap:10px}.pay-t b{font-size:1.02rem}
+.pay-st{font:700 .66rem var(--font-body);letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.pay-st.owe{background:rgba(241,119,120,.16);color:#F5A3A4}.pay-st.part,.pay-st.warn{background:rgba(240,195,106,.18);color:#F0C36A}.pay-st.ok{background:rgba(110,200,140,.16);color:#8FD9A8}
+.pay-m{font-size:.78rem;color:var(--fg-soft);margin:2px 0 8px}
+.pay-n{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.85rem;color:var(--fg-mid)}.pay-n b{color:#fff}.pay-left b{color:var(--gold-light)}
+.pay-h{margin-top:8px;border-top:1px solid var(--line);padding-top:6px}.pay-h div{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;font-size:.82rem;color:var(--fg-soft);padding:3px 0}.pay-h b{color:var(--fg)}
+.pay-rm{background:none;border:0;color:var(--fg-soft);font:600 .74rem var(--font-body);cursor:pointer;text-decoration:underline;padding:4px}
+.pay-go{margin-top:10px}
+.pay-gh{display:flex;justify-content:space-between;align-items:center;gap:10px}.pay-all{background:none;border:1px solid rgba(224,168,74,.5);color:var(--gold-light);font:600 .72rem var(--font-body);letter-spacing:.02em;text-transform:none;border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.pay-f{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.pay-fg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.pay-fg label{display:flex;flex-direction:column;gap:4px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);font-weight:600}
+.pay-fg input,.pay-fg select{width:100%;box-sizing:border-box;min-height:44px;background:var(--input-bg);color:var(--fg);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 10px;font:500 1rem var(--font-body);letter-spacing:0;text-transform:none}
+.pay-fb{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}.pay-msg{color:#F5A3A4;font-size:.84rem;margin-top:6px}
+</style>
 </body>
 </html>
