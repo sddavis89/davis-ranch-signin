@@ -5879,14 +5879,23 @@ function briefFetch(text,voice){
   if(!briefCloudOk())return Promise.resolve(null);
   var r=briefRate(),k=voice+'|'+r+'|'+text;
   try{var c=JSON.parse(localStorage.getItem('dr_brief_audio')||'null');if(c&&c.k===k)return Promise.resolve(c.a);}catch(e){}
-  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort();},15000);
+  BRIEF.inflight=BRIEF.inflight||{};if(BRIEF.inflight[k])return BRIEF.inflight[k];
+  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort();},45000);
   var q={action:'tts',text:text,voice:voice,rate:r,pin:getPin()};
   var qs=Object.keys(q).map(function(x){return encodeURIComponent(x)+'='+encodeURIComponent(q[x]);}).join('&');
-  return fetch(PROCESSING_URL+'?'+qs,ctl?{signal:ctl.signal}:{}).then(function(res){return res.json();}).then(function(res){
+  var pr=BRIEF.inflight[k]=fetch(PROCESSING_URL+'?'+qs,ctl?{signal:ctl.signal}:{}).then(function(res){return res.json();}).then(function(res){
     clearTimeout(tm);
     if(res&&res.ok&&res.audio){BRIEF.err='';if(text.length>200){try{localStorage.setItem('dr_brief_audio',JSON.stringify({k:k,a:res.audio}));}catch(e){}}return res.audio;}
     BRIEF.err=(res&&res.error)||'';BRIEF.noKey=!!(res&&res.noKey);return null;
-  }).catch(function(){clearTimeout(tm);BRIEF.err='No answer from the script';return null;});
+  }).catch(function(){clearTimeout(tm);BRIEF.err='the script took too long';return null;}).then(function(a){delete BRIEF.inflight[k];return a;});
+  return pr;
+}
+// get the morning's recording ready in the background, so the first tap plays right away
+function briefWarm(){
+  if(!BRIEF.on||briefCloud()==='phone'||!briefCloudOk())return;
+  var last='';try{last=localStorage.getItem('dr_brief_day')||'';}catch(e){}
+  if(last===localToday()||!HEADS.st)return;
+  BRIEF.warmText=briefParts().join('\n');briefFetch(BRIEF.warmText,briefCloud());
 }
 function briefParts(){return briefText().split(/(?<=[.:])\s+(?=[A-Z0-9])/).filter(Boolean);}
 function briefStop(){BRIEF.tok=(BRIEF.tok||0)+1;try{speechSynthesis.cancel();}catch(e){}try{if(BRIEF.au)BRIEF.au.pause();}catch(e){}briefBtn(false);}
@@ -5896,10 +5905,13 @@ function briefPlay(){
   try{localStorage.setItem('dr_brief_day',localToday());}catch(e){}
   if(cv!=='phone'&&briefCloudOk()){
     briefUnlock();briefBtn(true);
-    var tok=BRIEF.tok=(BRIEF.tok||0)+1;
-    briefFetch(parts.join('\n'),cv).then(function(a){
+    var tok=BRIEF.tok=(BRIEF.tok||0)+1,txt=parts.join('\n');
+    if(BRIEF.warmText&&BRIEF.inflight&&BRIEF.inflight[cv+'|'+briefRate()+'|'+BRIEF.warmText]){txt=BRIEF.warmText;parts=txt.split('\n');}
+    var slow=setTimeout(function(){if(tok===BRIEF.tok)toast('Getting your briefing\u2026');},2500);
+    briefFetch(txt,cv).then(function(a){
+      clearTimeout(slow);
       if(tok!==BRIEF.tok)return;
-      if(!a){briefPhone(parts);return;}
+      if(!a){if(BRIEF.err&&!BRIEF.noKey)toast('Natural voice didn\u2019t come through ('+BRIEF.err+'), using the phone voice.',true);briefPhone(parts);return;}
       var au=briefAudio();
       au.onended=function(){if(tok===BRIEF.tok)briefBtn(false);};
       au.onerror=function(){if(tok===BRIEF.tok)briefPhone(parts);};
@@ -5992,6 +6004,7 @@ function briefFirstTap(e){
 }
 window.addEventListener('DOMContentLoaded',function(){
   document.addEventListener('pointerdown',briefFirstTap,true);
+  var wn=0,wiv=setInterval(function(){if((HEADS.st&&HEADS.wx)||++wn>10){clearInterval(wiv);briefWarm();}},1000);
   var el=document.getElementById('brief-set');if(el)el.textContent=BRIEF.on?'On first tap each day':'Off';
   if(window.speechSynthesis){speechSynthesis.getVoices();try{speechSynthesis.addEventListener('voiceschanged',function(){if(document.getElementById('brief-sheet')){briefSettings();}});}catch(e){}}   // load the voices early
 });
