@@ -1080,10 +1080,21 @@ async function handleSubmit(e) {
 
   const btn    = document.getElementById('btn-submit');
   const status = document.getElementById('submit-status');
+
+  // Already signed on this phone for this trip? Say so instead of sending a second copy.
+  const prior = signedBefore(firstName, lastName, group);
+  if (prior && !window.signAgainOk) {
+    status.className = 'submit-status show success';
+    status.textContent = '\u2713 You\u2019re already signed in for this trip (' + prior + '). No need to sign again. If something was wrong on your first one, tap the button again.';
+    btn.textContent = 'Sign again anyway';
+    window.signAgainOk = true;
+    return;
+  }
+
   btn.disabled = true;
-  btn.textContent = 'Submitting…';
+  btn.textContent = 'Sending…';
   status.className = 'submit-status show';
-  status.textContent = 'Sending your information securely…';
+  status.textContent = 'Sending your waiver\u2026 On slow signal this can take up to a minute. Please don\u2019t close this page or tap again.';
 
   // ── Google Sheets via Apps Script Web App ──────────────────────
   // SETUP INSTRUCTIONS (one-time, 5 minutes):
@@ -1120,6 +1131,7 @@ async function handleSubmit(e) {
     });
 
     // no-cors means we can't read the response, but if we get here without throwing it sent
+    rememberSigned(firstName, lastName, group);
     showThanks(firstName + ' ' + lastName);
 
   } catch (err) {
@@ -1128,6 +1140,24 @@ async function handleSubmit(e) {
     btn.disabled = false;
     btn.textContent = 'Submit Waiver';
   }
+}
+
+// Remember sign-ins on this phone for a week, so a second tap doesn't send a second waiver
+function signedKey(f, l, g) { return [f, l, g].map(function (x) { return String(x || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }).join('|'); }
+function signedBefore(f, l, g) {
+  try {
+    var list = JSON.parse(localStorage.getItem('dr_signed') || '[]'), k = signedKey(f, l, g), wk = Date.now() - 7 * 864e5;
+    var hit = list.filter(function (x) { return x.k === k && x.t > wk; })[0];
+    return hit ? new Date(hit.t).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }) : '';
+  } catch (e) { return ''; }
+}
+function rememberSigned(f, l, g) {
+  try {
+    var wk = Date.now() - 7 * 864e5;
+    var list = JSON.parse(localStorage.getItem('dr_signed') || '[]').filter(function (x) { return x.t > wk; });
+    list.push({ k: signedKey(f, l, g), t: Date.now() });
+    localStorage.setItem('dr_signed', JSON.stringify(list.slice(-30)));
+  } catch (e) {}
 }
 
 function showThanks(fullName) {
