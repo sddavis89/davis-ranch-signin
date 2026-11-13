@@ -5895,7 +5895,7 @@ function briefFetch(text,voice){
   var qs=Object.keys(q).map(function(x){return encodeURIComponent(x)+'='+encodeURIComponent(q[x]);}).join('&');
   var pr=BRIEF.inflight[k]=fetch(PROCESSING_URL+'?'+qs,ctl?{signal:ctl.signal}:{}).then(function(res){return res.json();}).then(function(res){
     clearTimeout(tm);
-    if(res&&res.ok&&res.audio){BRIEF.err='';if(text.length>200){try{localStorage.setItem('dr_brief_audio',JSON.stringify({k:k,a:res.audio}));}catch(e){}}return res.audio;}
+    if(res&&res.ok&&res.audio){BRIEF.err='';if(text.length>100){try{localStorage.setItem('dr_brief_audio',JSON.stringify({k:k,a:res.audio}));}catch(e){}}return res.audio;}
     BRIEF.err=(res&&res.error)||'';BRIEF.noKey=!!(res&&res.noKey);return null;
   }).catch(function(){clearTimeout(tm);BRIEF.err='the script took too long';return null;}).then(function(a){delete BRIEF.inflight[k];return a;});
   return pr;
@@ -6034,5 +6034,68 @@ window.addEventListener('DOMContentLoaded',function(){
 #brief-btn.on{background:var(--gold);color:#1A1207;box-shadow:0 0 0 4px rgba(224,168,74,.25)}
 #sheet-more .rec span{margin-left:auto;margin-right:6px;font-size:.78rem;color:var(--fg-soft)}
 </style>
+<style>
+.ci-tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ci-tap:active{transform:scale(.99)}
+.ci-more{display:block;font-size:.72rem;color:var(--gold);margin-top:6px;font-weight:600}
+.ciw-sum{font-size:.9rem;color:var(--fg-soft);margin:0 0 10px}
+.ciw-list{display:flex;flex-direction:column;gap:6px}
+.ciw-r{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:12px}
+.ciw-n{width:28px;height:28px;border-radius:50%;background:rgba(212,175,95,.15);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem}
+.ciw-r b{display:block;font-size:.95rem}.ciw-r small{display:block;font-size:.75rem;color:var(--fg-soft)}
+.ciw-miss{margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:12px;font-size:.85rem;color:var(--fg-soft)}
+</style>
+<script>
+// Tap the In camp / Checking in card → quick list of who has signed a waiver
+(function(){
+  var base=faceCheckinCard;
+  faceCheckinCard=function(r,today,kind){
+    var h=base(r,today,kind);
+    return h.replace('<div class="ci">','<div class="ci ci-tap" role="button" tabindex="0" data-g="'+esc(r.group)+'" data-a="'+esc(r.arrive)+'" data-d="'+esc(r.depart)+'" data-b="'+(r.booked||0)+'" data-n="'+esc(faceName(r))+'" onclick="ciwOpen(this)" onkeydown="if(event.key===\'Enter\')ciwOpen(this)">')
+            .replace('</span></div>'+'',  '</span><span class="ci-more">See who’s signed in ›</span></div>');
+  };
+})();
+var CIW={at:0};
+// the "x of y signed in" line at the top opens the same list
+window.addEventListener('DOMContentLoaded',function(){var h=document.getElementById('hx-sub');if(!h)return;h.style.cursor='pointer';
+  h.addEventListener('click',function(){var c=document.querySelectorAll('#camp-slot .ci-tap');if(c.length&&/signed in/.test(h.textContent))ciwOpen(c[0]);});});
+function ciwClose(){var d=document.getElementById('ciw-sheet');if(d)d.remove();}
+function ciwOpen(el){
+  var g=el.getAttribute('data-g'),a=el.getAttribute('data-a'),dp=el.getAttribute('data-d'),bk=+el.getAttribute('data-b')||0,nm=el.getAttribute('data-n')||g;
+  ciwClose();
+  var d=document.createElement('div');d.id='ciw-sheet';d.className='bv';d.onclick=function(e){if(e.target===d)ciwClose();};
+  d.innerHTML='<div class="bv-card" role="dialog" aria-label="Who has signed in"><div class="bv-h"><b>'+esc(nm)+'</b><button type="button" class="icon-btn" onclick="ciwClose()" aria-label="Close">✕</button></div><div id="ciw-body"><div class="report-hint">Loading the waivers…</div></div></div>';
+  document.body.appendChild(d);
+  var show=function(list){ciwRender(list,g,a,dp,bk);};
+  var fresh=procHunters&&Date.now()-CIW.at<120000;
+  if(procHunters)show(procHunters);
+  if(fresh)return;
+  procGet({action:'hunters'}).then(function(res){
+    if(res&&res.ok){procHunters=res.hunters||[];CIW.at=Date.now();if(document.getElementById('ciw-sheet'))show(procHunters);}
+    else if(!procHunters){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">'+esc(handleProcError(res))+'</div>';}
+  }).catch(function(){if(!procHunters){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">Couldn’t load the waivers. Check your signal and try again.</div>';}});
+}
+function ciwRender(all,g,a,dp,bk){
+  var b=document.getElementById('ciw-body');if(!b)return;
+  var lo=addDays(a,-14),gk=String(g||'').trim().toLowerCase(),seen={},rows=[];
+  (all||[]).forEach(function(h){
+    if(String(h.group||'').trim().toLowerCase()!==gk)return;
+    var dt=String(h.huntDate||'');if(dt&&(dt<lo||dt>dp))return;
+    var k=hunterKey(h.name,h.address);   // same name + same address = same person; two Tim Verbekes stay separate
+    if(seen[k]){seen[k].twice=true;return;}
+    var o={name:h.name,where:h.cityStateZip||'',license:h.license||'',date:dt,twice:false};seen[k]=o;rows.push(o);
+  });
+  var last=function(n){var p=String(n).trim().split(/\s+/);return (p[p.length-1]+' '+n).toLowerCase();};
+  rows.sort(function(x,y){return last(x.name).localeCompare(last(y.name));});
+  var n=rows.length,html='<p class="ciw-sum">'+(bk?'<b>'+n+' of '+bk+'</b> signed in':'<b>'+n+'</b> signed in')+(bk&&n>=bk?' · everyone’s in':'')+'</p>';
+  if(!n)html+='<div class="report-hint">No waivers for this group yet.</div>';
+  else html+='<div class="ciw-list">'+rows.map(function(o,i){
+    var sub=[o.where,o.license?'License '+o.license:'No license # on the waiver',o.twice?'signed twice':''].filter(Boolean).join(' · ');
+    return '<div class="ciw-r"><span class="ciw-n">'+(i+1)+'</span><span><b>'+esc(o.name)+'</b><small>'+esc(sub)+'</small></span></div>';}).join('')+'</div>';
+  if(bk>n)html+='<div class="ciw-miss"><b>'+(bk-n)+' still to sign.</b> The app only knows who has signed, so it can’t name who’s missing. Ask the group who hasn’t done theirs.</div>';
+  b.innerHTML=html;
+}
+</script>
+
 </body>
 </html>
