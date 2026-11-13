@@ -6074,26 +6074,45 @@ function ciwOpen(el){
   if(procHunters)show(procHunters);
   if(fresh)return;
   procGet({action:'hunters'}).then(function(res){
-    if(res&&res.ok){procHunters=res.hunters||[];CIW.at=Date.now();if(document.getElementById('ciw-sheet'))show(procHunters);}
+    if(res&&res.ok){procHunters=res.hunters||[];CIW.at=Date.now();ciwRedraw();if(document.getElementById('ciw-sheet'))show(procHunters);}
     else if(!procHunters){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">'+esc(handleProcError(res))+'</div>';}
   }).catch(function(){if(!procHunters){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">Couldn’t load the waivers. Check your signal and try again.</div>';}});
 }
-function ciwRender(all,g,a,dp,bk){
-  var b=document.getElementById('ciw-body');if(!b)return;
+function ciwRows(all,g,a,dp){
   var lo=addDays(a,-14),gk=String(g||'').trim().toLowerCase(),seen={},rows=[];
   (all||[]).forEach(function(h){
     if(String(h.group||'').trim().toLowerCase()!==gk)return;
     var dt=String(h.huntDate||'');if(dt&&(dt<lo||dt>dp))return;
     var k=hunterKey(h.name,h.address);   // same name + same address = same person; two Tim Verbekes stay separate
-    if(seen[k]){seen[k].twice=true;return;}
-    var o={name:h.name,where:h.cityStateZip||'',license:h.license||'',date:dt,twice:false};seen[k]=o;rows.push(o);
+    if(seen[k]){seen[k].times++;return;}
+    var o={name:h.name,where:h.cityStateZip||'',license:h.license||'',date:dt,times:1};seen[k]=o;rows.push(o);
   });
+  return rows;
+}
+// the card counts people (not signatures) from the same list, once it's loaded
+(function(){
+  var base=faceSigned;
+  faceSigned=function(r){return procHunters?ciwRows(procHunters,r.group,r.arrive,r.depart).length:base(r);};
+})();
+function ciwRedraw(){try{faceRenderCamp();}catch(e){}try{faceHeader();}catch(e){}}
+function ciwLoad(){
+  if(!getPin()||!procConfigured()||document.hidden)return;
+  procGet({action:'hunters'}).then(function(res){if(res&&res.ok){procHunters=res.hunters||[];CIW.at=Date.now();ciwRedraw();}}).catch(function(){});
+}
+window.addEventListener('DOMContentLoaded',function(){
+  setTimeout(ciwLoad,1500);
+  setInterval(ciwLoad,5*60*1000);                        // keep it fresh while the app sits open
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-CIW.at>60000){ciwLoad();try{loadWaiverGroups();}catch(e){}}});
+});
+function ciwRender(all,g,a,dp,bk){
+  var b=document.getElementById('ciw-body');if(!b)return;
+  var rows=ciwRows(all,g,a,dp);
   var last=function(n){var p=String(n).trim().split(/\s+/);return (p[p.length-1]+' '+n).toLowerCase();};
   rows.sort(function(x,y){return last(x.name).localeCompare(last(y.name));});
   var n=rows.length,html='<p class="ciw-sum">'+(bk?'<b>'+n+' of '+bk+'</b> signed in':'<b>'+n+'</b> signed in')+(bk&&n>=bk?' · everyone’s in':'')+'</p>';
   if(!n)html+='<div class="report-hint">No waivers for this group yet.</div>';
   else html+='<div class="ciw-list">'+rows.map(function(o,i){
-    var sub=[o.where,o.license?'License '+o.license:'No license # on the waiver',o.twice?'signed twice':''].filter(Boolean).join(' · ');
+    var sub=[o.where,o.license?'License '+o.license:'No license # on the waiver',o.times>1?'signed '+(o.times===2?'twice':o.times+' times'):''].filter(Boolean).join(' · ');
     return '<div class="ciw-r"><span class="ciw-n">'+(i+1)+'</span><span><b>'+esc(o.name)+'</b><small>'+esc(sub)+'</small></span></div>';}).join('')+'</div>';
   if(bk>n)html+='<div class="ciw-miss"><b>'+(bk-n)+' still to sign.</b> The app only knows who has signed, so it can’t name who’s missing. Ask the group who hasn’t done theirs.</div>';
   b.innerHTML=html;
