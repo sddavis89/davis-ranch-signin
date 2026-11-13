@@ -5878,6 +5878,7 @@ function briefVoice(){
   return pick||v.filter(function(x){return /^en(-|_)US/i.test(x.lang);})[0]||v.filter(function(x){return /^en/i.test(x.lang);})[0]||null;
 }
 // Natural voices (Google Chirp 3 HD, made by the script; needs signal). 'phone' = the phone's own voice.
+var BRIEF_RANCH=[['Algenib@old','Old rancher · Algenib','Gravelly, slow drawl, coffee in hand'],['Charon@old','Old rancher · Charon','Your Charon voice, talked like a rancher'],['Orus@cowboy','Cowboy · Orus','Warm Western drawl, easygoing'],['Alnilam@cowboy','Cowboy · Alnilam','Steady, plain-spoken']];
 var BRIEF_CLOUD=[['Algenib','Gravelly and rough. Closest to a rough-neck'],['Zubenelgenubi','Casual and laid-back'],['Umbriel','Easy-going'],['Alnilam','Firm and steady'],['Orus','Firm, a little deeper'],['Charon','Clear, like a news guy']];
 var BRIEF_SILENT='data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAACAAAA/oAR0dHR0dHR0dHR0dHYmJiYmJiYmJiYmJifHx8fHx8fHx8fHx8fJaWlpaWlpaWlpaWlrGxsbGxsbGxsbGxsbHLy8vLy8vLy8vLy8vl5eXl5eXl5eXl5eXl////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQC1AAAAAAAAAP6yysejgAAAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NCxKMAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NAxKQAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80LEowAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80DEpAAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsSjAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==';
 function briefCloud(){var v='Algenib';try{v=localStorage.getItem('dr_brief_cloud')||'Algenib';}catch(e){}return v;}
@@ -5958,7 +5959,9 @@ function briefSettings(){
   var d=document.createElement('div');d.id='brief-sheet';d.className='bv';
   d.innerHTML='<div class="bv-card" role="dialog" aria-label="Spoken briefing"><div class="bv-h"><b>Spoken briefing</b><button type="button" class="icon-btn" onclick="briefStop();document.getElementById(\'brief-sheet\').remove()" aria-label="Close">\u2715</button></div>'+
     '<label class="bv-row"><input type="checkbox" id="bv-auto"'+(BRIEF.on?' checked':'')+' onchange="briefAuto(this.checked)"> Play on my first tap each day</label>'+
-    '<div class="bv-l">Natural voices <small>(real-sounding men’s voices)</small></div>'+
+    '<div class="bv-l">Rancher voices <small>(new \u00b7 about a penny a briefing)</small></div>'+
+    '<div class="bv-list">'+BRIEF_RANCH.map(function(x){return row('cloud',x[0],x[1],x[2],cv===x[0]);}).join('')+'</div>'+
+    '<div class="bv-l">Natural voices</div>'+
     '<div class="bv-list">'+BRIEF_CLOUD.map(function(x){return row('cloud',x[0],x[0],x[1],cv===x[0]);}).join('')+'</div>'+
     '<p class="bv-tip" id="bv-note">'+esc(note)+'</p>'+
     '<div class="bv-l">Phone voices <small>(work with no signal)</small></div>'+
@@ -5973,7 +5976,7 @@ function briefPick(v){
   document.querySelectorAll('#brief-sheet .bv-v').forEach(function(l){l.classList.toggle('on',l.querySelector('input').value===v);});
   briefPreview(v);
 }
-var BRIEF_SAMPLE='Good morning. Here’s your quick look at the day at Davis Hunting Company.';
+var BRIEF_SAMPLE='Mornin’. It’s about 28 out there, and the wind’s out of the northwest. Here’s your rundown for the day at Davis Hunting Company.';
 function briefPreview(v){
   var i=v.indexOf(':'),kind=v.slice(0,i),name=v.slice(i+1);
   briefStop();
