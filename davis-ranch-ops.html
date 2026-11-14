@@ -1263,6 +1263,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
       </div>
       <div class="field"><label id="c-qty-label">Total Birds Cleaned <span class="req">*</span></label><input type="number" id="c-qty" placeholder="0" min="0" inputmode="numeric" oninput="calcPay();dayPreview('c')"></div>
       <div class="field"><label id="c-disc-label">Discarded <span class="opt">(harvested but too shot up to clean)</span></label><input type="number" id="c-disc" placeholder="0" min="0" inputmode="numeric" oninput="dayPreview('c')"></div>
+      <div class="field"><label id="c-whole-label">Whole (not cleaned) <span class="opt">(kept fully feathered, not cleaned or dressed)</span></label><input type="number" id="c-whole" placeholder="0" min="0" inputmode="numeric" oninput="dayPreview('c')"></div>
       <div class="field-row">
         <div class="field"><label>Pay Per Bird <span class="opt">(optional)</span></label><input type="number" id="c-rate" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromRate()"></div>
         <div class="field"><label id="c-pay-label">Total Pay <span class="opt">(optional)</span></label><input type="number" id="c-total-pay" placeholder="0.00" step="0.01" min="0" oninput="calcPayFromTotal()"></div>
@@ -1980,16 +1981,17 @@ function refreshDayNote(k){
     var ops=rs[0],pr=(rs[1]&&rs[1].ok)?rs[1].day:null;
     var opsOk=!!(ops&&ops.ok&&ops.version);
     var cur=0,pay=0;
-    var disc=0;
-    if(opsOk){cur=k==='h'?(ops.harvest[group]||0):(ops.cleaning[group]||0);pay=k==='c'?((ops.cleaningPay||{})[group]||0):0;disc=k==='c'?((ops.discarded||{})[group]||0):0;}
-    if(k==='c'&&pr&&!opsOk)cur=pr.cleaned;
-    var st={cur:cur,pay:pay,disc:disc,early:pr?pr.early:0,given:pr?pr.given:0,pool:pr?pr.cleaned:null,group:group,date:date};
+    var disc=0,whole=0;
+    if(opsOk){cur=k==='h'?(ops.harvest[group]||0):(ops.cleaning[group]||0);pay=k==='c'?((ops.cleaningPay||{})[group]||0):0;disc=k==='c'?((ops.discarded||{})[group]||0):0;whole=k==='c'?((ops.whole||{})[group]||0):0;}
+    if(k==='c'&&pr&&!opsOk){cur=pr.cleaned;whole=pr.whole||0;}
+    var st={cur:cur,pay:pay,disc:disc,whole:whole,early:pr?pr.early:0,given:pr?pr.given:0,wholeGiven:pr?pr.wholeGiven||0:0,pool:pr?pr.cleaned:null,group:group,date:date};
     dayState[k]=st;
-    if(!st.cur&&!st.early){dayLabels(k);return;}
+    if(!st.cur&&!st.early&&!st.whole){dayLabels(k);return;}
     var m=pr&&String(pr.notes||'').match(/Early checkout: ([^;(]+)/);
     var what=k==='h'?'harvested':'cleaned';
     var html='<b>'+esc(group)+' already has '+st.cur+' '+what+' for '+esc(usDate(date))+'.</b>'+
       (k==='c'&&st.disc?' Plus '+st.disc+' discarded.':'')+
+      (k==='c'&&st.whole?' Plus '+st.whole+' whole (not cleaned).':'')+
       (k==='c'&&st.pay?' Crew pay so far '+money(st.pay)+'.':'')+
       (k==='c'&&st.pool!==null&&st.pool!==st.cur?' (Pheasant pool shows '+st.pool+'.)':'')+
       (st.early?'<span class="early-note">'+st.early+' of these went home early'+(m?' with '+esc(m[1].trim()):'')+'. Count them in the day total.</span>':'');
@@ -1999,32 +2001,35 @@ function refreshDayNote(k){
   });
 }
 function dayMode(k){
-  var st=dayState[k];if(!st||(!st.cur&&!st.early))return 'add';
+  var st=dayState[k];if(!st||(!st.cur&&!st.early&&!st.whole))return 'add';
   var r=document.querySelector('input[name="'+k+'-mode"]:checked');return r?r.value:'set';
 }
 function dayLabels(k){
-  var lbl=document.getElementById(k+'-qty-label'),mode=dayMode(k),st=dayState[k],has=st&&(st.cur||st.early);
+  var lbl=document.getElementById(k+'-qty-label'),mode=dayMode(k),st=dayState[k],has=st&&(st.cur||st.early||st.whole);
   var base=k==='h'?'Birds Harvested':'Total Birds Cleaned';
   lbl.innerHTML=(has?(mode==='set'?(k==='h'?'Day Total Harvested':'Day Total Cleaned'):'Birds to Add'):base)+' <span class="req">*</span>';
   if(k==='c'){
     var pl=document.getElementById('c-pay-label');
     pl.innerHTML=(has?(mode==='set'?'Total Pay for the Day':'Pay to Add'):'Total Pay')+' <span class="opt">(optional)</span>';
     document.getElementById('c-disc-label').innerHTML=(has?(mode==='set'?'Discarded for the Day':'Discarded to Add'):'Discarded')+' <span class="opt">(harvested but too shot up to clean)</span>';
+    document.getElementById('c-whole-label').innerHTML=(has?(mode==='set'?'Whole for the Day':'Whole to Add'):'Whole (not cleaned)')+' <span class="opt">(kept fully feathered, not cleaned or dressed)</span>';
   }
   if(!has)document.getElementById(k+'-day-prev').textContent='';
 }
 function dayPreview(k){
   dayLabels(k);
   var st=dayState[k],el=document.getElementById(k+'-day-prev');
-  if(!st||(!st.cur&&!st.early)){el.textContent='';return;}
+  if(!st||(!st.cur&&!st.early&&!st.whole)){el.textContent='';return;}
   var raw=document.getElementById(k+'-qty').value,n=parseInt(raw,10)||0;
   if(raw===''){el.textContent='';el.className='day-preview';return;}
   var total=dayMode(k)==='set'?n:st.cur+n;
   var dIn=k==='c'?parseInt(document.getElementById('c-disc').value,10)||0:0,dTot=k==='c'?(dayMode(k)==='set'?dIn:(st.disc||0)+dIn):0;
-  var bad=k==='c'&&total<st.given;
-  el.className='day-preview'+(bad||total<st.cur?' bad':'');
+  var wIn=k==='c'?parseInt(document.getElementById('c-whole').value,10)||0:0,wTot=k==='c'?(dayMode(k)==='set'?wIn:(st.whole||0)+wIn):0;
+  var bad=k==='c'&&total<st.given,wBad=k==='c'&&wTot<(st.wholeGiven||0);
+  el.className='day-preview'+(bad||wBad||total<st.cur?' bad':'');
   el.textContent=bad?'Can’t be less than '+st.given+' — that many from this day already went to hunters.':
-    'Line for '+usDate(st.date)+': '+st.cur+' → '+total+(dTot?' + '+dTot+' discarded':'')+(total<st.cur?' (lower than before)':'');
+    wBad?'Whole can’t be less than '+st.wholeGiven+' — that many whole birds from this day already went to hunters.':
+    'Line for '+usDate(st.date)+': '+st.cur+' → '+total+(dTot?' + '+dTot+' discarded':'')+(wTot?' + '+wTot+' whole':'')+(total<st.cur?' (lower than before)':'');
 }
 
 /* ═══ CHECKLIST: WHAT'S LOGGED, WHAT'S MISSING ═══ */
@@ -2091,13 +2096,13 @@ function renderChecklist(st){
     var gl=waiverInfo.now&&waiverInfo.latest[waiverInfo.now];
     if(gl&&d>=gl&&d<today)groups[waiverInfo.now]=1;
     Object.keys(groups).sort().forEach(function(k){
-      var r=x?x.release[k]||0:0,hv=x?x.harvest[k]||0:0,cl=x?x.cleaning[k]||0:0,ds=x&&x.discarded?x.discarded[k]||0:0;
+      var r=x?x.release[k]||0:0,hv=x?x.harvest[k]||0:0,cl=x?x.cleaning[k]||0:0,ds=x&&x.discarded?x.discarded[k]||0:0,wh=x&&x.whole?x.whole[k]||0:0;
       var label=esc(usDate(d).slice(0,5))+' '+esc(k)+': ';
       if(!r&&!hv&&!cl){lines+=row('soon',label+'nothing logged','If they hunted that day, log the release, harvest and cleaning','release',d,k);return;}
       if(!hv)lines+=row('bad',label+'no harvest logged','','harvest',d,k);
-      if(!cl&&!ds)lines+=row('bad',label+'no cleaning logged',hv?'Harvest says '+hv:'','cleaning',d,k);
+      if(!cl&&!ds&&!wh)lines+=row('bad',label+'no cleaning logged',hv?'Harvest says '+hv:'','cleaning',d,k);
       if(!r)lines+=row('soon',label+'no release logged','','release',d,k);
-      if(hv&&(cl||ds)&&hv!==cl+ds)lines+=row('bad',label+'harvest '+hv+' but cleaned '+cl+(ds?' + '+ds+' discarded':''),'Fix one of them, or log birds too shot up to clean as Discarded','cleaning',d,k);
+      if(hv&&(cl||ds||wh)&&hv!==cl+ds+wh)lines+=row('bad',label+'harvest '+hv+' but cleaned '+cl+(ds?' + '+ds+' discarded':'')+(wh?' + '+wh+' whole':''),'Fix one of them, or log birds too shot up to clean as Discarded and uncleaned birds as Whole','cleaning',d,k);
     });
   }
   if(lines)html+='<div class="ck-sec">Last 7 days</div>'+lines;
@@ -2181,7 +2186,7 @@ function recentLine(task,e){
   if(task==='purchase')return {top:e.qty+' birds · '+money(e.totalCost),sub:esc(e.supplier)+' · '+money(e.costPerBird)+'/bird'};
   if(task==='release')return {top:e.qty+' released',sub:esc(e.field)};
   if(task==='harvest')return {top:e.qty+' harvested',sub:''};
-  return {top:e.qty+' cleaned'+(e.discarded?' + '+e.discarded+' discarded':'')+' \u00b7 '+money(e.totalPay),sub:esc(e.workers||'No workers listed')};
+  return {top:e.qty+' cleaned'+(e.discarded?' + '+e.discarded+' discarded':'')+(e.whole?' + '+e.whole+' whole':'')+' \u00b7 '+money(e.totalPay),sub:esc(e.workers||'No workers listed')};
 }
 function renderRecent(task){
   var box=document.getElementById('rec-'+task),list=recentData[task]||[];
@@ -2189,7 +2194,7 @@ function renderRecent(task){
   box.innerHTML=list.map(function(e,i){
     var L=recentLine(task,e),id=task+'-'+i;
     var extra=task==='purchase'?'<div class="field"><label>Cost Per Bird</label><input type="number" step="0.01" min="0" id="re-cost-'+id+'" value="'+e.costPerBird+'"></div>':
-      task==='cleaning'?'<div class="field"><label>Discarded</label><input type="number" min="0" inputmode="numeric" id="re-disc-'+id+'" value="'+(e.discarded||0)+'"></div><div class="field"><label>Total Pay</label><input type="number" step="0.01" min="0" id="re-pay-'+id+'" value="'+e.totalPay+'"></div>':'';
+      task==='cleaning'?'<div class="field"><label>Discarded</label><input type="number" min="0" inputmode="numeric" id="re-disc-'+id+'" value="'+(e.discarded||0)+'"></div><div class="field"><label>Whole (not cleaned)</label><input type="number" min="0" inputmode="numeric" id="re-whole-'+id+'" value="'+(e.whole||0)+'"></div><div class="field"><label>Total Pay</label><input type="number" step="0.01" min="0" id="re-pay-'+id+'" value="'+e.totalPay+'"></div>':'';
     return '<div class="re" id="re-'+id+'"><div class="re-top"><span>'+esc(usDate(e.date))+(e.group?' · '+esc(e.group):'')+'</span><span>'+L.top+'</span></div>'+
       ((L.sub||e.notes)?'<div class="re-sub">'+L.sub+(L.sub&&e.notes?' · ':'')+esc(e.notes||'')+'</div>':'')+
       '<div class="re-btns"><button type="button" onclick="reEdit(\''+task+'\','+i+')">Fix</button><button type="button" class="del" id="re-del-'+id+'" onclick="reDelete(\''+task+'\','+i+')">Delete</button></div>'+
@@ -2210,7 +2215,7 @@ function reSave(task,i){
   if(q<=0){alert('Enter a number above 0, or use Delete.');return;}
   var f={qty:q,notes:document.getElementById('re-notes-'+id).value.trim()};
   if(task==='purchase')f.costPerBird=parseFloat(document.getElementById('re-cost-'+id).value)||0;
-  if(task==='cleaning'){f.totalPay=parseFloat(document.getElementById('re-pay-'+id).value)||0;f.discarded=parseInt(document.getElementById('re-disc-'+id).value,10)||0;}
+  if(task==='cleaning'){f.totalPay=parseFloat(document.getElementById('re-pay-'+id).value)||0;f.discarded=parseInt(document.getElementById('re-disc-'+id).value,10)||0;f.whole=parseInt(document.getElementById('re-whole-'+id).value,10)||0;}
   reChange(task,i,'edit',f);
 }
 async function reChange(task,i,action,fields){
@@ -2238,11 +2243,11 @@ async function reChange(task,i,action,fields){
 /* ═══ PRINT REPORTS ═══ */
 var RP_SECTIONS=[
   ['season','Season Totals','Purchased, released, harvested, cleaned, given out, crew pay'],
-  ['daily','Day-by-Day Comparison','Released \u00b7 Harvested \u00b7 Cleaned \u00b7 Discarded \u00b7 Given out, side by side'],
+  ['daily','Day-by-Day Comparison','Released \u00b7 Harvested \u00b7 Cleaned \u00b7 Discarded \u00b7 Whole \u00b7 Given out, side by side'],
   ['purchases','Bird Purchases','Date, supplier, qty, cost'],
   ['releases','Bird Releases','Date, field, group, qty'],
   ['harvest','Bird Harvest','Date, group, qty'],
-  ['cleaning','Bird Cleaning','Birds, discarded, workers, pay'],
+  ['cleaning','Bird Cleaning','Birds, discarded, whole, workers, pay'],
   ['crew','Crew Pay','Totals per worker'],
   ['birdlog','Birds Given Out (GFP Bird Log)','Receipt #, hunter, dates, birds'],
   ['invoices','Invoices & Payments','Invoice #, who, total, deposit, balance'],
@@ -2309,13 +2314,13 @@ function reportHtml(r,secs){
     var title=RP_SECTIONS.filter(function(s){return s[0]===k;})[0][1];
     out+='<h2>'+esc(title)+'</h2>';
     if(k==='season'){var x=r.season;
-      out+='<div class="kv">'+[['Purchased'+(r.group?' (all groups)':''),x.purchased+' ('+money(x.purchaseCost)+')'],['Released',x.released],['Harvested',x.harvested],['Cleaned',x.cleaned],['Discarded',x.discarded],['Given out',x.given+' ('+x.receipts+' receipts)'],
-        ['Crew pay',money(x.crewPay)]].concat(r.group?[]:[['In the pens (bought \u2212 released)',x.purchased-x.released]]).concat([['Harvested vs cleaned + discarded',x.harvested===x.cleaned+x.discarded?'Match':(x.harvested+' vs '+(x.cleaned+x.discarded))]])
+      out+='<div class="kv">'+[['Purchased'+(r.group?' (all groups)':''),x.purchased+' ('+money(x.purchaseCost)+')'],['Released',x.released],['Harvested',x.harvested],['Cleaned',x.cleaned],['Discarded',x.discarded],['Whole (not cleaned)',x.whole||0],['Given out',x.given+' ('+x.receipts+' receipts)'],
+        ['Crew pay',money(x.crewPay)]].concat(r.group?[]:[['In the pens (bought \u2212 released)',x.purchased-x.released]]).concat([['Harvested vs cleaned + discarded + whole',x.harvested===x.cleaned+x.discarded+(x.whole||0)?'Match':(x.harvested+' vs '+(x.cleaned+x.discarded+(x.whole||0)))]])
         .map(function(p){return '<div>'+esc(p[0])+'<b>'+esc(p[1])+'</b></div>';}).join('')+'</div>';}
     if(k==='daily'){var a=r.daily;
-      out+=T([{t:'Date'},{t:'Group'},{t:'Released',n:1},{t:'Harvested',n:1},{t:'Cleaned',n:1},{t:'Discarded',n:1},{t:'Given Out',n:1},{t:'Check'}],
-        a.map(function(y){return [d(y.date),esc(y.group),y.released,y.harvested,y.cleaned,y.discarded||'',y.given,y.match?'OK':'Harvest \u2260 cleaned + discarded'];}),
-        ['Total','',sum(a,'released'),sum(a,'harvested'),sum(a,'cleaned'),sum(a,'discarded'),sum(a,'given'),''],function(i){return a[i].match?'':'bad';});}
+      out+=T([{t:'Date'},{t:'Group'},{t:'Released',n:1},{t:'Harvested',n:1},{t:'Cleaned',n:1},{t:'Discarded',n:1},{t:'Whole',n:1},{t:'Given Out',n:1},{t:'Check'}],
+        a.map(function(y){return [d(y.date),esc(y.group),y.released,y.harvested,y.cleaned,y.discarded||'',y.whole||'',y.given,y.match?'OK':'Harvest \u2260 cleaned + discarded + whole'];}),
+        ['Total','',sum(a,'released'),sum(a,'harvested'),sum(a,'cleaned'),sum(a,'discarded'),sum(a,'whole'),sum(a,'given'),''],function(i){return a[i].match?'':'bad';});}
     if(k==='purchases'){var a=r.purchases;
       out+=T([{t:'Date'},{t:'Supplier'},{t:'Qty',n:1},{t:'Cost / Bird',n:1},{t:'Total',n:1},{t:'Notes'}],
         a.map(function(y){return [d(y.date),esc(y.supplier),y.qty,money(y.cost),money(y.total),esc(y.notes)];}),['Total','',sum(a,'qty'),'',money(sum(a,'total')),'']);}
@@ -2324,8 +2329,8 @@ function reportHtml(r,secs){
     if(k==='harvest'){var a=r.harvest;
       out+=T([{t:'Date'},{t:'Group'},{t:'Qty',n:1},{t:'Notes'}],a.map(function(y){return [d(y.date),esc(y.group),y.qty,esc(y.notes)];}),['Total','',sum(a,'qty'),'']);}
     if(k==='cleaning'){var a=r.cleaning;
-      out+=T([{t:'Date'},{t:'Group'},{t:'Birds',n:1},{t:'Discarded',n:1},{t:'Workers'},{t:'Pay',n:1},{t:'Notes'}],
-        a.map(function(y){return [d(y.date),esc(y.group||'(no group)'),y.birds,y.discarded||'',esc(y.workers),money(y.pay),esc(y.notes)];}),['Total','',sum(a,'birds'),sum(a,'discarded'),'',money(sum(a,'pay')),'']);}
+      out+=T([{t:'Date'},{t:'Group'},{t:'Birds',n:1},{t:'Discarded',n:1},{t:'Whole',n:1},{t:'Workers'},{t:'Pay',n:1},{t:'Notes'}],
+        a.map(function(y){return [d(y.date),esc(y.group||'(no group)'),y.birds,y.discarded||'',y.whole||'',esc(y.workers),money(y.pay),esc(y.notes)];}),['Total','',sum(a,'birds'),sum(a,'discarded'),sum(a,'whole'),'',money(sum(a,'pay')),'']);}
     if(k==='crew'){var a=r.crew;
       out+=T([{t:'Worker'},{t:'Days',n:1},{t:'Birds',n:1},{t:'Pay',n:1}],a.map(function(y){return [esc(y.worker),y.days,n(y.birds),money(y.pay)];}),['Total','',n(sum(a,'birds')),money(sum(a,'pay'))]);
       out+='<div class="none">When more than one worker is on a day&rsquo;s line, birds and pay are split evenly between them.</div>';}
@@ -2764,9 +2769,9 @@ function showPoolDays(){
   var el=document.getElementById('pool-days'),g=document.getElementById('c-group').value;
   if(!procPool||!g){el.innerHTML='';return;}
   var from=tripStart(g),sel=val('b-from');
-  var days=(procPool.byDate||[]).filter(function(x){return x.date>=from&&x.cleaned;});
+  var days=(procPool.byDate||[]).filter(function(x){return x.date>=from&&(x.cleaned||x.whole);});
   if(!days.length){el.innerHTML='';return;}
-  el.innerHTML='Left by day: '+days.map(function(x){var t=usDate(x.date).slice(0,5)+' <b>'+x.left+'</b>';return x.date===sel?'<u>'+t+'</u>':t;}).join(' \u00b7 ')+
+  el.innerHTML='Left by day: '+days.map(function(x){var t=usDate(x.date).slice(0,5)+' <b>'+x.left+'</b>'+(x.wholeLeft?' + '+x.wholeLeft+' whole':'');return x.date===sel?'<u>'+t+'</u>':t;}).join(' \u00b7 ')+
     (sel&&!days.some(function(x){return x.date===sel;})?'<br>No birds cleaned for '+esc(usDate(sel))+' yet \u2014 log Bird Cleaning first, or pick another day.':'');
 }
 function setOpen(g,list){
@@ -2881,8 +2886,8 @@ function setPool(p){
   box.style.display='grid';
   document.getElementById('pool-cleaned').textContent=p.cleaned;
   document.getElementById('pool-assigned').textContent=p.assigned;
-  document.getElementById('pool-left').textContent=p.left;
-  document.querySelector('#pool-box .pool-left').classList.toggle('zero',!p.left);
+  document.getElementById('pool-left').innerHTML=p.left+(p.wholeLeft?'<small class="pool-whole">+ '+p.wholeLeft+' whole</small>':'');
+  document.querySelector('#pool-box .pool-left').classList.toggle('zero',!p.left&&!p.wholeLeft);
   showPoolDays();
   updateBirdTotal();
 }
@@ -3656,24 +3661,45 @@ function stillHere(g){   // hunters on this trip who haven't checked out
   Object.keys(procOpen).forEach(function(k){var o=procOpen[k];if(seen[k]||procOpenGroup!==g)return;list.push({key:k,name:o.owner,address:o.ownerAddress,cityStateZip:o.ownerCityStateZip,phone:o.phone,license:o.license});});
   return list.filter(function(h){return !pend[h.key]&&!(procRecent[h.key]&&!procOpen[h.key]);});
 }
+var limitWhole={},limitWholeAsked=false;
+// Whole birds (not cleaned): pick who takes them, then the rest are split evenly
+function wholePick(g,list){
+  var box=document.getElementById('lim-box'),n=procPool.wholeLeft;
+  box.classList.add('show');
+  var picked=function(){return Object.keys(limitWhole).reduce(function(a,k){return a+(limitWhole[k]||0);},0);};
+  var draw=function(){
+    var p=picked();
+    box.innerHTML='<div class="lim-title">Whole birds first</div>'+
+      '<div class="report-hint" style="padding:4px 0 8px"><b>'+n+' whole bird'+(n===1?'':'s')+'</b> (not cleaned) to give out. Pick who\u2019s taking '+(n===1?'it':'them')+'. Everyone\u2019s limit counts them, and the cleaned birds are split evenly after.</div>'+
+      list.map(function(h){var c=limitWhole[h.key]||0;return '<div class="fs-row wp-row"><span>'+esc(h.name)+'</span><span class="wp-step">'+
+        '<button type="button" class="btn-small" onclick="wholeStep(\''+esc(h.key).replace(/'/g,"\\'")+'\',-1)"'+(c?'':' disabled')+' aria-label="One less">\u2212</button><b>'+c+'</b>'+
+        '<button type="button" class="btn-small" onclick="wholeStep(\''+esc(h.key).replace(/'/g,"\\'")+'\',1)"'+(p<n&&c<tripLimit()?'':' disabled')+' aria-label="One more">+</button></span></div>';}).join('')+
+      '<div class="lim-note'+(p<n?' warn':'')+'">'+p+' of '+n+' picked'+(p<n?' \u00b7 any not picked stay in the pool for later':'')+'</div>'+
+      '<div class="receipts-foot" style="margin-top:10px"><button type="button" class="btn-small" onclick="closeLimit()">Cancel</button><button type="button" class="btn-small btn-gold" onclick="limitWholeAsked=true;planLimit()">Next \u2014 split the rest</button></div>';
+  };
+  window.wholeStep=function(k,d){limitWhole[k]=Math.max(0,Math.min(tripLimit(),(limitWhole[k]||0)+d));if(picked()>n)limitWhole[k]--;draw();};
+  draw();
+}
 function planLimit(){
   var g=document.getElementById('c-group').value,box=document.getElementById('lim-box');
   if(!g){alert('Pick the group first.');return;}
   var all=stillHere(g),list=all.filter(function(h){return h.address&&h.cityStateZip;}),noAddr=all.filter(function(h){return !(h.address&&h.cityStateZip);});
+  if(procPool&&procPool.wholeLeft>0&&!limitWholeAsked&&list.length){wholePick(g,list);return;}
   box.classList.add('show');box.innerHTML='<div class="lim-title">Everyone Gets Their Limit</div><div class="report-hint" style="padding:6px 0">Working it out\u2026</div>';
-  procGet({action:'plan',group:g,tripFrom:tripStart(g),hunters:JSON.stringify(list.map(function(h){return {name:h.name,address:h.address,cityStateZip:h.cityStateZip,phone:h.phone,license:h.license};}))}).then(function(res){
+  procGet({action:'plan',group:g,tripFrom:tripStart(g),hunters:JSON.stringify(list.map(function(h){return {name:h.name,address:h.address,cityStateZip:h.cityStateZip,phone:h.phone,license:h.license,whole:limitWhole[h.key]||0};}))}).then(function(res){
     if(!res.ok){box.innerHTML='<div class="proc-msg err">'+esc(handleProcError(res))+'</div>';return;}
     limitPlanRes=res;limitSid=newId();
     var adding=res.items.reduce(function(a,x){return a+x.count;},0);
     box.innerHTML='<div class="lim-title">Everyone Gets Their Limit</div>'+
-      res.people.map(function(p){return '<div class="fs-row"><span>'+esc(p.name)+'</span><span>'+(p.adding?'+'+p.adding+' \u2192 <b>'+p.total+'</b>':'<b>'+p.total+'</b>')+(p.short?' <span class="short">(short '+p.short+')</span>':'')+'<br><small>'+esc(dayList({byDate:p.byDate}))+'</small></span></div>';}).join('')+
+      res.people.map(function(p){return '<div class="fs-row"><span>'+esc(p.name)+'</span><span>'+(p.adding?'+'+p.adding+' \u2192 <b>'+p.total+'</b>':'<b>'+p.total+'</b>')+(p.whole?' <span class="whole-tag">'+p.whole+' whole</span>':'')+(p.short?' <span class="short">(short '+p.short+')</span>':'')+'<br><small>'+esc(dayList({byDate:p.byDate}))+'</small></span></div>';}).join('')+
       res.notes.map(function(n){return '<div class="lim-note'+(/short|left over/.test(n)?' warn':'')+'">'+esc(n)+'</div>';}).join('')+
       (noAddr.length?'<div class="lim-note warn">No address yet (add it under Give by hand): '+esc(noAddr.map(function(h){return h.name;}).join(', '))+'</div>':'')+
+      (limitWholeAsked?'<button type="button" class="more-link" style="margin:6px 0 0" onclick="limitWholeAsked=false;planLimit()">Change who takes whole birds</button>':'')+
       '<div class="receipts-foot" style="margin-top:10px"><button type="button" class="btn-small" onclick="closeLimit()">Cancel</button>'+
       (adding?'<button type="button" class="btn-small btn-gold" id="btn-limit-save" onclick="saveLimit()">Save \u2014 Give '+adding+'</button>':'<button type="button" class="btn-small" disabled>Nothing to give</button>')+'</div>';
   }).catch(function(){box.innerHTML='<div class="proc-msg err">Could not reach the records sheet. Check your signal.</div>';});
 }
-function closeLimit(){var b=document.getElementById('lim-box');b.classList.remove('show');b.innerHTML='';}
+function closeLimit(){var b=document.getElementById('lim-box');b.classList.remove('show');b.innerHTML='';limitWhole={};limitWholeAsked=false;}
 async function saveLimit(){
   var g=document.getElementById('c-group').value,btn=document.getElementById('btn-limit-save'),s=document.getElementById('b-status');
   if(!limitPlanRes)return;
@@ -3682,9 +3708,10 @@ async function saveLimit(){
   try{res=await procPost({action:'giveItems',submissionId:limitSid,group:g,tripFrom:tripStart(g),items:limitPlanRes.items});}catch(e){res=null;}
   if(!res||!res.ok){btn.disabled=false;btn.textContent='Save';s.className='submit-status show error';s.textContent='\u2717 Not saved: '+(res?handleProcError(res):'could not reach the records sheet.');return;}
   procTrip=res.trip||procTrip;setOpen(g,res.open);setPool(res.pool);
+  var wGiven=limitPlanRes.items.filter(function(i){return i.whole;}).reduce(function(a,i){return a+i.count;},0);
   closeLimit();
   s.className='submit-status show success';
-  s.textContent='\u2713 Gave out '+res.given+' pheasant'+(res.given===1?'':'s')+'. '+limitPlanRes.notes.join(' ');
+  s.textContent='\u2713 Gave out '+res.given+' pheasant'+(res.given===1?'':'s')+(wGiven?' ('+wGiven+' whole)':'')+'. '+limitPlanRes.notes.join(' ');
 }
 
 /* ── RECEIPTS PRINTED BLANK: WAITING FOR NUMBERS ── */
@@ -3778,10 +3805,14 @@ async function submitCleaning(){
   var date=document.getElementById('c-date').value;
   var qtyRaw=document.getElementById('c-qty').value,qty=parseInt(qtyRaw)||0;
   var disc=parseInt(document.getElementById('c-disc').value,10)||0;
+  var wholeRaw=document.getElementById('c-whole').value,whole=parseInt(wholeRaw,10)||0;
   var group=document.getElementById('c-group-clean').value;
   var mode=dayMode('c'),st=dayState.c;
-  if(qtyRaw===''&&disc&&mode!=='set')qtyRaw='0';
-  if(!date||qtyRaw===''||(!qty&&!disc&&mode!=='set')){alert('Please enter a date and total birds cleaned.');return;}
+  if(qtyRaw===''&&(disc||whole)&&mode!=='set')qtyRaw='0';
+  if(qtyRaw===''&&(disc||whole)&&mode==='set')qtyRaw=String(st?st.cur:0);
+  if(!date||qtyRaw===''||(!qty&&!disc&&!whole&&mode!=='set')){alert('Please enter a date and total birds cleaned.');return;}
+  var wDay=mode==='set'?(wholeRaw===''?(st?st.whole||0:0):whole):(st?st.whole||0:0)+whole;
+  if(st&&wDay<(st.wholeGiven||0)){alert(st.wholeGiven+' whole birds from '+usDate(date)+' already went to hunters.\nWhole birds for the day can\u2019t be less than '+st.wholeGiven+'.');return;}
   if(!group){alert('Pick the group these birds were cleaned for.');return;}
   var dayTotal=mode==='set'?qty:(st?st.cur:0)+qty;
   if(st&&dayTotal<st.given){alert(st.given+' pheasants from '+usDate(date)+' already went to hunters'+(st.early?' ('+st.early+' with early checkout)':'')+'.\nThe day total can\u2019t be less than '+st.given+'.');return;}
@@ -3793,16 +3824,17 @@ async function submitCleaning(){
   var s=document.getElementById('c-status');
   if(!getPin()){var pin=prompt('Enter the records PIN (only needed once on this device):');if(!pin||!pin.trim())return;setPin(pin.trim());}
   var poolNote='';
-  var sig=JSON.stringify([date,qty,disc,group,mode,rate,totalPay,workers,notes]);
+  var sig=JSON.stringify([date,qty,disc,whole,group,mode,rate,totalPay,workers,notes]);
   if(!cleanIds||cleanIds.sig!==sig)cleanIds={sig:sig,ops:newId()};
-  var saved=await saveOps('c',{task:'cleaning',submissionId:cleanIds.ops,date,group:group,totalBirds:qty,discarded:disc,payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:notes,mode:mode},'c-status',btn,function(r){
-    if(r.pool)poolNote=' \u00b7 '+group+' has '+r.pool.left+' pheasant'+(r.pool.left===1?'':'s')+' to give out';
-    return (r.total!==undefined?'Cleaning for '+group+' on '+usDate(date)+' is now '+r.total+(r.before?' (was '+r.before+')':'')+(r.discarded?' + '+r.discarded+' discarded':''):'Cleaning logged')+poolNote;
+  var saved=await saveOps('c',{task:'cleaning',submissionId:cleanIds.ops,date,group:group,totalBirds:qty,discarded:disc,whole:(mode==='set'&&wholeRaw===''?undefined:whole),payPerBird:rate,totalPay:totalPay,workers:workers.join(', '),notes:notes,mode:mode},'c-status',btn,function(r){
+    if(r.pool)poolNote=' \u00b7 '+group+' has '+r.pool.left+' pheasant'+(r.pool.left===1?'':'s')+(r.pool.wholeLeft?' + '+r.pool.wholeLeft+' whole':'')+' to give out';
+    return (r.total!==undefined?'Cleaning for '+group+' on '+usDate(date)+' is now '+r.total+(r.before?' (was '+r.before+')':'')+(r.discarded?' + '+r.discarded+' discarded':'')+(r.whole?' + '+r.whole+' whole':''):'Cleaning logged')+poolNote;
   },function(){
     cleanIds=null;
     refreshDayNote('c');
     document.getElementById('c-qty').value='';
     document.getElementById('c-disc').value='';
+    document.getElementById('c-whole').value='';
     document.getElementById('c-rate').value='';
     document.getElementById('c-total-pay').value='';
     document.getElementById('c-total').textContent='$0.00';
@@ -6118,6 +6150,13 @@ function ciwRender(all,g,a,dp,bk){
   b.innerHTML=html;
 }
 </script>
+
+<style>
+.pool-whole{display:block;font-size:.62rem;font-weight:700;color:inherit;opacity:.9;letter-spacing:0;margin-top:1px}
+.wp-row{align-items:center}.wp-step{display:flex;align-items:center;gap:10px}.wp-step b{min-width:1.2em;text-align:center;font-size:1.05rem}
+.wp-step .btn-small{min-width:40px;min-height:36px;font-size:1.1rem;padding:0}
+.whole-tag{display:inline-block;font-size:.7rem;padding:1px 7px;border-radius:999px;background:rgba(212,175,95,.16);color:var(--gold);font-weight:600;margin-left:4px}
+</style>
 
 </body>
 </html>
