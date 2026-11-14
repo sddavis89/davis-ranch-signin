@@ -6110,13 +6110,13 @@ function ciwOpen(el){
   d.innerHTML='<div class="bv-card" role="dialog" aria-label="Who has signed in"><div class="bv-h"><b>'+esc(nm)+'</b><button type="button" class="icon-btn" onclick="ciwClose()" aria-label="Close">✕</button></div><div id="ciw-body"><div class="report-hint">Loading the waivers…</div></div></div>';
   document.body.appendChild(d);
   var show=function(list){ciwRender(list,g,a,dp,bk);};
-  var fresh=procHunters&&Date.now()-CIW.at<120000;
-  if(procHunters)show(procHunters);
+  var have=CIW.list||procHunters,fresh=CIW.list&&Date.now()-CIW.at<120000;
+  if(have)show(have);
   if(fresh)return;
   procGet({action:'hunters'}).then(function(res){
-    if(res&&res.ok){procHunters=res.hunters||[];CIW.at=Date.now();ciwRedraw();if(document.getElementById('ciw-sheet'))show(procHunters);}
-    else if(!procHunters){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">'+esc(handleProcError(res))+'</div>';}
-  }).catch(function(){if(!procHunters){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">Couldn’t load the waivers. Check your signal and try again.</div>';}});
+    if(res&&res.ok){CIW.list=res.hunters||[];CIW.at=Date.now();ciwRedraw();if(document.getElementById('ciw-sheet'))show(CIW.list);}
+    else if(!have){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">'+esc(handleProcError(res))+'</div>';}
+  }).catch(function(){if(!have){var b=document.getElementById('ciw-body');if(b)b.innerHTML='<div class="report-hint">Couldn’t load the waivers. Check your signal and try again.</div>';}});
 }
 function ciwRows(all,g,a,dp){
   var lo=addDays(a,-14),gk=String(g||'').trim().toLowerCase(),seen={},rows=[];
@@ -6132,12 +6132,12 @@ function ciwRows(all,g,a,dp){
 // the card counts people (not signatures) from the same list, once it's loaded
 (function(){
   var base=faceSigned;
-  faceSigned=function(r){return procHunters?ciwRows(procHunters,r.group,r.arrive,r.depart).length:base(r);};
+  faceSigned=function(r){return (CIW.list||procHunters)?ciwRows(CIW.list||procHunters,r.group,r.arrive,r.depart).length:base(r);};
 })();
 function ciwRedraw(){try{faceRenderCamp();}catch(e){}try{faceHeader();}catch(e){}}
 function ciwLoad(){
   if(!getPin()||!procConfigured()||document.hidden)return;
-  procGet({action:'hunters'}).then(function(res){if(res&&res.ok){procHunters=res.hunters||[];CIW.at=Date.now();ciwRedraw();}}).catch(function(){});
+  procGet({action:'hunters'}).then(function(res){if(res&&res.ok){CIW.list=res.hunters||[];CIW.at=Date.now();ciwRedraw();}}).catch(function(){});
 }
 window.addEventListener('DOMContentLoaded',function(){
   setTimeout(ciwLoad,1500);
