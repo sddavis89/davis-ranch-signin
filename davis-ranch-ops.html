@@ -2985,6 +2985,8 @@ function openFinal(){
   document.getElementById('btn-make-receipts').style.display='block';
   finalSubmissionId=newId();
   finRender();
+  var pl=procPool?(procPool.left||0)+(procPool.wholeLeft||0):0;
+  if(pl&&!finalList.length)document.getElementById('fin-sum').insertAdjacentHTML('afterbegin','<div class="fin-warn">\u26a0 <b>No birds have been given yet.</b> '+esc(g)+' has '+procPool.left+' cleaned'+(procPool.wholeLeft?' + '+procPool.wholeLeft+' whole':'')+' to give out. <button type="button" class="more-link" style="margin:4px 0 0" onclick="closeFinal();document.getElementById(\'proc-box\').scrollIntoView({behavior:\'smooth\'})">Give the birds first \u2191</button></div>');
   var f=document.getElementById('c-final');f.classList.add('show');
   setTimeout(function(){jumpTo(f);},50);
 }
@@ -3118,6 +3120,12 @@ async function makeFinalReceipts(){
   var g=document.getElementById('c-group').value,date=document.getElementById('c-final-date').value;
   var wantInv=document.getElementById('inv-make').checked;
   if(!date){alert('Enter the date.');return;}
+  var poolLeft=procPool?(procPool.left||0)+(procPool.wholeLeft||0):0,anyBirds=finRows.some(function(r,i){return finVal(i)>0;});
+  if(poolLeft&&!anyBirds&&!window.__zeroOk){
+    window.__zeroOk=true;setTimeout(function(){window.__zeroOk=false;},15000);
+    alert(g+' still has '+procPool.left+' cleaned'+(procPool.wholeLeft?' + '+procPool.wholeLeft+' whole':'')+' bird'+(poolLeft===1?'':'s')+' that haven\u2019t been given to anyone, and every receipt would say 0 birds.\n\nClose this, give the birds first (section 1: Everyone Gets Their Limit), then Check Out Group.\n\nIf they really took no birds, tap Check Out again.');
+    return;
+  }
   var leader=invBillList[parseInt(document.getElementById('inv-bill').value,10)];
   var count=parseInt(document.getElementById('inv-count').value,10)||0;
   if(wantInv&&!leader){alert('Pick who the invoice goes to.');return;}
@@ -6365,8 +6373,8 @@ function redoInfo(){
 function renderRedo(){
   var el=document.getElementById('redo-box');if(!el)return;var x=redoInfo();
   if(!x){el.innerHTML='';return;}
-  el.innerHTML='<div class="redo"><b>Need to redo the '+esc(usDate(x.day).slice(0,5))+' checkout?</b><small>'+x.receipts+' receipt'+(x.receipts===1?'':'s')+(x.zero?' ('+x.zero+' with 0 birds)':'')+' and '+x.invoices+' invoice'+(x.invoices===1?'':'s')+' from that day.</small>'+
-    '<button type="button" class="more-link" style="margin:6px 0 0" onclick="redoAsk()">Redo this checkout ▾</button><div id="redo-sure"></div></div>';
+  el.innerHTML='<div class="redo"><small>Checked out '+esc(usDate(x.day).slice(0,5))+': '+x.receipts+' receipt'+(x.receipts===1?'':'s')+(x.zero?' ('+x.zero+' with 0 birds)':'')+', '+x.invoices+' invoice'+(x.invoices===1?'':'s')+'. Only if something was wrong:</small>'+
+    '<button type="button" class="more-link" style="margin:4px 0 0" onclick="redoAsk()">Redo that checkout ▾</button><div id="redo-sure"></div></div>';
 }
 function redoAsk(){
   var x=redoInfo(),el=document.getElementById('redo-sure');if(!x||!el)return;
@@ -6400,6 +6408,8 @@ function receiptRule(r){
   return RECEIPT_RULE.replace(/\s*Keep this receipt/,' The '+w+' whole bird'+(w===1?' was':'s were')+' not cleaned and '+(w===1?'is':'are')+' fully feathered. Keep this receipt');
 }
 </script>
+
+<style>.fin-warn{border:1px solid #e3b55c;background:rgba(227,181,92,.1);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:.88rem;line-height:1.45}</style>
 
 </body>
 </html>
