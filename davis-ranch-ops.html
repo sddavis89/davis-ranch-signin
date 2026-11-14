@@ -2805,6 +2805,7 @@ function speciesInputs(id){
   }).join('');
   return '<div class="species-grid">'+
       '<label for="o-sp-'+id+'-0">Pheasants to give</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="o-sp-'+id+'-0" oninput="updateBirdTotal()">'+
+      '<label for="o-wh-'+id+'" class="wh-only">Whole (not cleaned)</label><input type="number" min="0" inputmode="numeric" placeholder="0" id="o-wh-'+id+'" class="wh-only" oninput="updateBirdTotal()">'+
       '<span class="species-more" id="o-more-'+id+'">'+more+'</span>'+
     '</div>'+
     '<div class="row-links">'+
@@ -2866,6 +2867,7 @@ function ownerData(id){
     if(n>0){species.push({species:s,count:n});total+=n;}
   });
   var hauled=document.getElementById('o-tag-'+id).classList.contains('show')&&(val('o-from-'+id)||val('o-tagq-'+id));
+  var wEl=document.getElementById('o-wh-'+id);d.whole=wEl?parseInt(wEl.value,10)||0:0;
   d.species=species;d.total=total;d.hauled=!!hauled;
   d.receivedFrom=hauled?val('o-from-'+id):d.owner;
   d.hunterTag=hauled?val('o-tagq-'+id):'N/A';
@@ -2874,19 +2876,20 @@ function ownerData(id){
 }
 function updateBirdTotal(){
   var ids=ownerIds();if(!ids.length){document.getElementById('b-total').textContent='0';showPoolAfter(0);return;}
-  var sum=ids.reduce(function(s,id){return s+ownerData(id).total;},0);
-  document.getElementById('b-total').textContent=sum;
-  showPoolAfter(sum);
+  var sum=ids.reduce(function(s,id){return s+ownerData(id).total;},0),wsum=ids.reduce(function(s,id){return s+ownerData(id).whole;},0);
+  document.getElementById('b-total').textContent=sum+(wsum?' + '+wsum+' whole':'');
+  showPoolAfter(sum,wsum);
 }
-function showPoolAfter(sum){
-  var el=document.getElementById('pool-after');
-  if(!procPool||!sum){el.textContent='';el.className='pool-after';return;}
-  var after=procPool.left-sum;
-  el.textContent=after<0?'Only '+procPool.left+' left — that’s '+(-after)+' too many':'After saving: '+after+' left to give';
-  el.className='pool-after'+(after<0?' over':'');
+function showPoolAfter(sum,wsum){
+  var el=document.getElementById('pool-after');wsum=wsum||0;
+  if(!procPool||(!sum&&!wsum)){el.textContent='';el.className='pool-after';return;}
+  var after=procPool.left-sum,wafter=(procPool.wholeLeft||0)-wsum;
+  el.textContent=after<0?'Only '+procPool.left+' left — that’s '+(-after)+' too many':wafter<0?'Only '+(procPool.wholeLeft||0)+' whole left — that’s '+(-wafter)+' too many':'After saving: '+after+' left to give'+(procPool.wholeLeft?' + '+wafter+' whole':'');
+  el.className='pool-after'+(after<0||wafter<0?' over':'');
 }
 function setPool(p){
   procPool=p||null;
+  var co=document.getElementById('c-owners');if(co)co.classList.toggle('has-whole',!!(p&&(p.wholeLeft>0)));
   var box=document.getElementById('pool-box');
   if(!p){box.style.display='none';return;}
   box.style.display='grid';
@@ -2902,6 +2905,7 @@ function clearOwners(){
     var el=document.getElementById('owner-'+id);
     if(el.classList.contains('manual')){el.remove();return;}
     PROC_SPECIES.forEach(function(_,i){document.getElementById('o-sp-'+id+'-'+i).value='';});
+    var wEl=document.getElementById('o-wh-'+id);if(wEl)wEl.value='';
     var tb=document.getElementById('o-tag-'+id);tb.classList.remove('show');
     var mo=document.getElementById('o-more-'+id);if(mo.classList.contains('show'))toggleSpecies(id);
     document.getElementById('o-from-'+id).value='';document.getElementById('o-tagq-'+id).value='';
@@ -3761,21 +3765,22 @@ async function submitBirds(){
   var group=document.getElementById('c-group').value;
   var ids=ownerIds();
   if(!group){alert('Pick the group.');return;}
-  var records=[],problems=[],want=0;
+  var records=[],problems=[],want=0,wantW=0;
   ids.forEach(function(id){
     var d=ownerData(id);
-    if(!d.total)return;
+    if(!d.total&&!d.whole)return;
     var label=d.owner||'A hunter not on the list';
     if(!d.owner)problems.push(label+': enter the name.');
     if(!d.ownerAddress||!d.ownerCityStateZip)problems.push(label+': address is missing.');
     if(d.hauled&&(!d.receivedFrom||!d.hunterTag))problems.push(label+': fill in who dropped them off and whether the hunter tag was on the birds.');
-    want+=d.total;records.push(d);
+    want+=d.total;wantW+=d.whole;records.push(d);
   });
   if(problems.length){alert(problems.join('\n'));return;}
   if(!records.length){alert('Enter how many pheasants each hunter gets.\nHunters left blank are skipped.');return;}
+  if(procPool&&wantW>(procPool.wholeLeft||0)){alert('Only '+(procPool.wholeLeft||0)+' whole bird'+(procPool.wholeLeft===1?'':'s')+' left to give for '+group+'. You entered '+wantW+'.');return;}
   if(procPool&&want>procPool.left){alert('Only '+procPool.left+' pheasant'+(procPool.left===1?'':'s')+' left to give for '+group+'. You entered '+want+'.');return;}
-  var lim=tripLimit(),over=records.filter(function(d){var tc=procTrip[hunterKey(d.owner,d.ownerAddress)];return (tc?tc.total:0)+d.total>lim;});
-  if(over.length){alert(over.map(function(d){var tc=procTrip[hunterKey(d.owner,d.ownerAddress)];return d.owner+' would have '+((tc?tc.total:0)+d.total)+' \u2014 the limit is '+lim+' for this hunt.';}).join('\n'));return;}
+  var lim=tripLimit(),over=records.filter(function(d){var tc=procTrip[hunterKey(d.owner,d.ownerAddress)];return (tc?tc.total:0)+d.total+d.whole>lim;});
+  if(over.length){alert(over.map(function(d){var tc=procTrip[hunterKey(d.owner,d.ownerAddress)];return d.owner+' would have '+((tc?tc.total:0)+d.total+d.whole)+' \u2014 the limit is '+lim+' for this hunt.';}).join('\n'));return;}
   var fromDate=val('b-from')||localToday();
   if(!getPin()){procInit();alert('Enter the records PIN first.');return;}
 
@@ -3786,7 +3791,7 @@ async function submitBirds(){
   try{
     res=await procPost({action:'assign',submissionId:procSubmissionId,group:group,fromDate:fromDate,tripFrom:tripStart(group),records:records.map(function(d){
       return {owner:d.owner,ownerAddress:d.ownerAddress,ownerCityStateZip:d.ownerCityStateZip,phone:d.phone,license:d.license,
-        receivedFrom:d.receivedFrom,hunterTag:d.hunterTag,count:d.total};
+        receivedFrom:d.receivedFrom,hunterTag:d.hunterTag,count:d.total,whole:d.whole};
     })});
   }catch(err){
     btn.disabled=false;btn.textContent=btn.getAttribute('data-label');
@@ -3799,10 +3804,10 @@ async function submitBirds(){
   clearOwners();
   procTrip=res.trip||procTrip;
   setOpen(group,res.open);
-  setPool(res.pool);
+  if(res.pool)setPool(res.pool);
   var where=Object.keys(res.placed||{}).map(function(n){return n.split(' ')[0]+' '+res.placed[n].map(function(x){return x.count+' ('+usDate(x.date).slice(0,5)+')';}).join(' + ');}).join(' \u00b7 ');
   s.className='submit-status show success';
-  s.textContent='\u2713 Gave out '+want+' pheasant'+(want===1?'':'s')+(where?': '+where:'')+' \u2014 '+res.pool.left+' left to give';
+  s.textContent='\u2713 Gave out '+want+' pheasant'+(want===1?'':'s')+(wantW?' + '+wantW+' whole':'')+(where?': '+where:'')+(res.pool?' \u2014 '+res.pool.left+' left to give'+(res.pool.wholeLeft?' + '+res.pool.wholeLeft+' whole':''):'');
   setTimeout(function(){s.className='submit-status';},7000);
 }
 
@@ -6321,6 +6326,8 @@ function venmoPayBlock(v){
     '<div class="vqr">'+svg+'Pay with Venmo</div></div>';
 }
 </script>
+
+<style>#c-owners .wh-only{display:none}#c-owners.has-whole .wh-only{display:block}</style>
 
 </body>
 </html>
