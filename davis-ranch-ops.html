@@ -1085,6 +1085,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="sh">Groups</div>
   <button type="button" data-nav="receipts" onclick="navTo('receipts')"><i data-ic="receipt"></i>Check out &amp; receipts</button>
   <button type="button" data-nav="payments" onclick="navTo('payments')"><i data-ic="cash"></i>Payments</button>
+  <button type="button" data-nav="season" onclick="navTo('season')"><i data-ic="calendar"></i>Season Calendar</button>
   <button type="button" data-nav="schedule" onclick="navTo('schedule')"><i data-ic="cal"></i>Season calendar</button>
   <button type="button" data-nav="guides" onclick="navTo('guides')"><i data-ic="users"></i>Guides in camp</button>
   <button type="button" onclick="openSearch()"><i data-ic="search"></i>Find a hunter</button>
@@ -1143,6 +1144,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
         <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<span>Report in seconds</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<span>Who's here, who's next</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<span id="r-owed">Who still owes</span><i class="chev" data-ic="chev"></i></button>
+        <button type="button" class="rec" onclick="navTo('season')"><i class="ri" data-ic="calendar"></i>Season Calendar<span>This year and the next two</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<span>Check in, roster, season</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('planning')"><i class="ri" data-ic="chart"></i>Dashboard<span>Season at a glance</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="trend"></i>Daily summary<span id="r-sum"></span><i class="chev" data-ic="chev"></i></button>
@@ -1509,6 +1511,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
     <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<i class="chev" data-ic="chev"></i></button>
+    <button type="button" class="rec" onclick="navTo('season')"><i class="ri" data-ic="calendar"></i>Season Calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="briefSettings()"><i class="ri" data-ic="speak"></i>Spoken briefing<span id="brief-set">On first tap each day</span><i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
@@ -6159,6 +6162,139 @@ function ciwRender(all,g,a,dp,bk){
 .wp-step .btn-small{min-width:40px;min-height:36px;font-size:1.1rem;padding:0}
 .whole-tag{display:inline-block;font-size:.7rem;padding:1px 7px;border-radius:999px;background:rgba(212,175,95,.16);color:var(--gold);font-weight:600;margin-left:4px}
 </style>
+
+<style>
+.sea-tabs{display:flex;gap:6px;margin:4px 0 10px}
+.sea-tabs button{flex:1;padding:10px 0;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--fg);font-weight:700;font-size:.95rem}
+.sea-tabs button.on{background:var(--gold);color:#1a1408;border-color:var(--gold)}
+.sea-sub{font-size:.85rem;color:var(--fg-soft);margin:0 0 4px;line-height:1.45}.sea-sub b{color:var(--fg)}
+.sea-cal{font-size:.78rem;margin:2px 0 10px}.sea-cal.ok{color:#7fd18b}.sea-cal.warn{color:#e3b55c}
+.sea-month{margin:14px 0 4px}
+.sea-month h4{margin:0 0 6px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-soft)}
+.sea-grid{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.sea-dow{font-size:.6rem;text-align:center;color:var(--fg-soft);padding:3px 0;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sea-d{min-height:52px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;padding:2px 0 3px}
+.sea-d.out{background:rgba(255,255,255,.02)}
+.sea-d .n{display:block;font-size:.66rem;color:var(--fg-soft);padding:0 3px}
+.sea-d.today .n{color:var(--gold);font-weight:700}
+.sea-d.op{box-shadow:inset 0 0 0 2px var(--gold)}
+.sea-d .op-t{display:block;font-size:.5rem;color:var(--gold);font-weight:700;letter-spacing:.04em;padding:0 3px;line-height:1.1}
+.sea-bar{height:15px;margin-top:2px;font-size:.58rem;line-height:15px;color:#fff;white-space:nowrap;overflow:hidden;padding-left:3px;font-weight:700}
+.sea-bar.s{border-radius:6px 0 0 6px;margin-left:2px}.sea-bar.e{border-radius:0 6px 6px 0;margin-right:2px}.sea-bar.s.e{border-radius:6px}
+.sea-bar.planned{opacity:.6;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0 4px,transparent 4px 8px)}
+.sea-bar.gap{visibility:hidden}
+.sea-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.sea-trip{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;padding:10px 12px 10px 0;border:1px solid var(--line);border-radius:14px;background:transparent;color:var(--fg);text-align:left;width:100%;font:inherit}
+.sea-trip .sw{align-self:stretch;border-radius:14px 0 0 14px}
+.sea-trip b{display:block;font-size:1rem}.sea-trip small{display:block;font-size:.78rem;color:var(--fg-soft);margin-top:2px}
+.sea-trip .warn{color:#e3b55c}
+.sea-pill{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.sea-pill.Confirmed{background:rgba(127,209,139,.16);color:#7fd18b;border-color:transparent}
+.sea-pill.Planned{color:var(--fg-soft)}
+.sea-pill.Not{background:rgba(227,120,92,.14);color:#e3785c;border-color:transparent}
+.sea-trip.gone{opacity:.55}.sea-trip.gone b{text-decoration:line-through}
+.sea-st{display:flex;gap:6px;margin:4px 0 6px}.sea-st button{flex:1;padding:9px 0;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);font-weight:600;font-size:.82rem}
+.sea-st button.on{background:var(--gold);color:#1a1408;border-color:var(--gold)}
+.sea-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style>
+<script>
+// Season Calendar: this season (from Schedule) and the next two (worked out from the opener)
+FACE_IC.calendar='<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>';
+FACE_BANNER.season=['lodge','Season Calendar','Every group’s hunt, this season and the next two'];
+var SEA={data:null,year:0};
+var SEA_COLORS=['#9a5b2e','#3f7a4f','#2f6690','#8a3b4a','#6b5b95','#b07d2b','#3d7f7a','#7a6a4f','#5e7d32','#a0522d'];
+function seaColor(g){var h=0;String(g).toLowerCase().split('').forEach(function(c){h=(h*31+c.charCodeAt(0))>>>0;});return SEA_COLORS[h%SEA_COLORS.length];}
+function seaWd(iso){return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'});}
+function seaMd(iso){var d=new Date(iso+'T12:00:00');return (d.getMonth()+1)+'/'+d.getDate();}
+function seaSpan(a,b){return seaWd(a)+' '+seaMd(a)+' – '+seaWd(b)+' '+seaMd(b);}
+function seaOpen(){
+  var b=document.getElementById('sea-body');if(!b)return;
+  if(!getPin()){b.innerHTML='<div class="gf-pin"><b>Enter the records PIN</b><span>The season calendar comes from your records sheet.</span><div class="proc-pin"><input type="password" id="sea-pin" inputmode="numeric" autocomplete="off" placeholder="Records PIN"><button type="button" onclick="setPin(val(\'sea-pin\').trim());seaOpen()">Open</button></div></div>';return;}
+  if(!SEA.data)b.innerHTML='<div class="report-hint">Loading the seasons&hellip;</div>';
+  procGet({action:'seasonplan'}).then(function(r){
+    if(!r||!r.ok){b.innerHTML='<div class="proc-msg err">'+esc(r?(/Unknown action/.test(r.error||'')?'Paste the newest Davis Ranch script (2026-11-14a) and deploy a New version to use the Season Calendar.':handleProcError(r)):'Could not load.')+'</div>';return;}
+    SEA.data=r;if(!SEA.year||r.years.indexOf(SEA.year)<0)SEA.year=r.years[1]||r.base;seaRender();
+  }).catch(function(){if(!SEA.data)b.innerHTML='<div class="proc-msg err">Could not reach the records sheet. Check your signal and try again.</div>';});
+}
+function seaTrips(y){return SEA.data.rows.filter(function(r){return r.year===y;});}
+function seaOverlaps(t,list){return list.filter(function(o){return o!==t&&o.status!=='Not coming'&&t.status!=='Not coming'&&t.arrive<o.leave&&o.arrive<t.leave;});}
+function seaRender(){
+  var b=document.getElementById('sea-body'),r=SEA.data;if(!b||!r)return;
+  var y=SEA.year,trips=seaTrips(y),cur=y===r.base,live=trips.filter(function(t){return t.status!=='Not coming';});
+  var cnt=function(s){return trips.filter(function(t){return t.status===s;}).length;};
+  var cal=r.calendar||{},calTxt=cal.on?(cal.error?'<div class="sea-cal warn">Google Calendar didn’t update: '+esc(cal.error)+'</div>':'<div class="sea-cal ok">✓ On your Google Calendar (“Davis Hunting Co.”)</div>'):'<div class="sea-cal warn">Not on Google Calendar yet. Run <b>setupHuntCalendar</b> once in Apps Script.</div>';
+  var h='<div class="sea-tabs" role="tablist">'+r.years.map(function(x){return '<button type="button" role="tab" class="'+(x===y?'on':'')+'" onclick="SEA.year='+x+';seaRender()">'+x+'</button>';}).join('')+'</div>'+
+    '<p class="sea-sub">Opener: <b>'+new Date(r.openers[y]+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})+'</b>'+
+    (cur?' · this season (from the Schedule tab)':' · <b>'+cnt('Confirmed')+'</b> confirmed, <b>'+cnt('Planned')+'</b> planned'+(cnt('Not coming')?', '+cnt('Not coming')+' not coming':''))+'</p>'+calTxt;
+  h+=seaMonths(y,live,r.openers[y]);
+  h+='<div class="sea-list">'+trips.map(function(t,i){
+    var ov=seaOverlaps(t,trips),days=Math.round((new Date(t.leave+'T12:00:00')-new Date(t.arrive+'T12:00:00'))/864e5)+1;
+    var pill=cur?'':'<span class="sea-pill '+(t.status==='Not coming'?'Not':t.status)+'">'+esc(t.status)+'</span>';
+    return '<button type="button" class="sea-trip'+(t.status==='Not coming'?' gone':'')+'" '+(cur?'onclick="toast(\'This season’s dates come from the Schedule tab.\')"':'onclick="seaEdit('+i+')"')+'><span class="sw" style="background:'+seaColor(t.group)+'"></span><span><b>'+esc(t.group)+'</b><small>'+seaSpan(t.arrive,t.leave)+' · '+days+' days'+(t.booked?' · '+t.booked+' hunters':'')+'</small>'+
+      (t.moved&&t.from!=='added'?'<small>Moved from the usual '+seaSpan(t.usualArrive,t.usualLeave)+'</small>':'')+(t.from==='added'?'<small>Added for '+y+'</small>':'')+
+      (ov.length?'<small class="warn">⚠ Overlaps '+ov.map(function(o){return esc(o.group);}).join(', ')+'</small>':'')+(t.notes?'<small>'+esc(t.notes)+'</small>':'')+'</span>'+pill+'</button>';
+  }).join('')+'</div>';
+  if(!cur)h+='<button type="button" class="more-link" style="margin-top:12px" onclick="seaEdit(-1)">+ Add a group for '+y+'</button>';
+  b.innerHTML=h;
+}
+// Month grids with a bar for each group (2 lanes so swap days show both groups)
+function seaMonths(y,trips,op){
+  if(!trips.length)return '<div class="report-hint" style="margin-top:10px">No trips for '+y+' yet.</div>';
+  var lanes=[],laneOf={};trips.slice().sort(function(a,b){return a.arrive<b.arrive?-1:1;}).forEach(function(t){
+    var l=0;while(lanes[l]&&lanes[l]>=t.arrive)l++;lanes[l]=t.leave;laneOf[t.group+'|'+t.arrive]=l;});
+  var nl=Math.max(1,lanes.length),first=trips.reduce(function(a,t){return t.arrive<a?t.arrive:a;},'9999'),last=trips.reduce(function(a,t){return t.leave>a?t.leave:a;},'');
+  var m0=new Date(first.slice(0,7)+'-01T12:00:00'),m1=new Date(last.slice(0,7)+'-01T12:00:00'),out='',today=localToday();
+  for(var m=new Date(m0);m<=m1;m.setMonth(m.getMonth()+1)){
+    var yy=m.getFullYear(),mm=m.getMonth(),start=new Date(yy,mm,1,12),days=new Date(yy,mm+1,0).getDate();
+    out+='<div class="sea-month"><h4>'+start.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</h4><div class="sea-grid">'+['S','M','T','W','T','F','S'].map(function(x){return '<div class="sea-dow">'+x+'</div>';}).join('');
+    for(var i=0;i<start.getDay();i++)out+='<div class="sea-d out"></div>';
+    for(var d=1;d<=days;d++){
+      var iso=yy+'-'+('0'+(mm+1)).slice(-2)+'-'+('0'+d).slice(-2),dow=new Date(yy,mm,d,12).getDay(),bars='';
+      for(var l=0;l<nl;l++){
+        var t=trips.filter(function(x){return laneOf[x.group+'|'+x.arrive]===l&&x.arrive<=iso&&x.leave>=iso;})[0];
+        if(!t){bars+='<div class="sea-bar gap"></div>';continue;}
+        var s=t.arrive===iso,e=t.leave===iso,lbl=s||dow===0||d===1;
+        bars+='<div class="sea-bar'+(s?' s':'')+(e?' e':'')+(t.status==='Planned'&&y>SEA.data.base?' planned':'')+'" style="background-color:'+seaColor(t.group)+'" title="'+esc(t.group)+'">'+(lbl?esc(t.group):'&nbsp;')+'</div>';
+      }
+      out+='<div class="sea-d'+(iso===op?' op':'')+(iso===today?' today':'')+'"><span class="n">'+d+'</span>'+(iso===op?'<span class="op-t">OPENER</span>':'')+bars+'</div>';
+    }
+    out+='</div></div>';
+  }
+  return out;
+}
+function seaEdit(i){
+  var y=SEA.year,t=i>=0?seaTrips(y)[i]:null,old=document.getElementById('sea-sheet');if(old)old.remove();
+  var st=t?t.status:'Planned';
+  var d=document.createElement('div');d.id='sea-sheet';d.className='bv';d.onclick=function(e){if(e.target===d)d.remove();};
+  d.innerHTML='<div class="bv-card" role="dialog" aria-label="Edit trip"><div class="bv-h"><b>'+(t?esc(t.group)+' · '+y:'Add a group for '+y)+'</b><button type="button" class="icon-btn" onclick="document.getElementById(\'sea-sheet\').remove()" aria-label="Close">✕</button></div>'+
+    (t?'':'<div class="field"><label>Group name</label><input type="text" id="se-g" placeholder="e.g. Iowa Boys"></div>')+
+    '<div class="sea-two"><div class="field"><label>Arrive</label><input type="date" id="se-a" value="'+(t?t.arrive:'')+'"></div><div class="field"><label>Leave</label><input type="date" id="se-l" value="'+(t?t.leave:'')+'"></div></div>'+
+    (t&&t.moved&&t.from!=='added'?'<button type="button" class="more-link" style="margin:0 0 8px" onclick="seaSave('+i+',true)">Back to the usual dates ('+seaSpan(t.usualArrive,t.usualLeave)+')</button>':'')+
+    '<div class="bv-l">Status</div><div class="sea-st" id="se-st">'+['Planned','Confirmed','Not coming'].map(function(x){return '<button type="button" class="'+(x===st?'on':'')+'" onclick="this.parentNode.querySelectorAll(\'button\').forEach(function(b){b.classList.remove(\'on\');});this.classList.add(\'on\')">'+x+'</button>';}).join('')+'</div>'+
+    '<div class="sea-two"><div class="field"><label>Hunters booked</label><input type="number" min="0" inputmode="numeric" id="se-b" value="'+(t&&t.booked?t.booked:'')+'"></div><div></div></div>'+
+    '<div class="field"><label>Notes</label><input type="text" id="se-n" value="'+esc(t?t.notes||'':'')+'" placeholder="e.g. Doug wants Thursday instead"></div>'+
+    '<div class="proc-msg err" id="se-msg" style="display:none"></div>'+
+    '<button type="button" class="btn-submit" id="se-save" onclick="seaSave('+i+')">Save</button></div>';
+  document.body.appendChild(d);
+}
+function seaSave(i,reset){
+  var y=SEA.year,t=i>=0?seaTrips(y)[i]:null,btn=document.getElementById('se-save'),msg=document.getElementById('se-msg');
+  var on=document.querySelector('#se-st button.on'),body={action:'seasonplan',submissionId:newId(),year:y,status:on?on.textContent:'Planned',notes:val('se-n').trim(),booked:val('se-b')};
+  if(t){body.group=t.group;if(reset)body.reset=true;else if(val('se-a')!==t.arrive||val('se-l')!==t.leave){body.arrive=val('se-a');body.leave=val('se-l');}}
+  else{body.add=true;body.group=val('se-g').trim();body.arrive=val('se-a');body.leave=val('se-l');if(!body.group){msg.style.display='block';msg.textContent='Enter the group name.';return;}}
+  btn.disabled=true;btn.textContent='Saving…';msg.style.display='none';
+  procPost(body).then(function(r){
+    if(!r||!r.ok){btn.disabled=false;btn.textContent='Save';msg.style.display='block';msg.textContent=r?handleProcError(r):'Not saved.';return;}
+    SEA.data=r;var s=document.getElementById('sea-sheet');if(s)s.remove();seaRender();toast('✓ Saved'+(r.calendar&&r.calendar.on&&!r.calendar.error?' · Google Calendar updated':''));
+  }).catch(function(){btn.disabled=false;btn.textContent='Save';msg.style.display='block';msg.textContent='No signal. Not saved.';});
+}
+var _faceViewS=faceView;
+faceView=function(v){var was=faceCur;_faceViewS(v);var c=document.getElementById('card-season');if(c){c.style.display=v==='season'?'block':'none';c.classList.toggle('active',v==='season');if(v==='season'&&was!=='season')seaOpen();}};
+window.addEventListener('DOMContentLoaded',function(){
+  var inner=document.querySelector('.content-inner');
+  if(inner&&!document.getElementById('card-season')){var d=document.createElement('div');d.className='form-card sc-card';d.id='card-season';d.innerHTML='<div class="card-title">Season Calendar</div><div id="sea-body"></div>';inner.appendChild(d);}
+});
+</script>
 
 </body>
 </html>
