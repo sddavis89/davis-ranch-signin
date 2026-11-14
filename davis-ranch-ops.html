@@ -3359,7 +3359,7 @@ function shownInvoices(){
     return true;
   });
 }
-function printAll(){printDocs(shownInvoices(),shownReceipts());}
+function printAll(){printDocs(shownInvoices().filter(function(v){return v.type!=='Void';}),shownReceipts());}   // voided invoices never print with Print All
 function printInvoice(btn){
   var v=shownInvoices()[+btn.dataset.i];if(!v)return;
   var mine=[];
@@ -4596,7 +4596,7 @@ function rxToPending(){var p=document.getElementById('pend-box');if(p&&p.innerHT
 renderReceiptList=function(){
   var R=shownReceipts(),I=shownInvoices();
   var box=document.getElementById('c-receipts-list'),pa=document.getElementById('btn-print-all');
-  var nAll=R.length+I.length;
+  var nAll=R.length+I.filter(function(v){return v.type!=='Void';}).length;
   pa.textContent=nAll>1?'Print All ('+nAll+')':'Print All';pa.disabled=!nAll;
   if(!nAll){box.innerHTML='<div class="report-hint" style="padding:8px 0">Nothing found. Try a last name, receipt # or invoice #.</div>';return;}
   var groups=[],G={};
