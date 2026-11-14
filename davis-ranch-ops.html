@@ -321,8 +321,8 @@ html,body{background:var(--bg);font-family:var(--font-body);font-size:16px;line-
 .inv-doc .hunters{font-size:10pt;margin-bottom:10pt;line-height:1.4;}
 .inv-doc .pay{border:1px solid #000;padding:7pt 9pt;font-size:10pt;line-height:1.5;}
 .inv-doc .thanks{text-align:center;margin-top:14pt;font-style:italic;}
-.inv-doc .pay.vq{display:flex;gap:10pt;align-items:center}.inv-doc .pay.vq .pt{flex:1}
-.inv-doc .vqr{flex:0 0 auto;text-align:center;font-size:7.5pt;line-height:1.2}.inv-doc .vqr svg{display:block;width:92pt;height:92pt;margin:0 auto 2pt}
+.inv-doc .tot-row{display:flex;align-items:flex-start;gap:10pt}.inv-doc .tot-row .tot{flex:0 0 55%;width:auto;margin-left:auto}
+.inv-doc .vqr{flex:0 0 auto;text-align:center;font-size:7.5pt;line-height:1.2;margin-top:6pt}.inv-doc .vqr svg{display:block;width:84pt;height:84pt;margin:0 auto 2pt}
 .fl-comb{margin:0 0 8px 30px;padding:8px 10px;background:rgba(224,168,74,.10);border:1px solid rgba(224,168,74,.35);border-radius:8px;font-size:.8rem;color:var(--warn);font-weight:600;}
 .fl-comb .check-line{font-size:.85rem;color:var(--fg);font-weight:700;}
 .pay-doc{font-family:Georgia,'Times New Roman',serif;color:#000;max-width:7.5in;margin:0 auto;font-size:10.5pt;page-break-after:always;break-after:page;}
@@ -409,7 +409,7 @@ html,body{background:var(--bg);font-family:var(--font-body);font-size:16px;line-
 .pair .inv-doc .tax{font-size:8pt;margin:1pt 0 4pt;}
 .pair .inv-doc .pay{padding:3pt 8pt;font-size:8pt;line-height:1.3;}
 .pair .inv-doc .thanks{margin-top:3pt;font-size:8.5pt;}
-.pair .inv-doc .vqr svg{width:58pt;height:58pt}.pair .inv-doc .vqr{font-size:6.5pt}
+.pair .inv-doc .vqr svg{width:68pt;height:68pt;margin-bottom:1pt}.pair .inv-doc .vqr{font-size:6pt;margin-top:2pt}
 .pair .receipt-doc h1{font-size:12.5pt;margin-bottom:1pt;}
 .pair .receipt-doc .fac{font-size:9pt;margin-bottom:5pt;line-height:1.25;}
 .pair .receipt-doc .fac b{font-size:11pt;}
@@ -3194,7 +3194,7 @@ function receiptText(r){
     (r.license?'License / Authorization #: '+r.license+'\n':'')+
     'Birds: '+speciesText(r)+'\n'+
     ((r.gifts||[]).length?'Given by guide: '+r.gifts.map(giftLine).join('; ')+'\n':'')+
-    'Received '+datesText(r)+'\nReleased '+((r.datesReleased&&r.datesReleased.length)?r.datesReleased:[r.dateReleased]).map(usDate).join(', ')+'\n\n'+RECEIPT_RULE;
+    'Received '+datesText(r)+'\nReleased '+((r.datesReleased&&r.datesReleased.length)?r.datesReleased:[r.dateReleased]).map(usDate).join(', ')+'\n\n'+receiptRule(r);
 }
 function smsHref(r){
   var num=String(r.phone||'').replace(/[^\d+]/g,'');
@@ -3216,7 +3216,7 @@ function receiptHtml(r){
         '<tr><td>Date Released</td><td>'+blank+'</td></tr>'+
         row('Delivered To',r.deliveredTo||r.owner)+
       '</table>'+
-      '<div class="rule">'+esc(RECEIPT_RULE)+'</div>'+
+      '<div class="rule">'+esc(receiptRule(r))+'</div>'+
       '<div class="sig"><div>Facility signature</div><div class="date">Date</div></div>'+
       '<div class="sig" style="margin-top:28pt"><div>Hunter (owner) signature</div><div class="date">Date</div></div>'+
     '</div>';
@@ -3236,7 +3236,7 @@ function receiptHtml(r){
       row((r.datesReleased&&r.datesReleased.length>1)?'Dates Released':'Date Released',((r.datesReleased&&r.datesReleased.length)?r.datesReleased:[r.dateReleased]).map(usDate).join(', '))+
       row('Delivered To',r.deliveredTo||r.owner)+
     '</table>'+
-    '<div class="rule">'+esc(RECEIPT_RULE)+'</div>'+
+    '<div class="rule">'+esc(receiptRule(r))+'</div>'+
     '<div class="sig"><div>Facility signature</div><div class="date">Date</div></div>'+
     '<div class="sig" style="margin-top:28pt"><div>Hunter (owner) signature</div><div class="date">Date</div></div>'+
   '</div>';
@@ -3255,9 +3255,9 @@ function invoiceDocHtml(v){
     '<table class="items"><tr><th>Description</th><th class="n">Hunters</th><th class="n">Rate</th><th class="n">Amount</th></tr>'+
     lines+'</table>'+
     minNote+
-    '<table class="tot"><tr><td>Total</td><td class="n">'+money(v.total)+'</td></tr>'+
+    '<div class="tot-row">'+venmoQrSide(v)+'<table class="tot"><tr><td>Total</td><td class="n">'+money(v.total)+'</td></tr>'+
       (v.deposit?'<tr><td>Deposit paid</td><td class="n">−'+money(v.deposit)+'</td></tr>':'')+
-      '<tr class="big"><td>Balance Due</td><td class="n">'+money(v.balance)+'</td></tr></table>'+
+      '<tr class="big"><td>Balance Due</td><td class="n">'+money(v.balance)+'</td></tr></table></div>'+
     '<div class="tax">'+(v.tax.added?'South Dakota sales tax (4.2%) '+money(v.tax.sales)+' and tourism tax (1.5%) '+money(v.tax.tourism)+' (included in package prices; added on '+money(v.tax.added.on)+' of other items).':
       'Price includes South Dakota sales tax (4.2%) '+money(v.tax.sales)+' and tourism tax (1.5%) '+money(v.tax.tourism)+'.')+'</div>'+
     (v.hunters&&v.hunters.length?'<div class="hunters"><b>Hunters:</b> '+esc(v.hunters.join(', '))+'</div>':'')+
@@ -3284,7 +3284,21 @@ function printDocs(invs,recs){
   left.forEach(function(r){out.push(hunterCopy(r));if(r.pending)ranch.push(ranchCopy(r));});
   out=out.concat(ranch);
   area.innerHTML=out.join('');
+  fitPairs(area);
   setTimeout(function(){window.print();},50);
+}
+// A long invoice (an organizer's split bill, say) can run past its half of the page: shrink just that half to fit.
+function fitPairs(area){
+  try{
+    var st=area.style.cssText;area.style.cssText='display:block;position:absolute;left:-10000px;top:0;width:7.5in;visibility:hidden';
+    area.querySelectorAll('.pair .half').forEach(function(h){
+      var doc=h.firstElementChild;if(!doc)return;
+      doc.style.transform='';doc.style.width='';
+      var need=doc.scrollHeight,room=h.clientHeight;
+      if(need>room+1){var k=Math.max(0.6,room/need);doc.style.transformOrigin='top left';doc.style.transform='scale('+k.toFixed(3)+')';doc.style.width=(100/k).toFixed(2)+'%';}
+    });
+    area.style.cssText=st;
+  }catch(e){}
 }
 function printPaymentList(){
   var g=document.getElementById('c-group').value;
@@ -6314,17 +6328,19 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 var VENMO_USER='Stephen-Davis-222',VENMO_CODE='https://venmo.com/code?user_id=2719039549865984933&created=1794694579.41539';
 function venmoUrl(){return VENMO_CODE;}
 function venmoQrSvg(text){
-  try{var q=qrcode(0,'M');q.addData(text);q.make();var n=q.getModuleCount(),m=2,d='';
+  try{var q=qrcode(0,'L');q.addData(text);q.make();var n=q.getModuleCount(),m=2,d='';
     for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))d+='M'+(c+m)+' '+(r+m)+'h1v1h-1z';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+(n+2*m)+' '+(n+2*m)+'" shape-rendering="crispEdges" role="img" aria-label="Venmo QR code"><rect width="100%" height="100%" fill="#fff"/><path d="'+d+'" fill="#000"/></svg>';
   }catch(e){return '';}
 }
 function venmoPayBlock(v){
   var txt='<b>Payment:</b> We accept cash, check, credit card and Venmo.<br>A convenience fee will be added to all credit card payments.';
+  return '<div class="pay">'+txt+(v.type!=='Void'?'<br><b>Venmo:</b> @'+VENMO_USER+' (scan the code by the total). Please put the invoice # in the note.':'')+'</div>';
+}
+// the QR sits in the empty space beside the totals, so it adds no height to the invoice
+function venmoQrSide(v){
   var svg=v.type!=='Void'?venmoQrSvg(venmoUrl()):'';
-  if(!svg)return '<div class="pay">'+txt+'</div>';
-  return '<div class="pay vq"><div class="pt">'+txt+'<br><b>Venmo:</b> @'+VENMO_USER+' (scan the code). Please put the invoice # in the note.</div>'+
-    '<div class="vqr">'+svg+'Pay with Venmo</div></div>';
+  return svg?'<div class="vqr">'+svg+'Pay with Venmo<br>@'+VENMO_USER+'</div>':'';
 }
 </script>
 
@@ -6372,6 +6388,16 @@ async function redoGo(){
   var m='✓ '+x.g+'’s '+usDate(x.day).slice(0,5)+' checkout is taken back: '+(res.removed?res.removed+' empty receipt'+(res.removed===1?'':'s')+' removed, ':'')+(res.heldAgain?res.heldAgain+' bird line'+(res.heldAgain===1?'':'s')+' held again, ':'')+(res.voided||[]).length+' invoice'+((res.voided||[]).length===1?'':'s')+' voided. Now give the birds and Check Out Group again.';
   procMsg(m);toast('✓ Checkout taken back');
   try{document.getElementById('proc-box').scrollIntoView({behavior:'smooth'});}catch(e){}
+}
+</script>
+
+<script>
+// receipts with whole (not cleaned) birds say so
+function receiptRule(r){
+  var w=((r&&r.species)||[]).filter(function(x){return /whole/i.test(x.species);}).reduce(function(a,x){return a+(parseInt(x.count,10)||0);},0);
+  if(!w)return RECEIPT_RULE;
+  if(w===(parseInt(r.total,10)||0))return 'These birds were received at a wildlife processing facility and were not cleaned; they are whole and fully feathered. Keep this receipt with the birds while transporting.';
+  return RECEIPT_RULE.replace(/\s*Keep this receipt/,' The '+w+' whole bird'+(w===1?' was':'s were')+' not cleaned and '+(w===1?'is':'are')+' fully feathered. Keep this receipt');
 }
 </script>
 
