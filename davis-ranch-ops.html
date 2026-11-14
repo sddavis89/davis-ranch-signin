@@ -3986,7 +3986,7 @@ function faceFromStatus(st){
   faceHeader();
   if(!st||!st.ok||!st.days)return;
   var today=localToday(),td=st.days[today]||{release:{},harvest:{},cleaning:{}},camp=faceCamp(),here=camp.inCamp,g=here.length?here[here.length-1].group:'';
-  var rel=g?td.release[g]||0:0,shot=g?td.harvest[g]||0:0,cl=g?td.cleaning[g]||0:0,ds=g&&td.discarded?td.discarded[g]||0:0;
+  var rel=g?td.release[g]||0:0,shot=g?td.harvest[g]||0:0,cl=g?td.cleaning[g]||0:0,ds=g&&td.discarded?td.discarded[g]||0:0,wh=g&&td.whole?td.whole[g]||0:0;
   if(!g){
     faceSet('k1-l','Next group');faceSet('k2-l','Booked');
     var nx=camp.next;
@@ -4001,9 +4001,11 @@ function faceFromStatus(st){
   if(false)faceSet('k-shot-n','','');
   else if(lim)faceSet('k-shot-n',shot>=lim?'✓ limit '+lim:'of '+lim+' limit',shot>=lim?'ok':'');
   else faceSet('k-shot-n',shot?'today':'none yet','');
-  if(!shot&&!cl)faceSet('k-clean-n','none yet','');
-  else if(shot===cl+ds)faceSet('k-clean-n','✓ matches','ok');
-  else faceSet('k-clean-n',(shot-cl-ds>0?(shot-cl-ds)+' to clean':'more than shot'),'warn');
+  // whole birds (kept, not cleaned) and discarded ones are accounted for, not "to clean"
+  var extra=[wh?wh+' whole':'',ds?ds+' discarded':''].filter(Boolean).join(', '),left=shot-cl-ds-wh;
+  if(!shot&&!cl&&!wh)faceSet('k-clean-n','none yet','');
+  else if(!left)faceSet('k-clean-n','✓ matches'+(extra?' (+ '+extra+')':''),'ok');
+  else faceSet('k-clean-n',(left>0?left+' to clean':'more than shot')+(extra?' (+ '+extra+')':''),'warn');
   }
   var sub=function(id,q){if(!g){faceSet(id,'Tap to log','');return;}faceSet(id,q?'Today: '+q:'Not logged yet',q?'done':'todo');};
   sub('t-release',rel);sub('t-harvest',shot);sub('t-cleaning',cl);
