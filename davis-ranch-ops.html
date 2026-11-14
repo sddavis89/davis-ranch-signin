@@ -1360,23 +1360,23 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
           <div class="final-title" id="c-final-title">Check Out Group</div>
           <div class="fin-sum" id="fin-sum"></div>
           <div class="fin-fill" id="fin-fill"></div>
-          <div class="field" id="fin-dep-wrap"><label>Deposit Paid <span class="opt">(comes off the leader&rsquo;s invoice)</span></label><input type="number" id="inv-deposit" min="0" step="0.01" inputmode="decimal" placeholder="0.00" oninput="invPreview()"></div>
-          <button type="button" class="more-link" onclick="toggleMore('fin-more',this)">Change something &#9662;</button>
-          <div class="more-box" id="fin-more">
-          <div class="field"><label>Date Released</label><input type="date" id="c-final-date" onchange="finSummary()"></div>
+          <div class="field" id="fin-dep-wrap"><label>Deposit Paid <span class="opt">(comes off the organizer&rsquo;s invoice)</span></label><input type="number" id="inv-deposit" min="0" step="0.01" inputmode="decimal" placeholder="0.00" oninput="invPreview()"></div>
           <div class="inv-box" id="inv-box">
             <label class="check-line" style="margin:0 0 4px"><input type="checkbox" id="inv-make" onchange="invToggle()"> <b>Invoice</b></label>
             <div class="inv-already" id="inv-already"></div>
             <div id="inv-fields">
               <div class="inv-type">
                 <label><input type="radio" name="inv-type" value="individual" checked onchange="invPreview()"><span>Individual invoices<small>One bill per hunter, printed with their receipt</small></span></label>
-                <label><input type="radio" name="inv-type" value="group" onchange="invPreview()"><span>Group invoice<small>One bill to the leader</small></span></label>
+                <label><input type="radio" name="inv-type" value="group" onchange="invPreview()"><span>Group invoice<small>One bill to the organizer</small></span></label>
               </div>
-              <div class="field"><label id="inv-bill-label">Bill To (group leader)</label><select id="inv-bill" onchange="invPreview()"></select></div>
+              <div class="field"><label id="inv-bill-label">Bill To (organizer)</label><select id="inv-bill" onchange="invPreview()"></select></div>
               <div class="field"><label>Hunters Signed In</label><input type="number" id="inv-count" min="1" inputmode="numeric" oninput="invPreview()"></div>
               <div class="inv-preview" id="inv-preview"></div>
             </div>
           </div>
+          <button type="button" class="more-link" onclick="toggleMore('fin-more',this)">Change the release date &#9662;</button>
+          <div class="more-box" id="fin-more">
+          <div class="field"><label>Date Released</label><input type="date" id="c-final-date" onchange="finSummary()"></div>
           <div class="final-sub">Bird receipts</div>
           <div id="c-final-list"></div>
           </div>
@@ -3082,7 +3082,7 @@ function invType(){var r=document.querySelector('input[name="inv-type"]:checked'
 function invPreview(){
   var el=document.getElementById('inv-preview');
   var ind=invType()==='individual';
-  document.getElementById('inv-bill-label').textContent=ind?'Group leader (pays any unfilled spots and the deposit)':'Bill To (group leader)';
+  document.getElementById('inv-bill-label').textContent=ind?'Organizer (pays any unfilled spots and the deposit)':'Bill To (organizer)';
   var p=procPricing||{package:'',price:0,minHunters:8};
   var n=parseInt(document.getElementById('inv-count').value,10)||0;
   var dep=parseFloat(document.getElementById('inv-deposit').value)||0;
