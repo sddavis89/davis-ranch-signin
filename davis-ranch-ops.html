@@ -1327,6 +1327,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
         <div class="proc-head"><div class="proc-title">2 &middot; Receipts &amp; Invoices</div></div>
         <div class="proc-sub">Someone leaving early? Use Early Checkout. When the group leaves, use Check Out Group. Each invoice prints on the same sheet as that hunter&rsquo;s receipt, with a dotted line to cut.</div>
         <div id="pend-box"></div>
+        <div id="redo-box"></div>
         <button type="button" class="btn-early" id="btn-early" style="display:none" onclick="openEarly()">&#128682; Early Checkout &mdash; Hunter Leaving Now</button>
         <div class="early" id="c-early">
           <div class="early-title" id="c-early-title">Early Checkout</div>
@@ -2765,7 +2766,7 @@ function loadOpen(g){
     if(!res.ok){procMsg(handleProcError(res),true);return;}
     procTrip=res.trip||{};procPending=res.pending||[];procExtras=res.extras||[];
     procPricing=res.pricing||null;procInvoices=res.invoices||[];procRecent={};(res.recent||[]).forEach(function(r){procRecent[r.key]=r;});
-    setOpen(g,res.open);setPool(res.pool);renderPending();
+    setOpen(g,res.open);setPool(res.pool);renderPending();try{renderRedo();}catch(e){}
   }).catch(function(){procMsg('Could not load running totals. Check your signal.',true);});
 }
 function tripLimit(){return (procPricing&&procPricing.tripLimit)||9;}
@@ -6328,6 +6329,51 @@ function venmoPayBlock(v){
 </script>
 
 <style>#c-owners .wh-only{display:none}#c-owners.has-whole .wh-only{display:block}</style>
+
+<style>
+#redo-box .redo{border:1px dashed var(--line);border-radius:14px;padding:10px 12px;margin:0 0 12px}
+#redo-box .redo>b{display:block}#redo-box .redo small{display:block;color:var(--fg-soft);font-size:.8rem;margin-top:2px;line-height:1.4}
+#redo-box .redo-sure{margin-top:10px;font-size:.85rem;line-height:1.5}
+#redo-box .redo-sure ul{margin:6px 0 8px 18px;padding:0}
+#redo-box .row{display:flex;gap:8px;margin-top:8px}
+</style>
+<script>
+// Redo a checkout: take back one day's receipts and invoices for the group, then check out again
+function redoInfo(){
+  var g=document.getElementById('c-group').value;if(!g)return null;
+  var rec=Object.keys(procRecent||{}).map(function(k){return procRecent[k];}),day=rec.reduce(function(a,r){return r.dateReleased>a?r.dateReleased:a;},'');
+  if(!day)return null;
+  var rs=rec.filter(function(r){return r.dateReleased===day;}),inv=(procInvoices||[]).filter(function(v){return v.date===day&&v.type!=='Void';});
+  return {g:g,day:day,receipts:rs.length,zero:rs.filter(function(r){return !r.total;}).length,invoices:inv.length};
+}
+function renderRedo(){
+  var el=document.getElementById('redo-box');if(!el)return;var x=redoInfo();
+  if(!x){el.innerHTML='';return;}
+  el.innerHTML='<div class="redo"><b>Need to redo the '+esc(usDate(x.day).slice(0,5))+' checkout?</b><small>'+x.receipts+' receipt'+(x.receipts===1?'':'s')+(x.zero?' ('+x.zero+' with 0 birds)':'')+' and '+x.invoices+' invoice'+(x.invoices===1?'':'s')+' from that day.</small>'+
+    '<button type="button" class="more-link" style="margin:6px 0 0" onclick="redoAsk()">Redo this checkout ▾</button><div id="redo-sure"></div></div>';
+}
+function redoAsk(){
+  var x=redoInfo(),el=document.getElementById('redo-sure');if(!x||!el)return;
+  if(el.innerHTML){el.innerHTML='';return;}
+  el.innerHTML='<div class="redo-sure">This takes back '+esc(x.g)+'’s checkout from '+esc(usDate(x.day))+':<ul>'+
+    (x.zero?'<li>The '+x.zero+' receipt'+(x.zero===1?'':'s')+' with 0 birds are removed (their numbers get used again)</li>':'')+
+    (x.receipts>x.zero?'<li>Receipts that had birds go back to held, so the birds can be given again</li>':'')+
+    (x.invoices?'<li>The '+x.invoices+' invoice'+(x.invoices===1?' is':'s are')+' voided (kept on the Invoices tab, marked Void)</li>':'')+
+    '</ul>Then give the birds (whole ones too) and use <b>Check Out Group</b> again. Throw away any copies you already printed.'+
+    '<div class="row"><button type="button" class="btn-small" onclick="document.getElementById(\'redo-sure\').innerHTML=\'\'">Cancel</button><button type="button" class="btn-small btn-gold" id="redo-go" onclick="redoGo()">Yes, redo it</button></div></div>';
+}
+async function redoGo(){
+  var x=redoInfo(),btn=document.getElementById('redo-go'),s=document.getElementById('b-status');if(!x)return;
+  btn.disabled=true;btn.textContent='Working… (voiding invoices takes a bit)';
+  var res;try{res=await procPost({action:'redoCheckout',submissionId:newId(),group:x.g,date:x.day,tripFrom:tripStart(x.g)});}catch(e){res=null;}
+  if(!res||!res.ok){btn.disabled=false;btn.textContent='Yes, redo it';alert('Not changed: '+(res?(/Unknown action/.test(res.error||'')?'paste the newest Davis Ranch script (2026-11-14e) and deploy a New version first.':handleProcError(res)):'could not reach the records sheet.'));return;}
+  procTrip=res.trip||procTrip;procPending=res.pending||[];procInvoices=res.invoices||[];procRecent={};(res.recent||[]).forEach(function(r){procRecent[r.key]=r;});
+  setOpen(x.g,res.open);setPool(res.pool);renderPending();renderRedo();
+  var m='✓ '+x.g+'’s '+usDate(x.day).slice(0,5)+' checkout is taken back: '+(res.removed?res.removed+' empty receipt'+(res.removed===1?'':'s')+' removed, ':'')+(res.heldAgain?res.heldAgain+' bird line'+(res.heldAgain===1?'':'s')+' held again, ':'')+(res.voided||[]).length+' invoice'+((res.voided||[]).length===1?'':'s')+' voided. Now give the birds and Check Out Group again.';
+  procMsg(m);toast('✓ Checkout taken back');
+  try{document.getElementById('proc-box').scrollIntoView({behavior:'smooth'});}catch(e){}
+}
+</script>
 
 </body>
 </html>
