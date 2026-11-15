@@ -2963,7 +2963,7 @@ function openFinal(){
   document.getElementById('inv-deposit').value='';
   var trip=tripInvoices(g),gInv=trip.filter(function(v){return v.type!=='Individual';})[0];
   var ind=invoicedByName(g),indNames=Object.keys(ind).map(function(k){return ind[k];});
-  var left=invBillList.filter(function(h){return !ind[h.name.toLowerCase()];}).length;
+  var left=invBillList.filter(function(h){return !ivOf(ind,h);}).length;
   var msg='';
   if(gInv)msg='Already invoiced: group invoice #'+gInv.invoiceNo+' on '+usDate(gInv.date)+' ('+money(gInv.total)+'). Check the box only to make another.';
   else if(indNames.length)msg='Already invoiced (won\u2019t be billed again): '+indNames.map(function(v){return v.billTo.name+' #'+v.invoiceNo;}).join(', ')+'.';
@@ -3692,7 +3692,7 @@ function stillHere(g){   // hunters on this trip who haven't checked out
   var pend={};procPending.forEach(function(x){pend[x.key]=1;});
   groupHunters(g).forEach(function(h){var k=hunterKey(h.name,h.address);seen[k]=1;list.push(Object.assign({key:k},h));});
   Object.keys(procOpen).forEach(function(k){var o=procOpen[k];if(seen[k]||procOpenGroup!==g)return;list.push({key:k,name:o.owner,address:o.ownerAddress,cityStateZip:o.ownerCityStateZip,phone:o.phone,license:o.license});});
-  return list.filter(function(h){return !pend[h.key]&&!(procRecent[h.key]&&!procOpen[h.key]);});
+  return list.filter(function(h){return !pend[h.key]&&!(procRecent[h.key]&&procRecent[h.key].total>0&&!procOpen[h.key]);});
 }
 var limitWhole={},limitWholeAsked=false;
 // Whole birds (not cleaned): pick who takes them, then the rest are split evenly
