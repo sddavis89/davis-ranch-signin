@@ -1088,8 +1088,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="sh">Groups</div>
   <button type="button" data-nav="receipts" onclick="navTo('receipts')"><i data-ic="receipt"></i>Check out &amp; receipts</button>
   <button type="button" data-nav="payments" onclick="navTo('payments')"><i data-ic="cash"></i>Payments</button>
-  <button type="button" data-nav="season" onclick="navTo('season')"><i data-ic="calendar"></i>Season Calendar</button>
-  <button type="button" data-nav="schedule" onclick="navTo('schedule')"><i data-ic="cal"></i>Season calendar</button>
+  <button type="button" data-nav="schedule" onclick="navTo('schedule')"><i data-ic="calendar"></i>Season Calendar</button>
   <button type="button" data-nav="guides" onclick="navTo('guides')"><i data-ic="users"></i>Guides in camp</button>
   <button type="button" onclick="openSearch()"><i data-ic="search"></i>Find a hunter</button>
   <div class="sh">Records</div>
@@ -1145,9 +1144,8 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
       <div class="recs">
         <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<span>Password locked</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<span>Report in seconds</span><i class="chev" data-ic="chev"></i></button>
-        <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<span>Who's here, who's next</span><i class="chev" data-ic="chev"></i></button>
+        <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="calendar"></i>Season Calendar<span>Who's here, who's next, hunt dates</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<span id="r-owed">Who still owes</span><i class="chev" data-ic="chev"></i></button>
-        <button type="button" class="rec" onclick="navTo('season')"><i class="ri" data-ic="calendar"></i>Season Calendar<span>This year and the next two</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<span>Check in, roster, season</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('planning')"><i class="ri" data-ic="chart"></i>Dashboard<span>Season at a glance</span><i class="chev" data-ic="chev"></i></button>
         <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="trend"></i>Daily summary<span id="r-sum"></span><i class="chev" data-ic="chev"></i></button>
@@ -1513,9 +1511,8 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
   <div class="recs">
     <button type="button" class="rec" onclick="navTo('fin')"><i class="ri" data-ic="wallet"></i>Financials<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('gfp')"><i class="ri" data-ic="shield"></i>GFP inspection<i class="chev" data-ic="chev"></i></button>
-    <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="cal"></i>Season calendar<i class="chev" data-ic="chev"></i></button>
+    <button type="button" class="rec" onclick="navTo('schedule')"><i class="ri" data-ic="calendar"></i>Season Calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('payments')"><i class="ri" data-ic="cash"></i>Payments<i class="chev" data-ic="chev"></i></button>
-    <button type="button" class="rec" onclick="navTo('season')"><i class="ri" data-ic="calendar"></i>Season Calendar<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="briefSettings()"><i class="ri" data-ic="speak"></i>Spoken briefing<span id="brief-set">On first tap each day</span><i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('guides')"><i class="ri" data-ic="users"></i>Guides in camp<i class="chev" data-ic="chev"></i></button>
     <button type="button" class="rec" onclick="navTo('summary')"><i class="ri" data-ic="cal"></i>Daily summary<i class="chev" data-ic="chev"></i></button>
@@ -3925,7 +3922,7 @@ var FACE_BANNER={
   inventory:['lodge','Lodge Inventory','What is on the shelf and what is low'],
   reports:['dogs','Season Reports','2026 season totals'],
   planning:['hero','Dashboard','The season at a glance'],
-  schedule:['lodge','Season Calendar','Who is here, who is next'],
+  schedule:['lodge','Season Calendar','Who’s here, who’s next, and every hunt this year and the next two'],
   gfp:['harvest','GFP Inspection','Field check and facility check, ready to hand over'],
   fin:['lodge','Financials','Locked with your own password']
 };
@@ -6320,10 +6317,10 @@ function seaSave(i,reset){
   }).catch(function(){btn.disabled=false;btn.textContent='Save';msg.style.display='block';msg.textContent='No signal. Not saved.';});
 }
 var _faceViewS=faceView;
-faceView=function(v){var was=faceCur;_faceViewS(v);var c=document.getElementById('card-season');if(c){c.style.display=v==='season'?'block':'none';c.classList.toggle('active',v==='season');if(v==='season'&&was!=='season')seaOpen();}};
+faceView=function(v){if(v==='season')v='schedule';var was=faceCur;_faceViewS(v);var c=document.getElementById('card-season');if(c){var on=v==='schedule';c.style.display=on?'block':'none';c.classList.toggle('active',on);if(on&&was!==v)seaOpen();}};
 window.addEventListener('DOMContentLoaded',function(){
   var inner=document.querySelector('.content-inner');
-  if(inner&&!document.getElementById('card-season')){var d=document.createElement('div');d.className='form-card sc-card';d.id='card-season';d.innerHTML='<div class="card-title">Season Calendar</div><div id="sea-body"></div>';inner.appendChild(d);}
+  if(inner&&!document.getElementById('card-season')){var d=document.createElement('div');d.className='form-card sc-card';d.id='card-season';d.innerHTML='<div class="card-title">Hunt dates — this year and the next two</div><div id="sea-body"></div>';inner.appendChild(d);}
 });
 </script>
 
@@ -6412,273 +6409,400 @@ function receiptRule(r){
 <style>.fin-warn{border:1px solid #e3b55c;background:rgba(227,181,92,.1);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:.88rem;line-height:1.45}</style>
 
 <style id="ck-css">
-/* ═══ CHECK OUT: 4 steps (Birds → Bill → Review → Print) ═══ */
-.ck-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 12px;}
-.ck-steps button{min-height:46px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--fg-mid);font:inherit;font-size:.8rem;font-weight:700;line-height:1.15;cursor:pointer;padding:4px 2px;}
-.ck-steps button small{display:block;font-size:.68rem;font-weight:500;opacity:.8;}
-.ck-steps button.on{border-color:var(--gold);background:rgba(224,168,74,.16);color:var(--gold-light);}
-.ck-steps button.ok:not(.on){color:var(--success);}
-.ck-steps button:disabled{opacity:.4;cursor:default;}
+/* ═══ CHECK OUT — full screen, 3 steps: Birds → Invoice → Print ═══ */
+body.ck-lock{overflow:hidden;}
+body.ck-lock .form-card,body.ck-lock section,body.ck-lock main{transform:none!important;animation:none!important;filter:none!important;}
+#c-final.ck-on.show{position:fixed;inset:0;z-index:950;margin:0;border:0;border-radius:0;max-width:none;width:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);box-shadow:none;
+  padding:0 max(16px,calc(50vw - 320px)) 170px;box-sizing:border-box;}
+#c-final.ck-on #c-final-title,#c-final.ck-on .receipts-foot,#c-final.ck-on #fin-fill,#c-final.ck-on .fs-top,#c-final.ck-on .fin-warn{display:none!important;}
+.ck-top{position:sticky;top:0;z-index:3;background:var(--bg);margin:0 calc(-1 * max(16px,calc(50vw - 320px))) 14px;padding:calc(8px + env(safe-area-inset-top)) max(16px,calc(50vw - 320px)) 12px;border-bottom:1px solid var(--line);}
+.ck-bar{display:flex;align-items:center;gap:8px;}
+.ck-x{min-height:44px;min-width:64px;text-align:left;border:0;background:none;color:var(--fg-mid);font:inherit;font-size:.95rem;padding:0 2px;cursor:pointer;}
+.ck-title{flex:1;min-width:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Fraunces,Georgia,serif;font-size:1.12rem;font-weight:600;color:var(--fg);}
+.ck-pad{min-width:64px;}
+#c-final.ck-on .fin-sum{background:none;border:0;padding:0;margin:0;box-shadow:none;}
+.ck-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px;}
+.ck-steps div{min-height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:.82rem;font-weight:700;border:1px solid var(--line);color:var(--fg-soft);}
+.ck-steps div.on{border-color:var(--gold);background:rgba(224,168,74,.16);color:var(--gold-light);}
+.ck-steps div.past{color:var(--success);}
 .ck-step{display:none;}.ck-step.on{display:block;}
-.ck-help{font-size:.88rem;line-height:1.45;color:var(--fg-mid);background:rgba(224,168,74,.08);border:1px solid rgba(224,168,74,.25);border-radius:12px;padding:10px 12px;margin:0 0 12px;}
-.ck-help b{color:var(--gold-light);}
-.ck-pool{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 10px;}
-.ck-pool div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center;}
-.ck-pool b{display:block;font-size:1.35rem;color:var(--fg);}
-.ck-pool span{font-size:.72rem;color:var(--fg-soft);}
-.ck-pool .ck-left.zero{border-color:rgba(83,197,86,.45);background:rgba(83,197,86,.10);}
-.ck-pool .ck-left.zero b,.ck-pool .ck-left.zero span{color:var(--success);}
-.ck-pool .ck-left.some{border-color:rgba(233,162,59,.4);background:var(--warn-bg);}
-.ck-pool .ck-left.some b,.ck-pool .ck-left.some span{color:var(--warn);}
-.ck-even{width:100%;min-height:48px;border-radius:12px;border:1.5px solid var(--gold);background:transparent;color:var(--gold-light);font:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin:0 0 10px;}
-.ck-head,.ck-row{display:grid;grid-template-columns:minmax(0,1fr) 40px;gap:6px 8px;align-items:center;}
-.ck-has-w .ck-head,.ck-has-w .ck-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 40px;}
-.ck-nm{grid-column:1/-1;}
-.ck-head span:first-child{display:none;}
-.ck-head{font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);padding:0 10px 4px;}
-.ck-head span:not(:first-child){text-align:center;}.ck-head span:last-child{text-align:right;}
-.ck-row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:0 0 6px;}
+.ck-status{font-size:1rem;font-weight:600;line-height:1.4;padding:12px 14px;border-radius:12px;margin:0 0 10px;}
+.ck-status.ok{background:rgba(83,197,86,.12);color:var(--success);}
+.ck-status.wait{background:var(--warn-bg);color:var(--warn);}
+.ck-blank{display:flex;gap:10px;align-items:center;min-height:50px;padding:0 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:.98rem;margin:0 0 10px;cursor:pointer;}
+.ck-blank input{width:22px;height:22px;accent-color:var(--gold);flex:0 0 auto;}
+.ck-row{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin:0 0 8px;}
+.ck-row.off{opacity:.5;}
 .ck-row.done{opacity:.55;}
-.ck-nm{font-weight:600;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ck-nm small{display:block;font-weight:400;font-size:.72rem;color:var(--fg-soft);white-space:normal;}
-.ck-ctr{display:flex;align-items:center;justify-content:space-between;background:var(--input-bg);border-radius:10px;}
-.ck-ctr button{width:34px;height:40px;border:0;background:transparent;color:var(--gold-light);font-size:1.2rem;font-weight:700;cursor:pointer;}
+.ck-row.skip{display:none;}
+.ck-who{flex:1 1 auto;min-width:0;}
+.ck-who b{display:block;font-size:1.02rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ck-meta{display:flex;gap:8px;align-items:center;margin-top:5px;min-height:30px;}
+.ck-no{font-size:.8rem;color:var(--fg-soft);}
+.ck-chip{min-height:32px;padding:0 12px;border-radius:999px;font:inherit;font-size:.8rem;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--fg-soft);cursor:pointer;}
+.ck-chip.on{border-color:var(--gold);background:rgba(224,168,74,.16);color:var(--gold-light);}
+.ck-chip:disabled{opacity:.35;cursor:default;}
+.ck-ctr{display:flex;align-items:center;gap:2px;background:var(--input-bg);border-radius:12px;padding:2px;flex:0 0 auto;}
+.ck-ctr button{width:44px;height:46px;border:0;background:transparent;color:var(--gold-light);font-size:1.45rem;font-weight:700;cursor:pointer;}
 .ck-ctr button:first-child{color:var(--fg-mid);}
-.ck-ctr button:disabled{opacity:.3;cursor:default;}
-.ck-ctr b{font-size:1rem;min-width:20px;text-align:center;}
-.ck-wcol{display:none;}.ck-has-w .ck-wcol{display:flex;}.ck-has-w .ck-head .ck-wcol{display:block;}
-.ck-tot{text-align:right;font-weight:800;font-size:1.1rem;}
-.ck-tot.full{color:var(--success);}
-.ck-done-n{grid-column:1/-1;text-align:left;font-size:.82rem;color:var(--fg-mid);}
-.ck-note{font-size:.86rem;line-height:1.45;border-radius:12px;padding:10px 12px;margin:4px 0 10px;}
-.ck-note.warn{color:var(--warn);background:var(--warn-bg);}
-.ck-note.ok{color:var(--success);background:rgba(83,197,86,.10);}
-.ck-note.info{color:var(--fg-mid);background:var(--card);border:1px solid var(--line);}
-.ck-nav{display:flex;gap:8px;margin-top:12px;}
-.ck-nav button{flex:1;min-height:50px;border-radius:12px;font:inherit;font-size:.95rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--fg);}
-.ck-nav button.go{flex:2;border:0;background:var(--gold);color:#1A1207;}
-.ck-nav button.go.green{background:var(--success);color:#0B0B0B;}
-.ck-nav button:disabled{background:var(--cream-dark,#26231E)!important;color:#6E675C!important;cursor:default;}
-.ck-checks{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px;}
-.ck-chk{display:flex;gap:9px;font-size:.88rem;line-height:1.4;padding:4px 0;}
-.ck-chk i{flex:0 0 20px;height:20px;border-radius:50%;font-style:normal;font-weight:800;font-size:.74rem;text-align:center;line-height:20px;}
-.ck-chk.y i{background:rgba(83,197,86,.18);color:var(--success);}
-.ck-chk.n i{background:var(--warn-bg);color:var(--warn);}
-.ck-chk label{display:flex;gap:6px;align-items:center;margin-top:4px;font-weight:600;color:var(--fg);}
-.ck-chk label input{width:20px;height:20px;}
-.ck-tbl{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:0 0 10px;}
-.ck-tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:.9rem;}
-.ck-tr:first-child{border-top:0;}
-.ck-tr span:first-child{font-weight:600;}
-.ck-tr .r{text-align:right;}
-.ck-tr small{color:var(--fg-soft);font-size:.76rem;}
-.ck-ex{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 12px;margin:10px 0;}
-.ck-ex .ex-box{border:0;padding:0;margin:4px 0 8px;}
-.ck-ex-t{font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);padding:6px 0 2px;}
-.ck-print-help{margin:0 0 12px;}
-#c-final.ck-on #fin-sum .fs-top,#c-final.ck-on .fin-warn{display:none;}
-#c-final.ck-on #fin-fill .btn-small{display:none;}
+.ck-ctr button:disabled{opacity:.25;cursor:default;}
+.ck-ctr b{min-width:28px;text-align:center;font-size:1.2rem;}
+.ck-ctr b.full{color:var(--success);}
+.ck-done-n{font-size:.85rem;color:var(--fg-mid);}
+.ck-q{font-size:1rem;color:var(--fg-mid);margin:0 0 10px;}
+.ck-pay{display:block;width:100%;text-align:left;padding:14px 16px;border-radius:14px;margin:0 0 8px;color:var(--fg);border:1.5px solid var(--line);background:var(--card);font:inherit;cursor:pointer;}
+.ck-pay b{display:block;font-size:1.06rem;margin-bottom:3px;}
+.ck-pay span{font-size:.86rem;color:var(--fg-mid);line-height:1.4;}
+.ck-pay.on{border-color:var(--gold);background:rgba(224,168,74,.10);}
+.ck-sum{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:6px 0 8px;font-size:.92rem;line-height:1.6;color:var(--fg-mid);}
+.ck-sum b{color:var(--fg);}
+.ck-sum small{color:var(--fg-soft);}
+.ck-sum .inv-preview{margin:6px 0 0;padding:6px 0 0;border-top:1px solid var(--line);color:var(--gold-light);background:none;border-radius:0;}
+.ck-link{display:block;min-height:44px;border:0;background:none;color:var(--gold);font:inherit;font-size:.95rem;padding:0 2px;text-align:left;cursor:pointer;}
+.ck-hide{display:none!important;}
+#c-final.ck-on #inv-box{margin:4px 0 8px;}
+.ck-foot{position:fixed;left:0;right:0;bottom:0;z-index:951;background:var(--bg);border-top:1px solid var(--line);padding:10px max(16px,calc(50vw - 320px)) calc(14px + env(safe-area-inset-bottom));}
+.ck-warn{font-size:.9rem;line-height:1.4;color:var(--warn);text-align:center;margin:0 0 8px;}
+.ck-warn:empty{display:none;}
+.ck-btns{display:flex;gap:8px;}
+.ck-btns button{flex:1;min-height:56px;border-radius:14px;font:inherit;font-size:1.05rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--fg);}
+.ck-btns .go{flex:2;border:0;background:var(--gold);color:#1A1207;}
+.ck-btns .go.green{background:var(--success);color:#0B0B0B;}
+.ck-btns .go:disabled{background:#26231E;color:#6E675C;cursor:default;}
+.ck-tile{display:block;width:100%;text-align:left;padding:16px;border-radius:14px;border:1.5px solid var(--warn);background:var(--warn-bg);color:var(--fg);font:inherit;cursor:pointer;margin:0 0 12px;}
+.ck-tile em{display:block;font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);}
+.ck-tile b{display:block;font-size:1.12rem;margin-top:4px;}
+.ck-tile span{display:block;font-size:.9rem;color:var(--fg-mid);margin-top:2px;}
+.ck-print-help{font-size:.9rem;line-height:1.45;color:var(--fg-mid);background:rgba(224,168,74,.08);border:1px solid rgba(224,168,74,.25);border-radius:12px;padding:10px 12px;margin:0 0 12px;}
+.ck-print-help b{color:var(--gold-light);}
+#c-receipts.ck-blankmode .rc-fix,#c-receipts.ck-blankmode .rc-text{display:none!important;}
+#ck-home-slot .ck-tile{margin:0 0 14px;}
 </style>
 <script>
-/* ═══ CHECK OUT in 4 steps — Birds → Bill → Review → Print ═══
-   Same saving as before (setTotals → guideKeep → release → invoice); this is the screen on top. */
-var CK={step:1,rows:[],zeroOk:false,built:false};
+/* ═══ CHECK OUT — Birds → Invoice → Print (and "print blank now, finish later") ═══
+   Same saving as before underneath: setTotals → guideKeep → release → invoice.
+   Blank receipts: holdGroup (receipt numbers now) → invoices → print; later finishGroup. */
+var CK={step:1,rows:[],built:false,blank:false,finish:false,finishNext:false,zeroTap:0,pend:{},toFinish:[],busy:false};
 function ckLim(){return tripLimit();}
+function ckEl(id){return document.getElementById(id);}
 function ckBuild(){
-  if(CK.built)return;var f=document.getElementById('c-final');if(!f)return;CK.built=true;
+  if(CK.built)return;var f=ckEl('c-final');if(!f)return;CK.built=true;
   f.classList.add('ck-on');
-  var t=document.getElementById('c-final-title');
-  t.insertAdjacentHTML('afterend',
-    '<div class="ck-steps" id="ck-steps">'+['Birds','Bill','Review','Print'].map(function(n,i){return '<button type="button" id="ck-p'+(i+1)+'" onclick="ckGo('+(i+1)+')"><small>'+(i+1)+'</small>'+n+'</button>';}).join('')+'</div>'+
-    '<div class="ck-step" id="ck-s1"><div class="ck-help" id="ck-h1"></div>'+
-      '<div class="ck-pool"><div><b id="ck-all">0</b><span id="ck-all-s">to give</span></div><div><b id="ck-given">0</b><span>given</span></div><div class="ck-left" id="ck-leftbox"><b id="ck-left">0</b><span id="ck-left-s">left</span></div></div>'+
-      '<button type="button" class="ck-even" id="ck-even" onclick="ckEven()">Even split (everyone up to the limit)</button>'+
-      '<div id="ck-s1-body"></div><div id="ck-s1-note"></div>'+
-      '<div class="ck-nav"><button type="button" onclick="closeFinal()">Cancel</button><button type="button" class="go" onclick="ckGo(2)">Next: Bill &rarr;</button></div></div>'+
-    '<div class="ck-step" id="ck-s2"><div class="ck-help">Who pays? Pick one. The amounts show below before anything is saved. Hunters who already have an invoice for this trip are skipped.</div><div id="ck-s2-body"></div><div class="ck-ex" id="ck-ex" style="display:none"></div>'+
-      '<div class="ck-nav"><button type="button" onclick="ckGo(1)">&larr; Birds</button><button type="button" class="go" onclick="ckGo(3)">Next: Review &rarr;</button></div></div>'+
-    '<div class="ck-step" id="ck-s3"><div class="ck-help">Last look &mdash; nothing is saved yet. <b>Check Out</b> lights up when every line is green.</div><div class="ck-checks" id="ck-checks"></div><div class="ck-tbl" id="ck-tbl"></div><div id="ck-s3-more"></div>'+
-      '<div class="ck-nav"><button type="button" onclick="ckGo(2)">&larr; Bill</button><button type="button" class="go green" id="ck-go" onclick="ckCheckout()">Check Out</button></div></div>');
-  // move the existing pieces into their steps (same ids, same saving)
-  var s1=document.getElementById('ck-s1-body'),s1n=document.getElementById('ck-s1-note'),s2=document.getElementById('ck-s2-body'),s3=document.getElementById('ck-s3-more');
-  s1.appendChild(document.getElementById('fin-sum'));
-  s1n.appendChild(document.getElementById('fin-fill'));
-  s2.appendChild(document.getElementById('inv-box'));
-  s2.appendChild(document.getElementById('fin-dep-wrap'));
-  var ml=document.querySelector('#c-final .more-link[onclick*="fin-more"]');
-  if(ml){ml.innerHTML='More options (release date, picked up by) &#9662;';ml.dataset.lbl=ml.innerHTML;s3.appendChild(ml);}
-  s3.appendChild(document.getElementById('fin-more'));
-  var foot=document.querySelector('#c-final .receipts-foot');if(foot)foot.style.display='none';
-  var im=document.getElementById('inv-make');if(im&&im.nextSibling)im.parentNode.querySelector('b').textContent='Make invoices';
+  f.insertAdjacentHTML('afterbegin',
+    '<div class="ck-top"><div class="ck-bar"><button type="button" class="ck-x" onclick="closeFinal()">&#10005; Close</button><div class="ck-title" id="ck-title">Check Out</div><div class="ck-pad"></div></div>'+
+      '<div class="ck-steps" id="ck-steps"><div id="ck-p1">1 Birds</div><div id="ck-p2">2 Invoice</div><div id="ck-p3">3 Print</div></div></div>'+
+    '<div class="ck-step" id="ck-s1"><div class="ck-status" id="ck-status"></div>'+
+      '<label class="ck-blank" id="ck-blank-wrap"><input type="checkbox" id="ck-blank" onchange="CK.blank=this.checked;ckPaint()"> <span>Print blank receipts, I&rsquo;ll enter birds later</span></label>'+
+      '<div id="ck-s1-body"></div></div>'+
+    '<div class="ck-step" id="ck-s2"><div class="ck-q" id="ck-q">How are they paying?</div><div id="ck-pays"></div>'+
+      '<div class="ck-sum" id="ck-sum"></div>'+
+      '<button type="button" class="ck-link" id="ck-chg" onclick="ckToggle(\'ck-raw\')">Change organizer or head count</button><div class="ck-hide" id="ck-raw"></div>'+
+      '<button type="button" class="ck-link" id="ck-deplink" onclick="ckToggle(\'fin-dep-wrap\');this.classList.add(\'ck-hide\')">Deposit paid?</button>'+
+      '<div id="ck-dep"></div><div id="ck-ex"></div>'+
+      '<button type="button" class="ck-link" onclick="ckToggle(\'fin-more\')">Change the release date or who picks up</button><div id="ck-more"></div></div>'+
+    '<div id="ck-hidden" style="display:none"></div>'+
+    '<div class="ck-foot"><div class="ck-warn" id="ck-warn"></div><div class="ck-btns"><button type="button" id="ck-back" onclick="ckShow(1)">&larr; Back</button><button type="button" class="go" id="ck-go" onclick="ckPrimary()">Next</button></div></div>');
+  ckEl('ck-s1-body').appendChild(ckEl('fin-sum'));
+  ckEl('ck-raw').appendChild(ckEl('inv-box'));
+  ckEl('ck-sum').insertAdjacentHTML('beforeend','<div id="ck-sum-txt"></div>');ckEl('ck-sum').appendChild(ckEl('inv-preview'));
+  var dep=ckEl('fin-dep-wrap');ckEl('ck-dep').appendChild(dep);
+  ckEl('ck-more').appendChild(ckEl('fin-more'));
+  var ml=document.querySelector('#c-final .more-link[onclick*="fin-more"]');if(ml)ml.classList.add('ck-hide');
+  ckEl('ck-hidden').appendChild(ckEl('fin-fill'));
 }
-function ckGo(n){
-  if(n===4)return;
-  CK.step=n;
-  for(var i=1;i<=3;i++){document.getElementById('ck-s'+i).classList.toggle('on',i===n);document.getElementById('ck-p'+i).classList.toggle('on',i===n);}
-  document.getElementById('ck-p4').disabled=true;
-  if(n===3)ckReview();
-  var f=document.getElementById('c-final');if(f&&f.scrollIntoView)f.scrollIntoView({behavior:'smooth',block:'start'});
+function ckToggle(id){var e=ckEl(id);if(!e)return;if(e.classList.contains('more-box')){e.classList.toggle('show');return;}e.classList.toggle('ck-hide');}
+function ckShow(n){
+  CK.step=n;CK.zeroTap=0;
+  ckEl('ck-s1').classList.toggle('on',n===1);ckEl('ck-s2').classList.toggle('on',n===2);
+  ckEl('ck-p1').className=n===1?'on':'past';ckEl('ck-p2').className=n===2?'on':(n>2?'past':'');ckEl('ck-p3').className='';
+  if(n===2)ckBill();
+  ckPaint();
+  var f=ckEl('c-final');if(f)f.scrollTop=0;
 }
 function ckWholeOf(k){var o=procOpen[k];return o?(o.species||[]).filter(function(s){return /whole/i.test(s.species);}).reduce(function(a,s){return a+(parseInt(s.count,10)||0);},0):0;}
+function ckLive(r){return r&&!r.done&&!r.skip;}
 function ckTotals(){
-  var p=procPool||{left:0,wholeLeft:0},c0=0,w0=0,c=0,w=0;
-  CK.rows.forEach(function(r){if(r.done)return;c0+=r.c0;w0+=r.w0;c+=r.c;w+=r.w;});
+  var p=procPool||{left:0,wholeLeft:0},c0=0,w0=0,c=0,w=0,n=0;
+  CK.rows.forEach(function(r){if(!ckLive(r))return;n++;c0+=r.c0;w0+=r.w0;c+=r.c;w+=r.w;});
   var allC=c0+(p.left||0),allW=w0+(p.wholeLeft||0);
-  return {allC:allC,allW:allW,all:allC+allW,given:c+w,leftC:allC-c,leftW:allW-w,left:allC+allW-c-w};
+  return {n:n,allC:allC,allW:allW,all:allC+allW,given:c+w,leftC:allC-c,leftW:allW-w,left:allC+allW-c-w};
 }
+function ckRoom(){var lim=ckLim();return CK.rows.some(function(r){return ckLive(r)&&r.c+r.w<lim;});}
 var _finRenderCk=finRender;
 finRender=function(){
   _finRenderCk.apply(this,arguments);
   ckBuild();
-  var lim=ckLim();
-  CK.rows=finRows.map(function(r){var w0=r.done?0:ckWholeOf(r.k);return {done:r.done,c0:r.tot-w0,w0:w0,c:r.tot-w0,w:w0};});
-  var anyW=(procPool&&procPool.wholeLeft>0)||CK.rows.some(function(r){return r.w0>0;});
-  var html='<div class="'+(anyW?'ck-has-w':'')+'" id="ck-list"><div class="fs-top" id="fs-top"></div><div class="ck-head"><span>Hunter</span><span>Cleaned</span><span class="ck-wcol">Whole</span><span>Tot</span></div>'+
-    finRows.map(function(r,i){
-      if(r.done)return '<div class="ck-row done"><span class="ck-nm">'+esc(r.h.name)+'<small id="fss-'+i+'"></small></span><span class="ck-done-n">'+r.tot+' &middot; checked out</span></div>';
-      return '<div class="ck-row"><span class="ck-nm">'+esc(r.h.name)+'<small id="fss-'+i+'"></small></span>'+
-        '<span class="ck-ctr"><button type="button" aria-label="One less cleaned for '+esc(r.h.name)+'" id="ckcm-'+i+'" onclick="ckStep('+i+',\'c\',-1)">&minus;</button><b id="ckc-'+i+'"></b><button type="button" aria-label="One more cleaned for '+esc(r.h.name)+'" id="ckcp-'+i+'" onclick="ckStep('+i+',\'c\',1)">+</button></span>'+
-        '<span class="ck-ctr ck-wcol"><button type="button" aria-label="One less whole for '+esc(r.h.name)+'" id="ckwm-'+i+'" onclick="ckStep('+i+',\'w\',-1)">&minus;</button><b id="ckw-'+i+'"></b><button type="button" aria-label="One more whole for '+esc(r.h.name)+'" id="ckwp-'+i+'" onclick="ckStep('+i+',\'w\',1)">+</button></span>'+
-        '<span class="ck-tot" id="ckt-'+i+'"></span><input type="hidden" id="fsn-'+i+'" value="'+r.tot+'"></div>';
-    }).join('')+'</div>';
-  document.getElementById('fin-sum').innerHTML=html;
-  // extras (Bill step) and the review table keep the ids the invoice math reads
-  var ex=document.getElementById('ck-ex');
-  if(procExtras.length){
-    ex.style.display='block';
-    ex.innerHTML='<div class="ck-ex-t">Extras &mdash; added to that hunter&rsquo;s invoice</div>'+finRows.map(function(r,i){
+  CK.rows=finRows.map(function(r){
+    var w0=r.done?0:ckWholeOf(r.k),skip=CK.finish&&!r.done&&!CK.pend[r.k];
+    return {done:r.done,skip:skip,c0:r.tot-w0,w0:w0,c:r.tot-w0,w:w0,no:CK.pend[r.k]||''};
+  });
+  var html='<div class="fs-top" id="fs-top"></div>'+finRows.map(function(r,i){
+    var x=CK.rows[i];
+    if(r.done)return '<div class="ck-row done'+(CK.finish?' skip':'')+'"><div class="ck-who"><b>'+esc(r.h.name)+'</b><div class="ck-meta"><span class="ck-done-n">'+r.tot+' birds &middot; already checked out</span><small id="fss-'+i+'" style="display:none"></small></div></div></div>';
+    return '<div class="ck-row'+(x.skip?' skip':'')+'" id="ckrow-'+i+'"><div class="ck-who"><b>'+esc(r.h.name)+'</b><div class="ck-meta">'+
+        (x.no?'<span class="ck-no">#'+esc(x.no)+'</span>':'')+
+        '<button type="button" class="ck-chip" id="ckw-'+i+'" onclick="ckWhole('+i+')">+ whole</button><small id="fss-'+i+'" style="display:none"></small></div></div>'+
+      '<div class="ck-ctr"><button type="button" id="ckm-'+i+'" aria-label="One less bird for '+esc(r.h.name)+'" onclick="ckStep('+i+',-1)">&minus;</button><b id="ckt-'+i+'"></b><button type="button" id="ckp-'+i+'" aria-label="One more bird for '+esc(r.h.name)+'" onclick="ckStep('+i+',1)">+</button></div>'+
+      '<input type="hidden" id="fsn-'+i+'" value="'+r.tot+'"></div>';
+  }).join('');
+  ckEl('fin-sum').innerHTML=html;
+  // amounts the invoice math writes per hunter live off-screen
+  var fsa=ckEl('ck-fsa');if(!fsa){ckEl('ck-hidden').insertAdjacentHTML('beforeend','<div id="ck-fsa"></div>');fsa=ckEl('ck-fsa');}
+  fsa.innerHTML=finRows.map(function(r,i){return '<span id="fsa-'+i+'"></span><span id="ckb-'+i+'"></span>';}).join('');
+  var ex=ckEl('ck-ex');
+  if(procExtras.length&&!CK.finish){
+    ex.innerHTML='<button type="button" class="ck-link" onclick="ckToggle(\'ck-exlist\')">Extras (added to that hunter&rsquo;s invoice)?</button><div class="ck-hide" id="ck-exlist">'+finRows.map(function(r,i){
       if(r.done||r.iv)return '';
       return '<div class="fs-x"><button type="button" class="proc-link" onclick="toggleMore(\'fsx-'+i+'\',this)">+ '+esc(r.h.name)+'</button><div class="more-box" id="fsx-'+i+'">'+extrasInputs('ex-f-'+i,'finSummary()')+'</div></div>';
-    }).join('');
-  }else{ex.style.display='none';ex.innerHTML='';}
-  document.getElementById('ck-tbl').innerHTML=finRows.map(function(r,i){
-    return '<div class="ck-tr"><span>'+esc(r.h.name)+'</span><span class="r" id="ckb-'+i+'"></span><small id="fsa-'+i+'"></small><small class="r" id="ckr-'+i+'"></small></div>';
-  }).join('');
-  document.getElementById('ck-h1').innerHTML='Set how many birds each hunter takes home. Tap <b>Even split</b> to start, then fine-tune with <b>+</b> and <b>&minus;</b>'+(anyW?' (whole birds have their own counter)':'')+'. Nobody can go over <b>'+lim+'</b> for the trip.';
+    }).join('')+'</div>';
+  }else ex.innerHTML='';
+  var T=ckTotals();
+  if(T.n&&T.all&&CK.rows.every(function(r){return !ckLive(r)||r.c+r.w===0;}))ckEven(true);
   ckPaint();
   finSummary();
 };
 function ckPaint(){
-  var lim=ckLim(),T=ckTotals();
+  if(!CK.built)return;
+  var lim=ckLim(),T=ckTotals(),room=ckRoom(),blank=CK.blank&&!CK.finish;
   CK.rows.forEach(function(r,i){
-    if(r.done)return;var t=r.c+r.w,full=t>=lim;
-    document.getElementById('ckc-'+i).textContent=r.c;document.getElementById('ckw-'+i).textContent=r.w;
-    var te=document.getElementById('ckt-'+i);te.textContent=t;te.className='ck-tot'+(full?' full':'');
-    document.getElementById('fsn-'+i).value=t;
-    document.getElementById('ckcm-'+i).disabled=r.c<=0;document.getElementById('ckwm-'+i).disabled=r.w<=0;
-    document.getElementById('ckcp-'+i).disabled=full||T.leftC<=0;document.getElementById('ckwp-'+i).disabled=full||T.leftW<=0;
+    if(!ckLive(r))return;var t=r.c+r.w,full=t>=lim;
+    var row=ckEl('ckrow-'+i);if(!row)return;row.classList.toggle('off',blank);
+    var te=ckEl('ckt-'+i);te.textContent=blank?'—':t;te.className=full&&!blank?'full':'';
+    ckEl('fsn-'+i).value=t;
+    ckEl('ckm-'+i).disabled=blank||t===0;
+    ckEl('ckp-'+i).disabled=blank||full||T.leftC<=0;
+    var wb=ckEl('ckw-'+i);wb.className='ck-chip'+(r.w?' on':'');wb.textContent=r.w?r.w+' whole ✕':'+ whole';wb.disabled=blank||(!r.w&&T.leftW<=0);
+    wb.style.display=(T.allW>0||r.w)?'':'none';
   });
-  document.getElementById('ck-all').textContent=T.all;
-  document.getElementById('ck-all-s').textContent=T.allW?T.allC+' cleaned + '+T.allW+' whole':'to give';
-  document.getElementById('ck-given').textContent=T.given;
-  document.getElementById('ck-left').textContent=T.left;
-  var room=CK.rows.some(function(r){return !r.done&&r.c+r.w<lim;});
-  var lb=document.getElementById('ck-leftbox');lb.className='ck-left '+(T.left===0?'zero':'some');
-  document.getElementById('ck-left-s').textContent=T.left===0?'left ✓':(room?'left to give':'over the limit');
-  var n=document.getElementById('ck-s1-note'),msg='';
-  if(T.left>0&&!room)msg='<div class="ck-note info">Everyone is at '+lim+'. The '+T.left+' extra bird'+(T.left===1?'':'s')+' go'+(T.left===1?'es':'')+' on the guide&rsquo;s receipt at Check Out.</div>';
-  else if(T.left>0&&T.given>0)msg='<div class="ck-note warn">'+T.left+' bird'+(T.left===1?'':'s')+' still to give'+(T.leftW>0?' ('+T.leftW+' whole)':'')+'. Use + on someone with room.</div>';
-  else if(T.given===0&&T.all>0)msg='<div class="ck-note warn">No birds given yet. Tap <b>Even split</b>.</div>';
-  var old=document.getElementById('ck-msg');if(old)old.remove();
-  if(msg)n.insertAdjacentHTML('afterbegin','<div id="ck-msg">'+msg+'</div>');
-  document.getElementById('ck-p1').classList.toggle('ok',T.left===0||!room);
+  var st=ckEl('ck-status');
+  if(blank){st.className='ck-status wait';st.textContent='Receipts print blank. You’ll enter the birds later.';}
+  else{
+    var head=T.all+' bird'+(T.all===1?'':'s')+' · '+T.n+' hunter'+(T.n===1?'':'s')+' · up to '+lim+' each';
+    if(CK.finish)head='Enter what you wrote on each receipt · up to '+lim+' each';
+    st.className='ck-status '+(T.left===0||!room?'ok':'wait');
+    st.textContent=head+(T.left===0?'  ✓ all given':(room?' · '+T.left+' left':''));
+  }
+  ckEl('ck-blank-wrap').style.display=CK.finish?'none':'';
+  var b=ckEl('ck-blank');if(b)b.checked=!!CK.blank;
+  ckEl('ck-steps').style.display=CK.finish?'none':'';
+  // footer
+  var go=ckEl('ck-go'),back=ckEl('ck-back'),warn='',off=false,label,green=false;
+  var zero=CK.rows.map(function(r,i){return {r:r,i:i};}).filter(function(o){return ckLive(o.r)&&o.r.c+o.r.w===0;}).map(function(o){return finRows[o.i].h.name;});
+  if(CK.step===1){
+    back.style.display='none';
+    label=CK.finish?'Finish check out':'Next: Invoice →';green=CK.finish;
+    if(!blank){
+      if(T.left>0&&room){off=true;warn=T.left+' bird'+(T.left===1?'':'s')+' not given yet'+(T.leftW>0?' ('+T.leftW+' whole)':'')+'. Use + on someone under '+lim+'.';}
+      else if(T.left>0)warn='Everyone’s at '+lim+'. The '+T.left+' extra go'+(T.left===1?'es':'')+' on the guide’s receipt.';
+      else if(zero.length)warn=zero.join(', ')+(zero.length===1?' has':' have')+' 0 birds.';
+    }
+    if(CK.finish&&CK.zeroTap&&zero.length)warn=zero.join(', ')+(zero.length===1?' has':' have')+' 0 birds. Tap Finish again to give a 0 receipt.';
+  }else{
+    back.style.display='';label='Done';green=true;
+    if(CK.zeroTap&&zero.length&&!blank)warn=zero.join(', ')+(zero.length===1?' has':' have')+' 0 birds. Tap Done again to give a 0 receipt.';
+  }
+  if(CK.busy){off=true;label=CK.busyLabel||'Saving…';}
+  go.textContent=label;go.disabled=off;go.className='go'+(green?' green':'');
+  ckEl('ck-warn').textContent=warn;
 }
-function ckStep(i,k,d){
-  var r=CK.rows[i],lim=ckLim(),T=ckTotals();if(!r||r.done)return;
-  if(d>0&&(r.c+r.w>=lim||(k==='c'?T.leftC:T.leftW)<=0))return;
-  if(d<0&&r[k]<=0)return;
-  r[k]+=d;ckPaint();finChanged();
+function ckStep(i,d){
+  var r=CK.rows[i],lim=ckLim(),T=ckTotals();if(!ckLive(r))return;
+  if(d>0){if(r.c+r.w>=lim||T.leftC<=0)return;r.c++;}
+  else{if(r.c>0)r.c--;else if(r.w>0)r.w--;else return;}
+  CK.zeroTap=0;ckPaint();
 }
-function ckEven(){
-  var lim=ckLim(),T=ckTotals(),pool=T.allC;
-  var rs=CK.rows.filter(function(r){return !r.done;});rs.forEach(function(r){r.c=0;});
-  var guard=0;
-  while(pool>0&&guard++<500){var gave=false;rs.forEach(function(r){if(pool>0&&r.c+r.w<lim){r.c++;pool--;gave=true;}});if(!gave)break;}
-  ckPaint();finChanged();
+function ckWhole(i){
+  var r=CK.rows[i],lim=ckLim(),T=ckTotals();if(!ckLive(r))return;
+  if(r.w){r.w=0;}
+  else{if(T.leftW<=0)return;if(r.c+r.w>=lim&&r.c>0)r.c--;r.w=1;}
+  ckPaint();
+}
+function ckEven(quiet){
+  var lim=ckLim(),T=ckTotals(),pool=T.allC,rs=CK.rows.filter(ckLive);
+  rs.forEach(function(r){r.c=0;});
+  for(var g=0;g<500&&pool>0;g++){var gave=false;rs.forEach(function(r){if(pool>0&&r.c+r.w<lim){r.c++;pool--;gave=true;}});if(!gave)break;}
+  if(!quiet)ckPaint();
 }
 // what the sheet gets: each hunter's total, and how many of those are whole
 finTargets=function(){
-  return finRows.map(function(r,i){return {r:r,i:i,x:CK.rows[i]};}).filter(function(o){return o.x&&!o.r.done&&(o.x.c!==o.x.c0||o.x.w!==o.x.w0);}).map(function(o){
+  return finRows.map(function(r,i){return {r:r,i:i,x:CK.rows[i]};}).filter(function(o){return ckLive(o.x)&&(o.x.c!==o.x.c0||o.x.w!==o.x.w0);}).map(function(o){
     var h=o.r.h,op=procOpen[o.r.k]||{};
     return {owner:h.name,ownerAddress:h.address||op.ownerAddress,ownerCityStateZip:h.cityStateZip||op.ownerCityStateZip,phone:h.phone||op.phone,license:h.license||op.license,receivedFrom:h.name,hunterTag:'N/A',target:o.x.c+o.x.w,whole:o.x.w};
   });
 };
-finShortOffer=function(){var ff=document.getElementById('fin-fill');if(ff&&!(finDry&&finDry.changes&&finDry.changes.length)){ff.classList.remove('show');ff.innerHTML='';}};
+finShortOffer=function(){};
 finFillShort=function(){ckEven();};
-// guides' receipt only for birds over the group's possession (everyone at the limit)
+finChanged=function(){};
 guideFinBox=function(){
-  var box=document.getElementById('fin-guides');
-  if(!box){var s=document.getElementById('ck-s1-note');if(!s)return;box=document.createElement('div');box.id='fin-guides';s.appendChild(box);}
+  var box=ckEl('fin-guides');
+  if(!box){box=document.createElement('div');box.id='fin-guides';(ckEl('ck-hidden')||document.body).appendChild(box);}
   box.style.display='none';box.innerHTML='<input type="checkbox" id="fg-keep" checked hidden>';
 };
-var _finSummaryCk=finSummary;
-finSummary=function(){
-  var r=_finSummaryCk.apply(this,arguments);
-  try{(finRows||[]).forEach(function(row,i){var b=document.getElementById('ckb-'+i),x=CK.rows[i];if(!b||!x)return;
-    var t=row.done?row.tot:x.c+x.w,w=row.done?0:x.w;
-    b.innerHTML=row.done?'checked out':'<b>'+t+'</b> bird'+(t===1?'':'s')+(w?' <small>('+w+' whole)</small>':'');});
-    if(CK.step===3)ckReview();}catch(e){}
-  return r;
-};
-function ckReview(){
-  var lim=ckLim(),T=ckTotals(),g=document.getElementById('c-group').value,items=[],block=false;
-  var room=CK.rows.some(function(r){return !r.done&&r.c+r.w<lim;});
-  var add=function(okv,html){items.push('<div class="ck-chk '+(okv?'y':'n')+'"><i>'+(okv?'✓':'!')+'</i><span>'+html+'</span></div>');if(!okv)block=true;};
-  if(T.left===0)add(true,'All '+T.all+' birds given out');
-  else if(!room)add(true,'Everyone at '+lim+'. '+T.left+' extra go on the guide&rsquo;s receipt');
-  else add(false,T.left+' bird'+(T.left===1?'':'s')+' not given yet &mdash; <a href="#" onclick="ckGo(1);return false">back to Birds</a>');
-  add(true,'Nobody over '+lim+' (possession for the trip)');
-  var zero=finRows.map(function(r,i){return {r:r,x:CK.rows[i]};}).filter(function(o){return !o.r.done&&o.x&&o.x.c+o.x.w===0;});
-  if(!zero.length)add(true,'Every receipt has birds on it');
-  else{
-    var names=zero.map(function(o){return esc(o.r.h.name);}).join(', ');
-    items.push('<div class="ck-chk '+(CK.zeroOk?'y':'n')+'"><i>'+(CK.zeroOk?'✓':'!')+'</i><span>'+names+(zero.length===1?' has':' have')+' 0 birds.'+
-      '<label><input type="checkbox" id="ck-zero"'+(CK.zeroOk?' checked':'')+' onchange="CK.zeroOk=this.checked;ckReview()"> '+(zero.length===1?'He':'They')+' took no birds &mdash; print a 0 receipt</label></span></div>');
-    if(!CK.zeroOk)block=true;
-  }
-  var wantInv=document.getElementById('inv-make').checked;
-  if(wantInv){
-    var n=parseInt(val('inv-count'),10)||0,lead=invBillList[parseInt(document.getElementById('inv-bill').value,10)];
-    if(!n)add(false,'Enter how many hunters signed in &mdash; <a href="#" onclick="ckGo(2);return false">Bill</a>');
-    else if(!lead)add(false,'Pick the organizer &mdash; <a href="#" onclick="ckGo(2);return false">Bill</a>');
-    else{var tp=invType()==='group'?'One bill to '+esc(lead.name):(invSplit()?'Split payment, organizer '+esc(lead.name):'Individual invoices');
-      var done=Object.keys(invoicedByName(g)).length;add(true,tp+(done?' &middot; '+done+' already invoiced, skipped':''));}
-  }else add(true,'No invoices this time');
-  ((finDry&&finDry.notes)||[]).forEach(function(t){items.push('<div class="ck-chk n"><i>!</i><span>'+esc(t)+'</span></div>');});
-  document.getElementById('ck-checks').innerHTML=items.join('');
-  finRows.forEach(function(r,i){var e=document.getElementById('ckr-'+i);if(e)e.textContent='';});
-  var go=document.getElementById('ck-go');go.disabled=block;go.textContent=block?'Fix the ! lines first':'Check Out '+g;
-  document.getElementById('ck-p3').classList.toggle('ok',!block);
+/* ── Invoice step ── */
+var CK_PAY=[{id:'individual',t:'Each pays his own',s:'Every hunter gets his own invoice.'},{id:'group',t:'One bill',s:'One invoice to the organizer for everyone.'},{id:'split',t:'Split',s:'Organizer pays his share plus half for each hunter; each hunter pays the other half.'}];
+function ckPayNow(){var r=document.querySelector('input[name="inv-type"]:checked');return r?r.value:'individual';}
+function ckPay(id){var x=document.querySelector('input[name="inv-type"][value="'+id+'"]');if(x){x.checked=true;invPreview();}ckBill();}
+function ckBill(){
+  var on=ckPayNow(),make=ckEl('inv-make').checked;
+  ckEl('ck-pays').innerHTML=CK_PAY.filter(function(o){return o.id!=='split'||document.querySelector('input[name="inv-type"][value="split"]');}).map(function(o){
+    return '<button type="button" class="ck-pay'+(on===o.id&&make?' on':'')+'" onclick="ckPay(\''+o.id+'\')"><b>'+o.t+'</b><span>'+o.s+'</span></button>';}).join('');
+  ckEl('ck-pays').style.display=make?'':'none';
+  var lead=invBillList[parseInt(ckEl('inv-bill').value,10)],n=val('inv-count');
+  var t=make?'Organizer: <b>'+esc(lead?lead.name:'pick one')+'</b> <small>('+esc(CK.orgSrc||'from waivers')+')</small><br>Signed in: <b>'+esc(n||'?')+'</b> <small>(from waivers)</small>'
+    :'<b>No new invoices.</b> '+esc(ckEl('inv-already').textContent||'')+'<br><button type="button" class="ck-link" style="min-height:36px" onclick="ckEl(\'inv-make\').checked=true;invToggle();invPreview();ckBill()">Make invoices anyway</button>';
+  ckEl('ck-sum-txt').innerHTML=t;
+  ckEl('inv-preview').style.display=make?'':'none';
+  ckEl('ck-q').textContent=make?'How are they paying?':'Invoices';
 }
-async function ckCheckout(){
-  ckReview();var go=document.getElementById('ck-go');if(go.disabled)return;
+function ckPrimary(){
+  if(CK.busy)return;
+  if(CK.step===1){if(CK.finish)return ckFinish();return ckShow(2);}
+  var zero=CK.rows.filter(function(r){return ckLive(r)&&r.c+r.w===0;}).length;
+  if(zero&&!CK.blank&&!CK.zeroTap){CK.zeroTap=1;ckPaint();return;}
+  if(CK.blank)return ckBlankDone();
+  ckDone();
+}
+function ckBusy(on,label){CK.busy=on;CK.busyLabel=label;ckPaint();}
+async function ckDone(){
   window.__zeroOk=true;setTimeout(function(){window.__zeroOk=false;},15000);
-  var real=document.getElementById('btn-make-receipts');
-  go.disabled=true;go.textContent='Checking out…';
-  var watch=setInterval(function(){if(real&&!real.disabled){clearInterval(watch);go.disabled=false;ckReview();}},400);
-  try{await makeFinalReceipts();}finally{}
+  ckBusy(true,'Checking out…');
+  var real=ckEl('btn-make-receipts');
+  try{await makeFinalReceipts();}catch(e){}
+  ckBusy(false);
+  if(real&&real.disabled===false&&ckEl('c-final').classList.contains('show'))ckPaint();
+}
+function ckHuntDates(g){
+  var from=tripStart(g),d=(procPool&&procPool.byDate||[]).filter(function(x){return x.date>=from&&(x.cleaned||x.whole);}).map(function(x){return x.date;});
+  if(d.length)return d;
+  var s=faceSchedFor(g);if(!s)return [];
+  var out=[];for(var i=1;i<=(s.days||0);i++)out.push(addDays(s.arrive,i));return out;
+}
+async function ckBlankDone(){
+  var g=ckEl('c-group').value,date=ckEl('c-final-date').value||localToday();
+  var wantInv=ckEl('inv-make').checked,leader=invBillList[parseInt(ckEl('inv-bill').value,10)],count=parseInt(val('inv-count'),10)||0;
+  if(wantInv&&!leader){alert('Pick who the invoice goes to.');return;}
+  if(wantInv&&!count){alert('Enter how many hunters signed in.');return;}
+  ckBusy(true,'Saving…');
+  var hunters=finRows.filter(function(r){return !r.done;}).map(function(r){var h=r.h,o=procOpen[r.k]||{};
+    return {owner:h.name,ownerAddress:h.address||o.ownerAddress,ownerCityStateZip:h.cityStateZip||o.ownerCityStateZip,phone:h.phone||o.phone,license:h.license||o.license,deliveredTo:h.name};});
+  var res;
+  try{res=await procPost({action:'holdGroup',submissionId:finalSubmissionId+'-h',group:g,dateReleased:date,tripFrom:tripStart(g),hunters:hunters});}catch(e){res=null;}
+  if(!res||!res.ok){ckBusy(false);alert('Nothing was saved: '+(res?handleProcError(res):'could not reach the records sheet.'));return;}
+  procPending=res.pending||procPending;
+  var invoices=[];
+  if(wantInv){
+    var exFor=function(h){var k=hunterKey(h.name,h.address),ix=-1;finRows.forEach(function(r,i){if(r.k===k)ix=i;});return ix<0?[]:readExtras('ex-f-'+ix);};
+    var allEx=[];finRows.forEach(function(r,i){readExtras('ex-f-'+i).forEach(function(e){allEx.push(e);});});
+    var ires;
+    try{ires=await procPost({action:'invoice',submissionId:finalSubmissionId,group:g,date:date,huntersSignedIn:count,type:invType(),split:invSplit(),
+      hunters:invBillList.map(function(h){return {name:h.name,address:h.address,cityStateZip:h.cityStateZip,phone:h.phone,extras:exFor(h)};}),
+      extras:allEx,deposit:parseFloat(ckEl('inv-deposit').value)||0,
+      billTo:{name:leader.name,address:leader.address,cityStateZip:leader.cityStateZip,phone:leader.phone},hunterNames:invBillList.map(function(h){return h.name;})});}catch(e){ires=null;}
+    if(!ires||!ires.ok){var em=ires?handleProcError(ires):'could not reach the records sheet.';if(!/already has an invoice/.test(em))alert('Receipt numbers are saved, but the invoices were not: '+em);}
+    else{if(ires.facility)procFacility=ires.facility;invoices=ires.created||[ires.invoice];procInvoices=ires.invoices||procInvoices;}
+  }
+  var days=ckHuntDates(g);
+  var recs=(res.held||[]).map(function(p){return {receiptNo:p.receiptNo,owner:p.owner,ownerAddress:p.ownerAddress,ownerCityStateZip:p.ownerCityStateZip,phone:p.phone,license:p.license,group:g,
+    pending:false,blankBirds:true,total:'______',species:[{species:'Rooster Pheasant',count:'______'}],datesReceived:days,datesReleased:[date],dateReleased:date,deliveredTo:p.deliveredTo||p.owner,receivedFrom:p.owner,hunterTag:'N/A'};});
+  ckBusy(false);
+  closeFinal();
+  showReceipts(recs,'blank',invoices);
+  loadOpen(g);
+}
+async function ckFinish(){
+  var g=ckEl('c-group').value,zero=CK.rows.filter(function(r){return ckLive(r)&&r.c+r.w===0;}).length;
+  if(zero&&!CK.zeroTap){CK.zeroTap=1;ckPaint();return;}
+  var hs=CK.rows.map(function(x,i){return {x:x,i:i};}).filter(function(o){return ckLive(o.x)&&o.x.no;}).map(function(o){return {receiptNo:o.x.no,target:o.x.c+o.x.w,whole:o.x.w};});
+  if(!hs.length){alert('No receipts are waiting for birds.');return;}
+  ckBusy(true,'Saving…');
+  var res;
+  try{res=await procPost({action:'finishGroup',submissionId:newId(),group:g,tripFrom:tripStart(g),dateReleased:ckEl('c-final-date').value,hunters:hs});}catch(e){res=null;}
+  ckBusy(false);
+  if(!res||!res.ok){alert('Not saved: '+(res?handleProcError(res):'could not reach the records sheet.'));return;}
+  if(res.facility)procFacility=res.facility;
+  procPending=res.pending||[];CK.finish=false;
+  closeFinal();
+  showReceipts(res.receipts||[],'finished',[]);
+  if(res.notes&&res.notes.length)alert(res.notes.join('\n'));
+  loadOpen(g);
 }
 var _openFinalCk=openFinal;
 openFinal=function(){
-  CK.zeroOk=false;
+  CK.finish=!!CK.finishNext;CK.finishNext=false;CK.blank=false;CK.zeroTap=0;CK.busy=false;CK.pend={};
+  var g=ckEl('c-group').value,date='';
+  if(CK.finish)procPending.forEach(function(p){if(p.kind==='group'&&p.group===g){CK.pend[p.key]=p.receiptNo;date=date||p.date;}});
+  ckBuild();
   var r=_openFinalCk.apply(this,arguments);
-  try{ckBuild();document.getElementById('c-final-title').textContent='Check Out '+document.getElementById('c-group').value;ckGo(1);}catch(e){}
+  try{
+    if(!ckEl('c-final').classList.contains('show'))return r;
+    document.body.classList.add('ck-lock');
+    ckEl('ck-title').textContent=(CK.finish?'Finish ':'Check Out ')+g;
+    if(CK.finish&&date)ckEl('c-final-date').value=date;
+    // organizer: earlier invoice on this trip, else the Schedule's lead
+    CK.orgSrc='from waivers';
+    if(knownLeader(g))CK.orgSrc='same as earlier invoice';
+    else{var s=faceSchedFor(g),ld=s&&s.lead?String(s.lead).toLowerCase().trim():'';
+      if(ld)invBillList.forEach(function(h,i){var n=String(h.name).toLowerCase();if(n===ld||n.split(' ')[0]===ld||n.indexOf(ld)===0){ckEl('inv-bill').value=String(i);CK.orgSrc='from Schedule';}});
+      invPreview();}
+    ckShow(1);
+  }catch(e){console.log('ck',e);}
   return r;
 };
-// step 4: the print screen after Check Out
+var _closeFinalCk=closeFinal;
+closeFinal=function(){document.body.classList.remove('ck-lock');return _closeFinalCk.apply(this,arguments);};
+function ckOpenFinish(){CK.finishNext=true;openFinal();}
+/* ── the "finish check out" tile on the Check Out page ── */
+var _renderPendingCk=renderPending;
+renderPending=function(){
+  var all=procPending;procPending=(all||[]).filter(function(p){return p.kind!=='group';});
+  try{_renderPendingCk.apply(this,arguments);}finally{procPending=all;}
+  ckTile();
+};
+function ckTile(){
+  var g=ckEl('c-group').value,bf=ckEl('btn-final');if(!bf)return;
+  var n=(procPending||[]).filter(function(p){return p.kind==='group'&&p.group===g;}).length;
+  var t=ckEl('ck-finish-tile');
+  if(!t){bf.insertAdjacentHTML('beforebegin','<button type="button" class="ck-tile" id="ck-finish-tile" style="display:none" onclick="ckOpenFinish()"></button>');t=ckEl('ck-finish-tile');}
+  if(n){t.innerHTML='<em>Not finished</em><b>'+esc(g)+': finish check out</b><span>'+n+' receipt'+(n===1?'':'s')+' need'+(n===1?'s':'')+' birds entered</span>';t.style.display='block';bf.classList.add('ck-hide');}
+  else{t.style.display='none';bf.classList.remove('ck-hide');}
+}
+/* ── Print step: the list after Done ── */
 var _showReceiptsCk=showReceipts;
 showReceipts=function(list,mode,invs,stay){
-  var r=_showReceiptsCk.apply(this,arguments);
+  var m=mode==='blank'||mode==='finished'?'new':mode;
+  var r=_showReceiptsCk.call(this,list,m,invs,stay);
   try{
-    var box=document.getElementById('c-receipts'),h=document.getElementById('ck-print-help');
-    if(mode==='new'){
-      if(!h){box.querySelector('.receipts-title').insertAdjacentHTML('afterend','<div class="ck-help ck-print-help" id="ck-print-help"></div>');h=document.getElementById('ck-print-help');}
-      h.style.display='block';
-      h.innerHTML='<b>4 &middot; Print.</b> Tap <b>Print All</b>: each hunter&rsquo;s invoice prints on top and his receipt below the cut line. To reprint one hunter, use the buttons next to his name. Need the payment list for the organizer? <button type="button" class="more-link" style="margin:4px 0 0" onclick="printPaymentList()">Print Payment List</button>';
-    }else if(h)h.style.display='none';
+    var box=ckEl('c-receipts'),h=ckEl('ck-print-help');
+    box.classList.toggle('ck-blankmode',mode==='blank');
+    if(!h){box.querySelector('.receipts-title').insertAdjacentHTML('afterend','<div class="ck-print-help" id="ck-print-help"></div>');h=ckEl('ck-print-help');}
+    var g=ckEl('c-group').value;
+    if(mode==='new'){h.style.display='block';h.innerHTML='<b>3 &middot; Print.</b> Tap <b>Print All</b>: each hunter&rsquo;s invoice prints on top and his receipt below the cut line.';}
+    else if(mode==='blank'){h.style.display='block';h.innerHTML='<b>Invoices saved. Receipts print blank.</b> Tap <b>Print All</b> and write each hunter&rsquo;s birds on his receipt. When you&rsquo;re back, tap <b>'+esc(g)+': finish check out</b> on the Check Out page to enter them.';
+      ckEl('c-receipts-title').textContent='✓ '+(invs&&invs.length?invs.length+' invoice'+(invs.length===1?'':'s')+' + ':'')+(list||[]).length+' blank receipt'+((list||[]).length===1?'':'s');}
+    else if(mode==='finished'){h.style.display='block';h.innerHTML='<b>'+esc(g)+' is checked out.</b> The finished receipts are saved in each hunter&rsquo;s folder in Drive. Nothing to print.';
+      ckEl('c-receipts-title').textContent='✓ '+(list||[]).length+' receipt'+((list||[]).length===1?'':'s')+' finished';}
+    else h.style.display='none';
   }catch(e){}
   return r;
 };
+/* ── home screen + morning briefing: an unfinished check out can't slip ── */
+function ckHome(){
+  var a=ckEl('heads-slot');if(!a)return;
+  var s=ckEl('ck-home-slot');if(!s){a.insertAdjacentHTML('afterend','<div id="ck-home-slot"></div>');s=ckEl('ck-home-slot');}
+  s.innerHTML=(CK.toFinish||[]).map(function(x){
+    return '<button type="button" class="ck-tile" onclick="ckGoFinish(\''+esc(x.group).replace(/'/g,'&#39;')+'\')"><em>Not finished</em><b>'+esc(x.group)+': finish check out</b><span>'+x.receipts+' receipt'+(x.receipts===1?'':'s')+' need'+(x.receipts===1?'s':'')+' birds entered</span></button>';}).join('');
+}
+function ckGoFinish(g){
+  navTo('receipts');
+  setTimeout(function(){var sel=ckEl('c-group');if(sel&&sel.value!==g){sel.value=g;sel.dispatchEvent(new Event('change'));}},300);
+}
+if(typeof faceFromStatus==='function'){var _faceFromStatusCk=faceFromStatus;faceFromStatus=function(st){var r=_faceFromStatusCk.apply(this,arguments);try{if(st&&st.ok){CK.toFinish=st.toFinish||[];ckHome();}}catch(e){}return r;};}
+if(typeof briefText==='function'){var _briefTextCk=briefText;briefText=function(){
+  var s=_briefTextCk.apply(this,arguments);
+  try{var l=CK.toFinish||[];if(l.length&&typeof s==='string'){
+    var msg=l.map(function(x){return 'Heads up: '+x.group+'’s check out isn’t finished. '+x.receipts+' receipt'+(x.receipts===1?' still needs its':'s still need their')+' birds entered.';}).join(' ');
+    var m=s.match(/^(.*?[.!?]\s+.*?[.!?]\s+)/);s=m?m[1]+msg+' '+s.slice(m[1].length):msg+' '+s;}}catch(e){}
+  return s;};}
 </script>
 
 </body>
