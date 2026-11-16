@@ -6823,5 +6823,79 @@ if(typeof briefText==='function'){var _briefTextCk=briefText;briefText=function(
   return s;};}
 </script>
 
+<style id="ck-land-css">
+/* ═══ CHECK OUT page: one big button; the old tools fold away under More tools ═══ */
+#card-receipts.ck-simple #proc-box,
+#card-receipts.ck-simple #final-box>.proc-head,#card-receipts.ck-simple #final-box>.proc-sub,
+#card-receipts.ck-simple #btn-early,#card-receipts.ck-simple #c-early,#card-receipts.ck-simple #e-status,
+#card-receipts.ck-simple #pend-box,#card-receipts.ck-simple #redo-box,#card-receipts.ck-simple #btn-final{display:none!important;}
+#card-receipts.ck-simple.ck-tools #proc-box{display:block!important;}
+#card-receipts.ck-simple.ck-tools #final-box>.proc-head,#card-receipts.ck-simple.ck-tools #final-box>.proc-sub,#card-receipts.ck-simple.ck-tools #pend-box,#card-receipts.ck-simple.ck-tools #redo-box,#card-receipts.ck-simple.ck-tools #e-status{display:block!important;}
+#card-receipts.ck-simple.ck-tools #btn-early.ck-can{display:block!important;}
+#card-receipts.ck-simple.ck-tools #c-early.show{display:block!important;}
+#card-receipts.ck-simple #final-box{border:0;padding:0;margin:0;background:none;}
+.ck-land{margin:0 0 14px;}
+.ck-land #c-group-wrap{margin-bottom:12px;}
+.ck-big{display:block;width:100%;text-align:left;padding:18px 16px;border-radius:14px;border:0;background:var(--gold);color:#1A1207;font:inherit;cursor:pointer;margin:0 0 12px;}
+.ck-big em{display:block;font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.75;}
+.ck-big b{display:block;font-size:1.25rem;margin-top:4px;}
+.ck-big span{display:block;font-size:.9rem;margin-top:2px;opacity:.85;}
+.ck-toolslink{display:block;width:100%;min-height:46px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--fg-mid);font:inherit;font-size:.92rem;cursor:pointer;margin:4px 0 10px;}
+#ck-cover{position:fixed;inset:0;z-index:960;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--fg-mid);font-size:1rem;}
+#ck-cover b{font-family:Fraunces,Georgia,serif;font-size:1.3rem;color:var(--fg);font-weight:600;}
+</style>
+<script>
+function ckLandBuild(){
+  var card=ckEl('card-receipts');if(!card||ckEl('ck-land'))return;
+  card.classList.add('ck-simple');
+  var t=card.querySelector('.card-title');if(t)t.textContent='Check Out';
+  var d=card.querySelector('.card-desc');if(d)d.textContent='Pick the group, then tap Check out. Receipts and invoices print together.';
+  var msg=ckEl('proc-msg');
+  msg.insertAdjacentHTML('afterend','<div class="ck-land" id="ck-land"><div id="ck-land-group"></div><div id="ck-land-tile"></div>'+
+    '<button type="button" class="ck-big" id="ck-big" style="display:none" onclick="openFinal()"><em>Group leaving</em><b id="ck-big-t">Check out</b><span id="ck-big-s"></span></button>'+
+    '<button type="button" class="ck-toolslink" id="ck-tools-link" onclick="ckTools()">More tools &#9662;</button></div>');
+  ckEl('ck-land-group').appendChild(ckEl('c-group-wrap'));
+  // the early-checkout button keeps its own show/hide; remember when it may show
+  var be=ckEl('btn-early');
+  if(be){new MutationObserver(function(){be.classList.toggle('ck-can',be.style.display!=='none');}).observe(be,{attributes:true,attributeFilter:['style']});be.classList.toggle('ck-can',be.style.display!=='none');}
+  ckLand();
+}
+function ckTools(){var c=ckEl('card-receipts'),on=!c.classList.contains('ck-tools');c.classList.toggle('ck-tools',on);
+  ckEl('ck-tools-link').innerHTML=on?'Hide more tools &#9652;':'More tools &#9662;';}
+function ckLand(){
+  var big=ckEl('ck-big');if(!big)return;
+  var g=ckEl('c-group').value,waiting=g&&(procPending||[]).some(function(p){return p.kind==='group'&&p.group===g;});
+  if(!g||waiting){big.style.display='none';return;}
+  var n=groupHunters(g).length;
+  ckEl('ck-big-t').textContent='Check out '+g;
+  ckEl('ck-big-s').textContent=n?n+' hunter'+(n===1?'':'s')+' · birds, invoices, print':'birds, invoices, print';
+  big.style.display='block';
+}
+// the finish tile lives on the landing too
+var _ckTileL=ckTile;
+ckTile=function(){
+  _ckTileL();
+  var t=ckEl('ck-finish-tile'),slot=ckEl('ck-land-tile');
+  if(t&&slot&&t.parentNode!==slot)slot.appendChild(t);
+  ckLand();
+};
+var _onGroupChangeL=onGroupChange;
+onGroupChange=function(){var r=_onGroupChangeL.apply(this,arguments);try{ckLand();ckTile();}catch(e){}return r;};
+// home tile: a plain cover while it loads, so the old page never flashes
+function ckCover(g){
+  var c=ckEl('ck-cover');
+  if(!g){if(c)c.remove();return;}
+  if(!c){document.body.insertAdjacentHTML('beforeend','<div id="ck-cover" role="status"><b></b><span>Loading the hunters&hellip;</span></div>');c=ckEl('ck-cover');}
+  c.querySelector('b').textContent='Check Out '+g;
+  clearTimeout(CK.coverT);CK.coverT=setTimeout(function(){ckCover('');},12000);
+}
+var _ckAutoOpenL=ckAutoOpen;
+ckAutoOpen=function(g){ckCover(g);return _ckAutoOpenL(g);};
+var _openFinalL=openFinal;
+openFinal=function(){try{return _openFinalL.apply(this,arguments);}finally{ckCover('');}};
+var _procMsgL=procMsg;
+procMsg=function(m,bad){if(bad)ckCover('');return _procMsgL.apply(this,arguments);};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ckLandBuild);else ckLandBuild();
+</script>
 </body>
 </html>
