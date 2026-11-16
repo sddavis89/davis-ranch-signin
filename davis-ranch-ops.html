@@ -1758,9 +1758,9 @@ function loadReports(){
         '<div class="pl-tile"><span>Harvested</span><b>'+(ops.harvested||0)+'</b><em>Wild and released</em></div>'+
         '<div class="pl-tile"><span>Released, not shot</span><b>'+field+'</b><em>Still out in the fields</em></div>'+
       '</div>'+
-      '<div class="pl-panel"><h3>By group</h3><div class="pl-sub">'+(pl?'Hunters counted from receipts; limit = hunters × 3 × days hunted.':'Hunters counted from the sign-in waivers.')+'</div>'+
+      '<div class="pl-panel"><h3>By group</h3><div class="pl-sub">'+(pl?'Hunters come from the receipts once a group checks out, and from the sign-in waivers while they&rsquo;re still in camp. Limit = hunters × 3 × days hunted.':'Hunters counted from the sign-in waivers.')+'</div>'+
         '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Group</th><th>Hunters</th><th>Harvested</th><th>Limit</th><th>Of limit</th><th>Per hunter</th></tr></thead><tbody>'+
-        groups.map(function(g){return '<tr><td class="l">'+esc(g.group)+'</td><td>'+g.hunters+'</td><td>'+g.harvested+'</td><td>'+g.limit+'</td><td>'+(g.filled===null?'—':plMeter(g.filled))+'</td><td>'+(g.hunters?plFmt(g.harvested/g.hunters,1):'—')+'</td></tr>';}).join('')+
+        groups.map(function(g){return '<tr><td class="l">'+esc(g.group)+'</td><td>'+g.hunters+(g.huntersFrom==='waivers'?'<small class="pl-src">signed in</small>':g.huntersFrom==='booked'?'<small class="pl-src">booked</small>':'')+'</td><td>'+g.harvested+'</td><td>'+g.limit+'</td><td>'+(g.filled===null?'—':plMeter(g.filled))+'</td><td>'+(g.hunters?plFmt(g.harvested/g.hunters,1):'—')+'</td></tr>';}).join('')+
         '</tbody></table></div></div>'+
       '<div class="pl-grid">'+
         '<div class="pl-panel"><h3>Cleaning</h3><div class="pl-sub">From the Bird Cleaning tab.</div>'+
@@ -1769,13 +1769,32 @@ function loadReports(){
             '<div class="pl-tile sm"><span>Total pay</span><b>$'+Math.round(pay).toLocaleString('en-US')+'</b></div>'+
             '<div class="pl-tile sm"><span>Per bird</span><b>$'+(cleaned?(pay/cleaned).toFixed(2):'0')+'</b></div>'+
           '</div></div>'+
-        '<div class="pl-panel"><h3>Cleaning crew</h3><div class="pl-sub">Days each person worked a cleaning session.</div>'+
-          (wk.length?'<div class="pl-tw"><table class="pl-table"><tbody>'+wk.map(function(n){return '<tr><td class="l">'+esc(n)+'</td><td><span class="pl-meter"><i><em style="width:'+Math.round(ws[n]/wmax*100)+'%;background:var(--pl-accent)"></em></i>'+ws[n]+'</span></td></tr>';}).join('')+'</tbody></table></div>':'<div class="pl-empty">No cleaning logged yet.</div>')+
-        '</div>'+
+        crewBoard(ws,ops.workerDetail||{})+
       '</div>'+
       (pl?'':'<div class="pl-note">Update the script to see days hunted and limits from receipts.</div>')+
     '</div>';
   });
+}
+// Cleaning crew leaderboard: who's leading, and how far back everyone else is
+function crewBoard(ws,det){
+  var names=Object.keys(ws);
+  if(!names.length)return '<div class="pl-panel"><h3>Cleaning crew</h3><div class="pl-empty">No cleaning logged yet.</div></div>';
+  var D=function(n){var d=det[n]||{};return {s:ws[n]||d.sessions||0,b:d.birds||0,last:d.last||''};};
+  names.sort(function(a,b){var x=D(a),y=D(b);return y.s-x.s||y.b-x.b||a.localeCompare(b);});
+  var top=D(names[0]),tied=names.filter(function(n){return D(n).s===top.s;}).length,place=0,prev=null;
+  var rows=names.map(function(n,i){
+    var d=D(n);if(prev===null||d.s!==prev){place=i+1;prev=d.s;}
+    var lead=d.s===top.s,gap=top.s-d.s,pct=top.s?Math.max(4,Math.round(d.s/top.s*100)):0;
+    var badge=place===1?'1st':place===2?'2nd':place===3?'3rd':place+'th';
+    var note=lead?(tied>1?'Tied for the lead':'Leading'):(gap+' day'+(gap===1?'':'s')+' behind');
+    return '<div class="cb-row'+(lead?' lead':'')+'"><span class="cb-place">'+badge+'</span>'+
+      '<div class="cb-main"><div class="cb-top"><b>'+esc(n)+'</b><span class="cb-n">'+d.s+' day'+(d.s===1?'':'s')+'</span></div>'+
+      '<div class="cb-bar"><em style="width:'+pct+'%"></em></div>'+
+      '<div class="cb-sub"><span>'+note+'</span>'+(d.b?'<span>~'+d.b+' birds'+(d.last?' &middot; last '+esc(usDate(d.last).slice(0,5)):'')+'</span>':'')+'</div></div></div>';
+  }).join('');
+  return '<div class="pl-panel"><div class="pl-gh"><h3>Cleaning crew</h3><span class="pl-pill ok">'+(tied>1?tied+' tied at '+top.s:esc(names[0].split(' ')[0])+' leads')+'</span></div>'+
+    '<div class="pl-sub">Days each person worked a cleaning session. Birds are each session&rsquo;s birds split evenly among who worked it.</div>'+
+    '<div class="cb-list">'+rows+'</div></div>';
 }
 function stat(label,value){
   return '<div class="report-stat"><span class="report-stat-label">'+label+'</span><span class="report-stat-value">'+value+'</span></div>';
@@ -2532,7 +2551,7 @@ function renderPlanning(){
   plHistoryPanel(P.history)+
   '<div class="pl-panel"><h3>Group comparison</h3><div class="pl-sub">Released per limit bird: birds released for every bird the group was allowed. Lower is cheaper.</div>'+
   '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Group</th><th>Hunters</th><th>Days</th><th>Released</th><th>Harvested</th><th>Limit</th><th>Of limit</th><th>Per limit bird</th><th>Per hunter</th></tr></thead><tbody>'+
-  P.groups.map(function(g){return '<tr><td class="l">'+esc(g.group)+'</td><td>'+g.hunters+'</td><td>'+g.days+'</td><td>'+g.released+'</td><td>'+g.harvested+'</td><td>'+g.limit+'</td><td>'+plMeter(g.filled)+'</td><td>'+plFmt(g.perLimit,2)+'</td><td>'+plFmt(g.perHunter,1)+'</td></tr>';}).join('')+
+  P.groups.map(function(g){return '<tr><td class="l">'+esc(g.group)+'</td><td>'+g.hunters+(g.huntersFrom==='waivers'?'<small class="pl-src">signed in</small>':g.huntersFrom==='booked'?'<small class="pl-src">booked</small>':'')+'</td><td>'+g.days+'</td><td>'+g.released+'</td><td>'+g.harvested+'</td><td>'+g.limit+'</td><td>'+plMeter(g.filled)+'</td><td>'+plFmt(g.perLimit,2)+'</td><td>'+plFmt(g.perHunter,1)+'</td></tr>';}).join('')+
   '</tbody></table></div></div>'+
   '<div class="pl-panel"><h3>Every hunt day</h3><div class="pl-sub">Where the birds went out and what came back. Over 1.00 per bird released means wild birds and leftovers added to the bag.</div>'+
   '<div class="pl-tw"><table class="pl-table"><thead><tr><th class="l">Day</th><th class="l">Group</th><th class="l">Field released</th><th>Released</th><th>Left from earlier</th><th>Harvested</th><th>Per bird released</th><th>Day limit filled</th></tr></thead><tbody>'+
@@ -6408,6 +6427,24 @@ function receiptRule(r){
 
 <style>.fin-warn{border:1px solid #e3b55c;background:rgba(227,181,92,.1);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:.88rem;line-height:1.45}</style>
 
+<style id="cb-css">
+.pl-src{display:block;font-size:.68rem;color:var(--fg-soft);font-weight:500;}
+.cb-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.cb-row{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);}
+.cb-row.lead{border-color:rgba(224,168,74,.55);background:rgba(224,168,74,.08);}
+.cb-place{flex:0 0 40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;background:var(--input-bg);color:var(--fg-mid);}
+.cb-row.lead .cb-place{background:var(--gold);color:#1A1207;}
+.cb-main{flex:1;min-width:0;}
+.cb-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;}
+.cb-top b{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cb-n{font-weight:800;font-size:.95rem;flex:0 0 auto;}
+.cb-row.lead .cb-n{color:var(--gold-light);}
+.cb-bar{height:8px;border-radius:999px;background:var(--input-bg);margin:6px 0 5px;overflow:hidden;}
+.cb-bar em{display:block;height:100%;border-radius:999px;background:var(--fg-soft);}
+.cb-row.lead .cb-bar em{background:var(--gold);}
+.cb-sub{display:flex;justify-content:space-between;gap:8px;font-size:.76rem;color:var(--fg-soft);}
+.cb-row.lead .cb-sub span:first-child{color:var(--gold-light);font-weight:700;}
+</style>
 <style id="ck-css">
 /* ═══ CHECK OUT — full screen, 3 steps: Birds → Invoice → Print ═══ */
 body.ck-lock{overflow:hidden;}
