@@ -1127,7 +1127,7 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
       <div id="camp-slot"></div>
       <div id="check-slot"></div>
       <div class="sec-h">Today</div>
-      <button type="button" class="bigtile" style="--img:url(img/lodge-s.webp)" onclick="navTo('receipts')"><span class="sheen"></span>
+      <button type="button" class="bigtile" style="--img:url(img/lodge-s.webp)" onclick="ckBigGo()"><span class="sheen"></span>
         <span class="bi" data-ic="receipt"></span>
         <span><b id="big-title">Check out</b><small>Give birds, receipts &amp; invoices</small></span>
         <span class="arr" data-ic="chev"></span>
@@ -6757,6 +6757,10 @@ renderPending=function(){
   var all=procPending;procPending=(all||[]).filter(function(p){return p.kind!=='group';});
   try{_renderPendingCk.apply(this,arguments);}finally{procPending=all;}
   ckTile();
+  var g=ckEl('c-group').value;
+  if(CK.autoOpen&&CK.autoOpen===g){CK.autoOpen='';
+    var waiting=(procPending||[]).some(function(p){return p.kind==='group'&&p.group===g;});
+    setTimeout(function(){if(waiting)ckOpenFinish();else openFinal();},50);}
 };
 function ckTile(){
   var g=ckEl('c-group').value,bf=ckEl('btn-final');if(!bf)return;
@@ -6792,9 +6796,23 @@ function ckHome(){
   s.innerHTML=(CK.toFinish||[]).map(function(x){
     return '<button type="button" class="ck-tile" onclick="ckGoFinish(\''+esc(x.group).replace(/'/g,'&#39;')+'\')"><em>Not finished</em><b>'+esc(x.group)+': finish check out</b><span>'+x.receipts+' receipt'+(x.receipts===1?'':'s')+' need'+(x.receipts===1?'s':'')+' birds entered</span></button>';}).join('');
 }
-function ckGoFinish(g){
-  navTo('receipts');
-  setTimeout(function(){var sel=ckEl('c-group');if(sel&&sel.value!==g){sel.value=g;sel.dispatchEvent(new Event('change'));}},300);
+function ckGoFinish(g){ckAutoOpen(g);}
+/* the big "Check out <group in camp>" tile: straight to the hunter list (or Finish, if that's waiting) */
+function ckBigGo(){
+  var c=faceCamp(),here=c.inCamp||[],g=here.length?here[here.length-1].group:'';
+  if(!g){navTo('receipts');return;}
+  ckAutoOpen(g);
+}
+function ckAutoOpen(g){
+  navTo('receipts');CK.autoOpen=g;
+  var tries=0;
+  (function pick(){
+    var sel=ckEl('c-group');
+    var has=sel&&Array.prototype.some.call(sel.options,function(o){return o.value===g;});
+    if(!has){if(++tries<40)return setTimeout(pick,250);CK.autoOpen='';return;}
+    if(sel.value!==g){sel.value=g;onGroupChange();}
+    else loadOpen(g);
+  })();
 }
 if(typeof faceFromStatus==='function'){var _faceFromStatusCk=faceFromStatus;faceFromStatus=function(st){var r=_faceFromStatusCk.apply(this,arguments);try{if(st&&st.ok){CK.toFinish=st.toFinish||[];ckHome();}}catch(e){}return r;};}
 if(typeof briefText==='function'){var _briefTextCk=briefText;briefText=function(){
