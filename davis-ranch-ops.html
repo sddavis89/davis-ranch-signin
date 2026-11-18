@@ -6710,9 +6710,9 @@ async function ckDone(){
 }
 function ckHuntDates(g){
   var from=tripStart(g),d=(procPool&&procPool.byDate||[]).filter(function(x){return x.date>=from&&(x.cleaned||x.whole);}).map(function(x){return x.date;});
-  if(d.length)return d;
-  var s=faceSchedFor(g);if(!s)return [];
-  var out=[];for(var i=1;i<=(s.days||0);i++)out.push(addDays(s.arrive,i));return out;
+  // every scheduled hunt day prints, even before that day's cleaning is logged
+  var s=faceSchedFor(g);if(s&&s.days)for(var i=1;i<=s.days;i++){var x=addDays(s.arrive,i);if(d.indexOf(x)<0)d.push(x);}
+  return d.sort();
 }
 async function ckBlankDone(){
   var g=ckEl('c-group').value,date=ckEl('c-final-date').value||localToday();
