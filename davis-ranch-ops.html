@@ -6877,6 +6877,8 @@ if(typeof briefText==='function'){var _briefTextCk=briefText;briefText=function(
 .ck-big em{display:block;font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.75;}
 .ck-big b{display:block;font-size:1.25rem;margin-top:4px;}
 .ck-big span{display:block;font-size:.9rem;margin-top:2px;opacity:.85;}
+.ck-big.ck-done{background:rgba(83,197,86,.12);color:var(--fg);border:1.5px solid rgba(83,197,86,.5);cursor:default;}
+.ck-big.ck-done em{color:var(--success);opacity:1;}
 .ck-toolslink{display:block;width:100%;min-height:46px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--fg-mid);font:inherit;font-size:.92rem;cursor:pointer;margin:4px 0 10px;}
 #ck-cover{position:fixed;inset:0;z-index:960;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--fg-mid);font-size:1rem;}
 #ck-cover b{font-family:Fraunces,Georgia,serif;font-size:1.3rem;color:var(--fg);font-weight:600;}
@@ -6889,7 +6891,7 @@ function ckLandBuild(){
   var d=card.querySelector('.card-desc');if(d)d.textContent='Pick the group, then tap Check out. Receipts and invoices print together.';
   var msg=ckEl('proc-msg');
   msg.insertAdjacentHTML('afterend','<div class="ck-land" id="ck-land"><div id="ck-land-group"></div><div id="ck-land-tile"></div>'+
-    '<button type="button" class="ck-big" id="ck-big" style="display:none" onclick="openFinal()"><em>Group leaving</em><b id="ck-big-t">Check out</b><span id="ck-big-s"></span></button>'+
+    '<button type="button" class="ck-big" id="ck-big" style="display:none" onclick="if(!this.classList.contains(\'ck-done\'))openFinal()"><em>Group leaving</em><b id="ck-big-t">Check out</b><span id="ck-big-s"></span></button>'+
     '<button type="button" class="ck-toolslink" id="ck-tools-link" onclick="ckTools()">More tools &#9662;</button></div>');
   ckEl('ck-land-group').appendChild(ckEl('c-group-wrap'));
   // the early-checkout button keeps its own show/hide; remember when it may show
@@ -6903,9 +6905,18 @@ function ckLand(){
   var big=ckEl('ck-big');if(!big)return;
   var g=ckEl('c-group').value,waiting=g&&(procPending||[]).some(function(p){return p.kind==='group'&&p.group===g;});
   if(!g||waiting){big.style.display='none';return;}
-  var n=groupHunters(g).length;
-  ckEl('ck-big-t').textContent='Check out '+g;
-  ckEl('ck-big-s').textContent=n?n+' hunter'+(n===1?'':'s')+' · birds, invoices, print':'birds, invoices, print';
+  var hs=groupHunters(g),n=hs.length;
+  var done=n&&hs.every(function(h){var r=procRecent&&procRecent[hunterKey(h.name,h.address)];return r&&r.total>0&&!(procOpen&&procOpen[hunterKey(h.name,h.address)]);});
+  big.classList.toggle('ck-done',!!done);
+  if(done){
+    big.querySelector('em').textContent='Done';
+    ckEl('ck-big-t').textContent=g+' is checked out ✓';
+    ckEl('ck-big-s').textContent='All '+n+' receipts saved. To reprint, use Past Receipts & Invoices below.';
+  }else{
+    big.querySelector('em').textContent='Group leaving';
+    ckEl('ck-big-t').textContent='Check out '+g;
+    ckEl('ck-big-s').textContent=n?n+' hunter'+(n===1?'':'s')+' · birds, invoices, print':'birds, invoices, print';
+  }
   big.style.display='block';
 }
 // the finish tile lives on the landing too
