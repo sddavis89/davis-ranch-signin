@@ -1205,7 +1205,8 @@ select option,select optgroup{background:#1C1A17;color:var(--fg);}
         <div class="field"><label>Cost Per Bird <span class="req">*</span></label><input type="number" id="p-cost" placeholder="0.00" step="0.01" min="0" oninput="calcTotal()"></div>
       </div>
       <div class="total-display"><span class="total-label">Total Cost</span><span class="total-value" id="p-total">$0.00</span></div>
-      <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="p-notes" placeholder="Any additional notes..."></textarea></div>
+      <div class="field"><label>Driver Tip (cash) <span class="opt">(optional)</span></label><input type="number" id="p-tip" placeholder="0" step="1" min="0" inputmode="decimal"></div>
+      <div class="field"><label>Notes <span class="opt">(optional)</span></label><textarea id="p-notes" placeholder="Driver's name, anything else..."></textarea></div>
       <button class="btn-submit" data-label="Log Purchase" onclick="submitPurchase()">Log Purchase</button>
       <div class="submit-status" id="p-status"></div>
       <button type="button" class="btn-recent" onclick="toggleRecent('purchase')">&#128337; Recent entries &mdash; fix or delete</button>
@@ -1954,12 +1955,13 @@ function submitPurchase(){
   if(!date||!supplier||!qty||!cost){alert('Please fill in all required fields.');return;}
   const btn=document.querySelector('#card-purchase .btn-submit');
   try{localStorage.setItem('dr_lastbuy',JSON.stringify({supplier:supplier,cost:parseFloat(cost)}));}catch(e){}
-  saveOps('p',{task:'purchase',date,supplier,qty:parseInt(qty),costPerBird:parseFloat(cost),totalCost:parseFloat((parseFloat(qty)*parseFloat(cost)).toFixed(2)),notes:document.getElementById('p-notes').value},'p-status',btn,'Purchase of '+parseInt(qty)+' birds logged',function(){
+  saveOps('p',{task:'purchase',date,supplier,qty:parseInt(qty),costPerBird:parseFloat(cost),totalCost:parseFloat((parseFloat(qty)*parseFloat(cost)).toFixed(2)),tip:parseFloat(document.getElementById('p-tip').value)||0,notes:document.getElementById('p-notes').value},'p-status',btn,'Purchase of '+parseInt(qty)+' birds logged',function(){
     document.getElementById('p-supplier').value='';
     document.getElementById('p-qty').value='';
     document.getElementById('p-cost').value='';
     document.getElementById('p-total').textContent='$0.00';
     document.getElementById('p-notes').value='';
+    document.getElementById('p-tip').value='';
   });
 }
 function submitRelease(){
@@ -2206,7 +2208,7 @@ function loadRecent(task){
   }).catch(function(){box.innerHTML='<div class="proc-msg err">Could not load entries. Check your signal.</div>';});
 }
 function recentLine(task,e){
-  if(task==='purchase')return {top:e.qty+' birds · '+money(e.totalCost),sub:esc(e.supplier)+' · '+money(e.costPerBird)+'/bird'};
+  if(task==='purchase')return {top:e.qty+' birds · '+money(e.totalCost),sub:esc(e.supplier)+' · '+money(e.costPerBird)+'/bird'+(e.tip?' · '+money(e.tip)+' tip':'')};
   if(task==='release')return {top:e.qty+' released',sub:esc(e.field)};
   if(task==='harvest')return {top:e.qty+' harvested',sub:''};
   return {top:e.qty+' cleaned'+(e.discarded?' + '+e.discarded+' discarded':'')+(e.whole?' + '+e.whole+' whole':'')+' \u00b7 '+money(e.totalPay),sub:esc(e.workers||'No workers listed')};
@@ -2216,7 +2218,7 @@ function renderRecent(task){
   if(!list.length){box.innerHTML='<div class="report-hint" style="padding:8px 0">No entries yet.</div>';return;}
   box.innerHTML=list.map(function(e,i){
     var L=recentLine(task,e),id=task+'-'+i;
-    var extra=task==='purchase'?'<div class="field"><label>Cost Per Bird</label><input type="number" step="0.01" min="0" id="re-cost-'+id+'" value="'+e.costPerBird+'"></div>':
+    var extra=task==='purchase'?'<div class="field"><label>Cost Per Bird</label><input type="number" step="0.01" min="0" id="re-cost-'+id+'" value="'+e.costPerBird+'"></div><div class="field"><label>Driver Tip (cash)</label><input type="number" step="1" min="0" id="re-tip-'+id+'" value="'+(e.tip||'')+'"></div>':
       task==='cleaning'?'<div class="field"><label>Discarded</label><input type="number" min="0" inputmode="numeric" id="re-disc-'+id+'" value="'+(e.discarded||0)+'"></div><div class="field"><label>Whole (not cleaned)</label><input type="number" min="0" inputmode="numeric" id="re-whole-'+id+'" value="'+(e.whole||0)+'"></div><div class="field"><label>Total Pay</label><input type="number" step="0.01" min="0" id="re-pay-'+id+'" value="'+e.totalPay+'"></div>':'';
     return '<div class="re" id="re-'+id+'"><div class="re-top"><span>'+esc(usDate(e.date))+(e.group?' · '+esc(e.group):'')+'</span><span>'+L.top+'</span></div>'+
       ((L.sub||e.notes)?'<div class="re-sub">'+L.sub+(L.sub&&e.notes?' · ':'')+esc(e.notes||'')+'</div>':'')+
@@ -2237,7 +2239,7 @@ function reSave(task,i){
   var id=task+'-'+i,q=parseFloat(document.getElementById('re-qty-'+id).value)||0;
   if(q<=0){alert('Enter a number above 0, or use Delete.');return;}
   var f={qty:q,notes:document.getElementById('re-notes-'+id).value.trim()};
-  if(task==='purchase')f.costPerBird=parseFloat(document.getElementById('re-cost-'+id).value)||0;
+  if(task==='purchase'){f.costPerBird=parseFloat(document.getElementById('re-cost-'+id).value)||0;f.tip=parseFloat(document.getElementById('re-tip-'+id).value)||0;}
   if(task==='cleaning'){f.totalPay=parseFloat(document.getElementById('re-pay-'+id).value)||0;f.discarded=parseInt(document.getElementById('re-disc-'+id).value,10)||0;f.whole=parseInt(document.getElementById('re-whole-'+id).value,10)||0;}
   reChange(task,i,'edit',f);
 }
